@@ -1,4 +1,4 @@
-# Trabalho em Grupo — Linguagem de Programação C#
+# Trabalho Grupo PIM 4ª semestre
 
 Repositório central do grupo. Cada matéria ou etapa do trabalho tem a sua pasta.
 
