@@ -1,0 +1,131 @@
+=====================================================================
+PLATAFORMA DE CURSOS ONLINE - Trabalho em grupo
+Professor: Antonio Graca
+=====================================================================
+
+O QUE E
+Sistema desenvolvido a partir da modelagem UML do grupo (Projeto_UML.asta):
+uma plataforma de cursos online com dois perfis de acesso, catalogo de
+cursos, controle de aulas e acompanhamento de progresso do aluno.
+
+Windows Forms (.NET 8) + SQL Server. Interface montada no Designer do
+Visual Studio, banco criado automaticamente na primeira execucao.
+
+---------------------------------------------------------------------
+COMO ABRIR
+---------------------------------------------------------------------
+1. Extraia esta pasta (nao rode de dentro do .zip).
+2. De dois cliques em PlataformaCursos.sln
+3. Na primeira abertura o Visual Studio baixa o pacote
+   Microsoft.Data.SqlClient automaticamente (precisa de internet).
+   Se nao baixar: Ferramentas > Gerenciador de Pacotes NuGet >
+   Restaurar pacotes NuGet.
+4. Pressione Ctrl+F5.
+
+---------------------------------------------------------------------
+SERVIDOR DE BANCO DE DADOS
+---------------------------------------------------------------------
+Nao e preciso configurar nada. O sistema testa a lista abaixo e usa o
+primeiro servidor que responder:
+
+    (localdb)\MSSQLLocalDB   LocalDB, acompanha o Visual Studio
+    .\SQLEXPRESS             SQL Server Express
+    localhost  e  .          instancia padrao local
+
+O servidor em uso aparece na barra cinza do rodape das telas.
+
+Se nenhum for encontrado, instale o LocalDB: abra o Visual Studio
+Installer, clique em Modificar, aba Componentes individuais, procure
+por LocalDB e marque "SQL Server Express LocalDB".
+
+Para acrescentar outro servidor, edite a lista afr_SERVIDORES, no
+inicio do arquivo BancoService.cs.
+
+---------------------------------------------------------------------
+USUARIOS JA CADASTRADOS (criados automaticamente)
+---------------------------------------------------------------------
+    Perfil ADMIN
+      email: admin@escola.com      senha: admin123
+
+    Perfil ALUNO
+      email: maria@escola.com      senha: aluno123
+      email: joao@escola.com       senha: aluno123
+
+Observacao: as senhas sao gravadas como texto simples para facilitar a
+demonstracao. Em um sistema real seriam guardadas como hash.
+
+---------------------------------------------------------------------
+AS TELAS
+---------------------------------------------------------------------
+ FrmLogin ............ entrada no sistema e link de recuperacao
+ FrmRecuperarSenha ... redefinicao de senha
+ FrmPrincipal ........ menu; muda conforme o perfil de quem entrou
+ FrmCatalogo ......... visao do ALUNO: cursos, busca, aulas, progresso
+ FrmCursos ........... visao do ADMIN: CRUD de cursos e de aulas
+ FrmUsuarios ......... visao do ADMIN: CRUD de usuarios
+
+---------------------------------------------------------------------
+AS CLASSES
+---------------------------------------------------------------------
+ Modelo.cs
+   Pessoa ............ classe base (nome, email)
+   Usuario ........... herda de Pessoa; senha, perfil, ativo
+   Curso ............. titulo, descricao, carga horaria
+   Aula .............. pertence a um curso; ordem e duracao
+   Progresso ......... liga um aluno a uma aula concluida
+   Sessao ............ classe estatica; guarda quem esta logado
+
+ BancoService.cs
+   Unica classe que conhece SQL. Cria o banco, as tabelas e os dados
+   iniciais, e concentra todos os comandos.
+
+ Servicos.cs
+   AutenticacaoService  login, logout, redefinicao de senha
+   UsuarioService ..... CRUD de usuarios e validacoes
+   CursoService ....... CRUD de cursos, listagem e busca
+   AulaService ........ aulas de cada curso
+   ProgressoService ... progresso e percentual de conclusao
+
+---------------------------------------------------------------------
+CASOS DE USO DO ASTAH x ONDE ESTAO NO SISTEMA
+---------------------------------------------------------------------
+ DC01 Fazer Login ................ FrmLogin  -> ValidarLogin
+ DC02 Recuperar Senha ............ FrmRecuperarSenha -> RedefinirSenha
+ DC03 Visualizar Cursos .......... FrmCatalogo -> ExibirCursos
+ DC04 Buscar Cursos .............. FrmCatalogo -> BuscarCurso
+ DC05 Marcar Aula como Concluida . FrmCatalogo -> AtualizarProgresso
+ DC06 Fazer Logout ............... FrmPrincipal -> EncerrarSessao
+ DC07 Criar Curso ................ FrmCursos -> CriarCurso (INSERT)
+ DC08 Visualizar Curso ........... FrmCatalogo -> VerificarConclusao
+ DC09 Editar Curso ............... FrmCursos -> EditarCurso (UPDATE)
+ DC10 Excluir Curso .............. FrmCursos -> ExcluirCurso (DELETE)
+ DC11 Criar Usuario .............. FrmUsuarios -> CriarUsuario
+ DC12 Visualizar Usuarios ........ FrmUsuarios -> ListarUsuarios
+ DC13 Editar Usuario ............. FrmUsuarios -> EditarUsuario
+ DC14 Excluir Usuario ............ FrmUsuarios -> ExcluirUsuario
+
+---------------------------------------------------------------------
+BANCO DE DADOS
+---------------------------------------------------------------------
+ Banco: CursosDB
+ Tabelas: Usuarios, Cursos, Aulas, Progresso
+
+ Relacionamentos:
+   Cursos 1 --- N Aulas          (uma aula pertence a um curso)
+   Usuarios N --- N Aulas        (pela tabela Progresso)
+
+ O arquivo Banco_CursosDB.sql traz o mesmo script para rodar na mao,
+ mais as consultas usadas pelo programa.
+
+ Para ver os dados durante a apresentacao, no Visual Studio:
+ Exibir > Pesquisador de Objetos do SQL Server > (localdb)MSSQLLocalDB
+ > Bancos de Dados > CursosDB > Tabelas > botao direito > Exibir Dados.
+
+---------------------------------------------------------------------
+ANTES DE ENTREGAR
+---------------------------------------------------------------------
+ - Preencher os nomes dos integrantes do grupo no cabecalho dos .cs
+ - Conferir se o prefixo das variaveis atende ao pedido do professor
+   (o codigo usa afr_ ; para trocar, use Ctrl+H em todos os arquivos)
+ - Fechar o Visual Studio e compactar a pasta inteira em .zip
+=====================================================================

@@ -1,0 +1,58 @@
+# =====================================================================
+# .gitignore - Repositorio do grupo
+# ---------------------------------------------------------------------
+# Lista do que o Git deve IGNORAR, ou seja, o que NAO sobe para o
+# GitHub mesmo estando na pasta.
+#
+# IMPORTANTE: as regras do projeto C# valem APENAS dentro da pasta
+# CSharp/. Isso e proposital. Antes elas valiam para o repositorio
+# inteiro, e um trabalho de outra materia com uma pasta chamada
+# "Debug" ou "bin" simplesmente nao subiria, sem nenhum aviso.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# Valem para o repositorio inteiro: lixo do sistema operacional
+# ---------------------------------------------------------------------
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.bak
+*.tmp
+*~
+
+# Arquivos temporarios do Office (comecam com ~$)
+~$*
+
+# ---------------------------------------------------------------------
+# Somente o projeto C#: resultado da compilacao e configuracao pessoal
+# Estes arquivos sao gerados pelo Visual Studio a cada compilacao e
+# mudam na maquina de cada integrante, entao causariam conflito.
+# ---------------------------------------------------------------------
+CSharp/**/[Bb]in/
+CSharp/**/[Oo]bj/
+CSharp/**/[Dd]ebug/
+CSharp/**/[Rr]elease/
+CSharp/**/x64/
+CSharp/**/x86/
+CSharp/**/.vs/
+CSharp/**/packages/
+CSharp/**/*.user
+CSharp/**/*.suo
+CSharp/**/*.userprefs
+CSharp/**/*.cache
+CSharp/**/*.dll
+CSharp/**/*.exe
+CSharp/**/*.pdb
+CSharp/**/*.nupkg
+
+# =====================================================================
+# O QUE NAO ESTA AQUI, DE PROPOSITO
+# ---------------------------------------------------------------------
+# Videos NAO sao ignorados. O GitHub recusa qualquer arquivo acima de
+# 100 MB, e uma gravacao de apresentacao costuma passar disso.
+# Se o video fosse ignorado aqui, a pessoa daria push, veria
+# "concluido" e o arquivo nao estaria la - sem nenhum aviso.
+# Preferimos que o push falhe com uma mensagem clara.
+# Para videos, use o Teams ou o Drive e coloque so o link em
+# Apresentacao/README.md
+# =====================================================================
