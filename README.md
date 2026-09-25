@@ -86,8 +86,9 @@ Os arquivos mais sensíveis são os `.Designer.cs`: quando alguém arrasta um co
 
 ## Integrantes
 
-- *(Arthur Fernandes Reis)*
-- *(Leonardo Alves Fudoli)*
-- *(Lucas Matheus Gonçalves Marques)*
-- *(Nicolas Gramani Machado França)*
+- *Arthur Fernandes Reis*
+- *Leonardo Alves Fudoli*
+- *Lucas Matheus Gonçalves Marques*
+- *Nicolas Gramani Machado França*
+- *Maria Clara Vilas Boas de Souza*
 - *preencher*
