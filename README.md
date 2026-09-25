@@ -80,13 +80,14 @@ Os arquivos mais sensíveis são os `.Designer.cs`: quando alguém arrasta um co
 
 **As pastas `bin` e `obj` do projeto C# não sobem**, de propósito. São geradas na compilação e mudam em cada máquina. Isso vale só dentro de `CSharp/` — o trabalho das outras matérias não sofre nenhuma restrição.
 
-**Trabalho de outra matéria vai na pasta certa**, não na raiz. Se nenhuma pasta servir, crie uma nova e avise o grupo.
+**Trabalho de outra matéria vai na pasta certa**, não na raiz. Se nenhuma pasta servir, crie uma nova e avisar o grupo.
 
 ---
 
 ## Integrantes
 
-- *(preencher)*
-- *(preencher)*
-- *(preencher)*
-- *(preencher)*
+- *(Arthur Fernandes Reis)*
+- *(Leonardo Alves Fudoli)*
+- *(Lucas Matheus Gonçalves Marques)*
+- *(Nicolas Gramani Machado França)*
+- *preencher*
