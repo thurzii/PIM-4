@@ -1,0 +1,25 @@
+# Dependências
+node_modules/
+**/node_modules/
+
+# Variáveis de ambiente
+.env
+.env.local
+.env.*.local
+
+# Expo
+.expo/
+.expo-shared/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDE / VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

@@ -1,0 +1,3 @@
+import React from 'react'; import { View, Text, StyleSheet } from 'react-native';
+export default function ProgressBar({ value }) { return <View><View style={s.track}><View style={[s.fill,{width:`${value}%`}]} /></View><Text style={s.text}>{value}% concluído</Text></View>; }
+const s=StyleSheet.create({track:{height:9,borderRadius:8,backgroundColor:'#e5e7eb',overflow:'hidden'},fill:{height:'100%',backgroundColor:'#2563eb'},text:{fontSize:12,color:'#555',marginTop:5}});

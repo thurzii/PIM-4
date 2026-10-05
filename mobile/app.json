@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Plataforma Cursos",
+    "slug": "plataforma-cursos-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.plataformacursos.mobile"
+    },
+    "ios": {
+      "supportsTablet": true
+    }
+  }
+}
+
