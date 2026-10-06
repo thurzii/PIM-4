@@ -18,6 +18,7 @@ export default function LoginScreen({ navigation }) {
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
   async function entrar() {
@@ -66,19 +67,33 @@ export default function LoginScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          autoCapitalize="none"
           keyboardType="email-address"
+          autoCapitalize="none"
           value={email}
           onChangeText={setEmail}
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Senha"
-          secureTextEntry
-          value={senha}
-          onChangeText={setSenha}
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Senha"
+            secureTextEntry={!mostrarSenha}
+            value={senha}
+            onChangeText={setSenha}
+          />
+
+          {senha.length > 0 && (
+            <Pressable
+              onPress={() =>
+                setMostrarSenha(!mostrarSenha)
+              }
+            >
+              <Text style={styles.showPassword}>
+                {mostrarSenha ? 'Ocultar' : 'Mostrar'}
+              </Text>
+            </Pressable>
+          )}
+        </View>
 
         <Pressable
           style={styles.button}
@@ -117,29 +132,51 @@ const styles = StyleSheet.create({
   },
 
   box: {
-    backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 18,
+    width: '100%',
   },
 
   logo: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '800',
     textAlign: 'center',
   },
 
   subtitle: {
-    textAlign: 'center',
+    fontSize: 18,
     color: '#667085',
-    marginBottom: 28,
+    textAlign: 'center',
+    marginTop: 5,
+    marginBottom: 30,
   },
 
   input: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+
+  passwordContainer: {
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 10,
-    padding: 14,
     marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  passwordInput: {
+    flex: 1,
+    padding: 14,
+  },
+
+  showPassword: {
+    color: '#2563eb',
+    fontWeight: '600',
+    paddingHorizontal: 14,
   },
 
   button: {
@@ -155,15 +192,16 @@ const styles = StyleSheet.create({
   },
 
   link: {
+    color: '#2563eb',
     textAlign: 'center',
     marginTop: 18,
-    color: '#2563eb',
+    fontWeight: '600',
   },
 
   demo: {
-    fontSize: 11,
-    color: '#888',
+    color: '#667085',
     textAlign: 'center',
     marginTop: 25,
+    fontSize: 12,
   },
 });

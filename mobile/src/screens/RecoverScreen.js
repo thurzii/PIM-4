@@ -14,6 +14,7 @@ import api from '../services/api';
 export default function RecoverScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   async function recuperar() {
     try {
@@ -57,18 +58,33 @@ export default function RecoverScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Email"
+        keyboardType="email-address"
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nova senha"
-        secureTextEntry
-        value={senha}
-        onChangeText={setSenha}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Nova senha"
+          secureTextEntry={!mostrarSenha}
+          value={senha}
+          onChangeText={setSenha}
+        />
+
+        {senha.length > 0 && (
+          <Pressable
+            onPress={() =>
+              setMostrarSenha(!mostrarSenha)
+            }
+          >
+            <Text style={styles.showPassword}>
+              {mostrarSenha ? 'Ocultar' : 'Mostrar'}
+            </Text>
+          </Pressable>
+        )}
+      </View>
 
       <Pressable
         style={styles.button}
@@ -107,6 +123,27 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginBottom: 12,
+  },
+
+  passwordContainer: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  passwordInput: {
+    flex: 1,
+    padding: 14,
+  },
+
+  showPassword: {
+    color: '#2563eb',
+    fontWeight: '600',
+    paddingHorizontal: 14,
   },
 
   button: {
