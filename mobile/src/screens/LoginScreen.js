@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import {
   Alert,
   KeyboardAvoidingView,
@@ -17,38 +18,48 @@ export default function LoginScreen({ navigation }) {
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [carregando, setCarregando] = useState(false);
 
   async function entrar() {
     if (!email || !senha) {
-      Alert.alert('Atenção', 'Informe email e senha.');
+      Alert.alert(
+        'Atenção',
+        'Informe email e senha.'
+      );
+
       return;
     }
 
-    setBusy(true);
+    setCarregando(true);
 
     try {
       await login(email, senha);
-    } catch (e) {
+    } catch (error) {
       Alert.alert(
         'Login',
-        e.response?.data?.message ||
+        error.response?.data?.message ||
           'Não foi possível conectar à API.'
       );
     } finally {
-      setBusy(false);
+      setCarregando(false);
     }
   }
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={
+        Platform.OS === 'ios'
+          ? 'padding'
+          : undefined
+      }
     >
       <View style={styles.box}>
-        <Text style={styles.logo}>PLATAFORMA</Text>
+        <Text style={styles.logo}>
+          PLATAFORMA
+        </Text>
 
-        <Text style={styles.sub}>
+        <Text style={styles.subtitle}>
           Cursos Online
         </Text>
 
@@ -72,15 +83,17 @@ export default function LoginScreen({ navigation }) {
         <Pressable
           style={styles.button}
           onPress={entrar}
-          disabled={busy}
+          disabled={carregando}
         >
           <Text style={styles.buttonText}>
-            {busy ? 'Entrando...' : 'Entrar'}
+            {carregando ? 'Entrando...' : 'Entrar'}
           </Text>
         </Pressable>
 
         <Pressable
-          onPress={() => navigation.navigate('RecuperarSenha')}
+          onPress={() =>
+            navigation.navigate('RecuperarSenha')
+          }
         >
           <Text style={styles.link}>
             Esqueci minha senha
@@ -115,7 +128,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  sub: {
+  subtitle: {
     textAlign: 'center',
     color: '#667085',
     marginBottom: 28,
