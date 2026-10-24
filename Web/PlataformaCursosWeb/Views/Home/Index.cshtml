@@ -1,0 +1,145 @@
+@*
+    =====================================================================
+    Painel principal, equivalente ao FrmPrincipal do desktop.
+
+    TRES AREAS, uma por ator dos diagramas de sequencia:
+      Aluno .. catalogo e as proprias aulas
+      Tutor .. cursos e aulas, e o progresso dos alunos
+      Admin .. usuarios
+
+    Cada area so aparece para quem tem a permissao. As propriedades
+    afr_PodeGerenciarCursos, afr_PodeVerProgresso e
+    afr_PodeGerenciarUsuarios vem dos metodos da classe Usuario - os
+    mesmos que o desktop usa para mostrar ou esconder os GroupBox.
+    =====================================================================
+*@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Painel";
+
+    string afr_classeEtiqueta = "etiqueta-aluno";
+
+    if (Model.afr_EhAdmin)
+    {
+        afr_classeEtiqueta = "etiqueta-admin";
+    }
+    else if (Model.afr_EhTutor)
+    {
+        afr_classeEtiqueta = "etiqueta-tutor";
+    }
+}
+
+<h1>Ola, @Model.afr_Nome</h1>
+<p class="subtitulo">
+    @Model.afr_Email &middot;
+    <span class="etiqueta @afr_classeEtiqueta">@Model.afr_Perfil</span>
+    @if (Model.afr_DataCadastro > DateTime.MinValue)
+    {
+        <text>&middot; cadastro em @Model.afr_DataCadastro.ToString("dd/MM/yyyy")</text>
+    }
+</p>
+
+<div class="aviso aviso-info">@Model.DescreverPerfil()</div>
+
+@* ---------------------------------------------------------------- *@
+@* NUMEROS DO SISTEMA                                                *@
+@* ---------------------------------------------------------------- *@
+<div class="grade grade-3" style="margin-bottom:24px;">
+    <div class="cartao">
+        <div class="numero">@Model.afr_TotalCursos</div>
+        <div class="numero-rotulo">curso(s) disponivel(is)</div>
+    </div>
+
+    <div class="cartao">
+        <div class="numero">@Model.afr_MeusConcluidos / @Model.afr_MeusCursos</div>
+        <div class="numero-rotulo">cursos que voce concluiu</div>
+    </div>
+
+    @if (Model.afr_PodeGerenciarUsuarios)
+    {
+        <div class="cartao">
+            <div class="numero">@Model.afr_TotalUsuarios</div>
+            <div class="numero-rotulo">usuario(s) cadastrado(s)</div>
+        </div>
+    }
+</div>
+
+<div class="grade grade-2">
+
+    @* ------------------------------------------------------------ *@
+    @* AREA DO ALUNO - todo mundo tem                                *@
+    @* ------------------------------------------------------------ *@
+    <div class="cartao">
+        <h3>Area do Aluno</h3>
+        <p class="ajuda">
+            Veja os cursos, use os filtros da busca, abra o conteudo das
+            aulas e marque o que ja concluiu.
+        </p>
+        <div class="acoes">
+            <a asp-controller="Catalogo" asp-action="Index"
+               class="botao botao-primario">Abrir o catalogo</a>
+        </div>
+    </div>
+
+    @* ------------------------------------------------------------ *@
+    @* AREA DO TUTOR - tutor e admin                                 *@
+    @* DS07 a DS10: a linha de vida desses diagramas e o Tutor        *@
+    @* ------------------------------------------------------------ *@
+    @if (Model.afr_PodeGerenciarCursos)
+    {
+        <div class="cartao">
+            <h3>Area do Tutor</h3>
+            <p class="ajuda">
+                Cadastre cursos e aulas, escreva o conteudo de cada aula
+                e acompanhe o andamento dos alunos.
+            </p>
+            <div class="acoes">
+                <a asp-controller="Cursos" asp-action="Index"
+                   class="botao botao-primario">Cursos e aulas</a>
+
+                @if (Model.afr_PodeVerProgresso)
+                {
+                    <a asp-controller="Progresso" asp-action="Index"
+                       class="botao">Progresso dos alunos</a>
+                }
+            </div>
+        </div>
+    }
+
+    @* ------------------------------------------------------------ *@
+    @* AREA DE ADMINISTRACAO - so o admin                            *@
+    @* ------------------------------------------------------------ *@
+    @if (Model.afr_PodeGerenciarUsuarios)
+    {
+        <div class="cartao">
+            <h3>Administracao</h3>
+            <p class="ajuda">
+                Cadastre, edite e exclua usuarios, e consulte o perfil de
+                cada um com o historico de acoes.
+            </p>
+            <div class="acoes">
+                <a asp-controller="Usuarios" asp-action="Index"
+                   class="botao botao-primario">Usuarios</a>
+            </div>
+        </div>
+    }
+
+</div>
+
+@* ---------------------------------------------------------------- *@
+@* SITUACAO DO BANCO DE DADOS                                        *@
+@* ---------------------------------------------------------------- *@
+<div class="cartao" style="margin-top:18px;">
+    <h3>Banco de dados</h3>
+    <p class="ajuda">@Model.afr_StatusBanco</p>
+    <p class="ajuda">
+        Seis tabelas: Usuarios, Cursos, Aulas, Progresso,
+        CodigosRecuperacao (DS02) e LogAcoes (DS12).
+    </p>
+
+    <div class="acoes">
+        <form asp-controller="Home" asp-action="TestarConexao" method="get">
+            <button type="submit" class="botao botao-pequeno">Testar conexao</button>
+        </form>
+    </div>
+</div>

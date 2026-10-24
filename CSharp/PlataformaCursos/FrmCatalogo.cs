@@ -1,15 +1,30 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - Trabalho em grupo
    Arquivo...: FrmCatalogo.cs  (tela do aluno)
+   Autor.....: Arthur Fernandes Reis (prefixo afr_)
    ---------------------------------------------------------------------
    CASOS DE USO ATENDIDOS NESTA TELA:
-   DC03 - Visualizar Cursos ......... lista dos cursos ativos
-   DC04 - Buscar Cursos ............. campo de busca
-   DC08 - Visualizar Curso .......... descricao, aulas e progresso
-   DC05 - Marcar Aula como Concluida  caixa de selecao de cada aula
+   DC03 / DS03 - Visualizar Cursos ..... lista dos cursos ativos
+   DC04 / DS04 - Buscar Cursos ......... termo MAIS filtros
+   DC08 / DS08 - Visualizar Curso ...... requisitos e resultado
+   DC05 / DS05 - Marcar Aula ........... abre a aula numa tela propria
 
-   Quando o aluno marca ou desmarca uma aula, o programa grava no banco
-   na hora e recalcula a barra de progresso.
+   O QUE MUDOU POR CAUSA DO MODELO:
+
+   1) DS04 manda "buscarCurso(termo, filtros)", com a palavra filtros
+      no plural. Antes a busca so tinha o termo. Agora tem tambem
+      carga horaria minima, carga maxima e a opcao de ver somente os
+      cursos que o aluno ainda nao concluiu. Tudo isso vai junto num
+      objeto FiltroCurso, que e o "filtros" do diagrama.
+
+   2) DS05 manda "abrirAula(aula)" e "exibirConteudo()". So a caixa de
+      selecao nao da conta disso, entao a aula agora abre no FrmAula.
+      A caixa de selecao continua funcionando como atalho.
+
+   3) DS08 manda "obterRequisitosCurso(curso)" e
+      "resultadoConclusao(status, percentual)". Por isso o painel do
+      curso mostra o requisito do curso e o status vem do objeto
+      ResultadoConclusao, nao de um true/false.
    ===================================================================== */
 
 using System;
@@ -57,31 +72,85 @@ namespace PlataformaCursos
 
             Usuario afr_aluno = Sessao.ObterUsuario();
 
-            afr_lblAluno.Text = "Aluno: " + afr_aluno.afr_Nome + "  |  " + afr_aluno.afr_Email;
+            afr_lblAluno.Text = "Usuario: " + afr_aluno.afr_Nome + "  |  " + afr_aluno.afr_Email +
+                                "  |  Perfil: " + afr_aluno.afr_Perfil;
 
-            CarregarCursos("");
+            // DS03 - visualizarCursos() / mostrarCursos()
+            ExibirTodosOsCursos();
         }
 
         // =============================================================
-        // EVENTO - BOTAO BUSCAR (DC04)
+        // DS04 - monta o objeto "filtros" que vai junto com o termo
+        // =============================================================
+        private FiltroCurso MontarFiltro()
+        {
+            FiltroCurso afr_filtro = new FiltroCurso();
+
+            afr_filtro.afr_Termo = afr_txtBusca.Text.Trim();
+            afr_filtro.afr_CargaMinima = Convert.ToInt32(afr_numCargaMin.Value);
+            afr_filtro.afr_CargaMaxima = Convert.ToInt32(afr_numCargaMax.Value);
+            afr_filtro.afr_SomenteAtivos = true;
+            afr_filtro.afr_SomenteNaoConcluidos = afr_chkNaoConcluidos.Checked;
+            afr_filtro.afr_UsuarioId = Sessao.ObterUsuarioId();
+
+            return afr_filtro;
+        }
+
+        // =============================================================
+        // EVENTO - BOTAO BUSCAR
+        // DS04 - processarBuscar(termo, filtros) -> buscarCurso(...)
+        //        -> cursosEncontrados(listaCursos)
+        //        -> exibirResultados(listaCursos) -> mostrarResultados()
         // =============================================================
         private void afr_btnBuscar_Click(object sender, EventArgs e)
         {
-            CarregarCursos(afr_txtBusca.Text);
+            FiltroCurso afr_filtro = MontarFiltro();
 
-            afr_lblStatus.Text = "Busca executada para o termo \"" + afr_txtBusca.Text.Trim() +
-                                 "\": " + afr_listaAtual.Count + " curso(s) encontrado(s).";
+            // Confere a faixa antes de ir ao banco
+            if (afr_filtro.afr_CargaMaxima > 0
+                && afr_filtro.afr_CargaMaxima < afr_filtro.afr_CargaMinima)
+            {
+                afr_lblStatus.ForeColor = Color.Firebrick;
+                afr_lblStatus.Text = "A carga maxima nao pode ser menor que a minima. "
+                                   + "Use 0 na maxima para nao ter limite.";
+                return;
+            }
+
+            // buscarCurso(termo, filtros) -> cursosEncontrados(listaCursos)
+            afr_listaAtual = afr_cursoService.BuscarCurso(afr_filtro);
+
+            // exibirResultados(listaCursos)
+            PreencherListaDeCursos();
+
+            afr_lblStatus.ForeColor = Color.DimGray;
+            afr_lblStatus.Text = "Busca executada. " + afr_listaAtual.Count
+                               + " curso(s) encontrado(s).  Filtros: " + afr_filtro.ObterResumo();
         }
 
         // =============================================================
-        // EVENTO - BOTAO VER TODOS (DC03)
+        // EVENTO - BOTAO VER TODOS
+        // DS03 - listarCursos() -> cursosEncontrados() -> exibirCursos()
         // =============================================================
         private void afr_btnVerTodos_Click(object sender, EventArgs e)
         {
             afr_txtBusca.Clear();
+            afr_numCargaMin.Value = 0;
+            afr_numCargaMax.Value = 0;
+            afr_chkNaoConcluidos.Checked = false;
 
-            CarregarCursos("");
+            ExibirTodosOsCursos();
+        }
 
+        // =============================================================
+        // DS03 - exibirCursos(cursos)
+        // =============================================================
+        private void ExibirTodosOsCursos()
+        {
+            afr_listaAtual = afr_cursoService.ExibirCursos();
+
+            PreencherListaDeCursos();
+
+            afr_lblStatus.ForeColor = Color.DimGray;
             afr_lblStatus.Text = "Todos os cursos disponiveis: " + afr_listaAtual.Count + " curso(s).";
         }
 
@@ -119,6 +188,7 @@ namespace PlataformaCursos
 
         // =============================================================
         // EVENTO - MARCOU OU DESMARCOU UMA AULA (DC05)
+        // Atalho rapido: o caminho completo do DS05 esta no FrmAula.
         // =============================================================
         private void afr_lstAulas_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
@@ -135,10 +205,11 @@ namespace PlataformaCursos
 
             // O Id da aula fica guardado na propriedade Tag do item
             int afr_aulaId = Convert.ToInt32(e.Item.Tag);
-            int afr_alunoId = Sessao.ObterUsuario().afr_Id;
+            int afr_alunoId = Sessao.ObterUsuarioId();
 
             string afr_mensagem;
 
+            // DS05 - atualizarProgresso(aluno, aula)
             bool afr_ok = afr_progressoService.AtualizarProgresso(
                               afr_alunoId, afr_aulaId, e.Item.Checked, out afr_mensagem);
 
@@ -151,6 +222,8 @@ namespace PlataformaCursos
 
             // Recalcula a barra de progresso com o numero novo
             AtualizarProgresso();
+
+            afr_lblStatus.ForeColor = Color.DimGray;
 
             if (e.Item.Checked)
             {
@@ -165,22 +238,66 @@ namespace PlataformaCursos
         }
 
         // =============================================================
-        // METODO - LE OS CURSOS ATIVOS (DC03 e DC04)
+        // EVENTO - DOIS CLIQUES NA AULA
+        // DS05 - assistirAula(aula)
         // =============================================================
-        private void CarregarCursos(string afr_termo)
+        private void afr_lstAulas_DoubleClick(object sender, EventArgs e)
+        {
+            AbrirAulaSelecionada();
+        }
+
+        // =============================================================
+        // EVENTO - BOTAO ABRIR AULA
+        // DS05 - assistirAula(aula)
+        // =============================================================
+        private void afr_btnAbrirAula_Click(object sender, EventArgs e)
+        {
+            AbrirAulaSelecionada();
+        }
+
+        // =============================================================
+        // DS05 - assistirAula(aula): manda o Id da aula para o FrmAula,
+        // que faz o abrirAula / exibirConteudo / concluirAula.
+        // =============================================================
+        private void AbrirAulaSelecionada()
+        {
+            if (afr_cursoSelecionado == null)
+            {
+                afr_lblStatus.ForeColor = Color.Firebrick;
+                afr_lblStatus.Text = "Escolha primeiro um curso na lista.";
+                return;
+            }
+
+            if (afr_lstAulas.SelectedItems.Count == 0)
+            {
+                afr_lblStatus.ForeColor = Color.Firebrick;
+                afr_lblStatus.Text = "Escolha uma aula na lista de baixo para abrir.";
+                return;
+            }
+
+            int afr_aulaId = Convert.ToInt32(afr_lstAulas.SelectedItems[0].Tag);
+
+            FrmAula afr_tela = new FrmAula(afr_aulaId, afr_cursoSelecionado);
+            afr_tela.ShowDialog();
+
+            // Se o aluno mexeu no progresso dentro da tela da aula,
+            // recarrega a lista aqui para as duas telas combinarem.
+            if (afr_tela.afr_HouveMudanca)
+            {
+                CarregarAulas(afr_cursoSelecionado);
+                AtualizarProgresso();
+
+                afr_lblStatus.ForeColor = Color.Green;
+                afr_lblStatus.Text = "Progresso atualizado pela tela da aula.";
+            }
+        }
+
+        // =============================================================
+        // METODO - joga a lista de cursos na tela
+        // =============================================================
+        private void PreencherListaDeCursos()
         {
             afr_lstCursos.Items.Clear();
-
-            // ExibirCursos traz todos; BuscarCurso filtra pelo termo.
-            // Os dois metodos mostram apenas os cursos ATIVOS.
-            if (afr_termo.Trim() == "")
-            {
-                afr_listaAtual = afr_cursoService.ExibirCursos();
-            }
-            else
-            {
-                afr_listaAtual = afr_cursoService.BuscarCurso(afr_termo.Trim());
-            }
 
             foreach (Curso afr_curso in afr_listaAtual)
             {
@@ -198,8 +315,6 @@ namespace PlataformaCursos
             {
                 afr_cursoSelecionado = null;
                 LimparPainel();
-
-                afr_lblStatus.Text = "Nenhum curso encontrado para esse termo.";
             }
         }
 
@@ -211,8 +326,12 @@ namespace PlataformaCursos
             afr_lblCursoTitulo.Text = afr_curso.afr_Titulo;
             afr_txtCursoDesc.Text = afr_curso.afr_Descricao;
 
+            // DS08 - obterRequisitosCurso(curso) / requisitosCurso(dados)
+            afr_lblRequisitos.Text = "Requisito: "
+                                   + afr_progressoService.ObterRequisitosCurso(afr_curso);
+
             afr_grpAulas.Text = "Aulas de \"" + afr_curso.afr_Titulo +
-                                "\" - marque a caixa para registrar a aula como concluida";
+                                "\" - abra a aula para ver o conteudo, ou marque a caixa para concluir";
 
             CarregarAulas(afr_curso);
             AtualizarProgresso();
@@ -228,7 +347,7 @@ namespace PlataformaCursos
 
             afr_lstAulas.Items.Clear();
 
-            int afr_alunoId = Sessao.ObterUsuario().afr_Id;
+            int afr_alunoId = Sessao.ObterUsuarioId();
 
             List<Aula> afr_aulas = afr_aulaService.ListarAulas(afr_curso.afr_Id, afr_alunoId);
 
@@ -258,7 +377,10 @@ namespace PlataformaCursos
         }
 
         // =============================================================
-        // METODO - RECALCULA A BARRA DE PROGRESSO (DS08)
+        // METODO - RECALCULA A BARRA DE PROGRESSO
+        // DS08 - verificarConclusao(aluno, curso)
+        //        -> resultadoConclusao(status, percentual)
+        //        -> exibirResultado(status, percentual)
         // =============================================================
         private void AtualizarProgresso()
         {
@@ -267,38 +389,56 @@ namespace PlataformaCursos
                 return;
             }
 
-            int afr_alunoId = Sessao.ObterUsuario().afr_Id;
-            int afr_total = afr_lstAulas.Items.Count;
+            int afr_alunoId = Sessao.ObterUsuarioId();
 
-            int afr_concluidas = afr_progressoService.ObterAulasConcluidas(
-                                     afr_alunoId, afr_cursoSelecionado.afr_Id);
+            // Um unico objeto traz concluidas, total, percentual,
+            // minimo exigido e se passou. E o "resultadoConclusao".
+            ResultadoConclusao afr_resultado =
+                afr_progressoService.VerificarConclusao(afr_alunoId, afr_cursoSelecionado);
 
-            int afr_percentual = afr_progressoService.CalcularPercentual(
-                                     afr_alunoId, afr_cursoSelecionado.afr_Id, afr_total);
+            // A barra nunca recebe valor fora de 0 a 100
+            int afr_valor = afr_resultado.afr_Percentual;
 
-            afr_prgProgresso.Value = afr_percentual;
+            if (afr_valor < 0)
+            {
+                afr_valor = 0;
+            }
 
-            afr_lblProgressoTexto.Text = "Seu progresso: " + afr_percentual + "%  (" +
-                                         afr_concluidas + " de " + afr_total + " aulas)";
+            if (afr_valor > 100)
+            {
+                afr_valor = 100;
+            }
 
-            // CONDICAO: o curso so esta concluido quando todas as aulas foram feitas
-            if (afr_progressoService.VerificarConclusao(afr_alunoId,
-                                                        afr_cursoSelecionado.afr_Id,
-                                                        afr_total))
+            afr_prgProgresso.Value = afr_valor;
+
+            afr_lblProgressoTexto.Text = "Seu progresso: " + afr_resultado.afr_Percentual + "%  (" +
+                                         afr_resultado.afr_Concluidas + " de " +
+                                         afr_resultado.afr_Total + " aulas)";
+
+            // exibirResultado(status, percentual)
+            if (afr_resultado.afr_Total == 0)
+            {
+                afr_lblConclusao.ForeColor = Color.DimGray;
+                afr_lblConclusao.Text = "Este curso ainda nao tem aulas cadastradas.";
+            }
+            else if (afr_resultado.afr_Aprovado)
             {
                 afr_lblConclusao.ForeColor = Color.Green;
-                afr_lblConclusao.Text = "Parabens! Voce concluiu todas as aulas deste curso.";
+                afr_lblConclusao.Text = "CONCLUIDO: voce bateu o minimo de "
+                                      + afr_resultado.afr_PercentualMinimo + "% deste curso.";
             }
-            else if (afr_concluidas > 0)
+            else if (afr_resultado.afr_Concluidas > 0)
             {
                 afr_lblConclusao.ForeColor = Color.DarkOrange;
-                afr_lblConclusao.Text = "Curso em andamento. Faltam " +
-                                        (afr_total - afr_concluidas) + " aula(s).";
+                afr_lblConclusao.Text = "EM ANDAMENTO: faltam "
+                                      + (afr_resultado.afr_Total - afr_resultado.afr_Concluidas)
+                                      + " aula(s) para o minimo de "
+                                      + afr_resultado.afr_PercentualMinimo + "%.";
             }
             else
             {
                 afr_lblConclusao.ForeColor = Color.DimGray;
-                afr_lblConclusao.Text = "Voce ainda nao concluiu nenhuma aula deste curso.";
+                afr_lblConclusao.Text = "NAO INICIADO: voce ainda nao concluiu nenhuma aula.";
             }
 
             // Repinta de verde as aulas concluidas
@@ -330,13 +470,14 @@ namespace PlataformaCursos
 
             afr_lblCursoTitulo.Text = "Escolha um curso na lista ao lado.";
             afr_txtCursoDesc.Clear();
+            afr_lblRequisitos.Text = "";
             afr_prgProgresso.Value = 0;
             afr_lblProgressoTexto.Text = "Seu progresso: 0%";
 
             afr_lblConclusao.ForeColor = Color.DimGray;
             afr_lblConclusao.Text = "";
 
-            afr_grpAulas.Text = "Aulas - marque a caixa para registrar a aula como concluida";
+            afr_grpAulas.Text = "Aulas - abra a aula para ver o conteudo, ou marque a caixa para concluir";
         }
     }
 }

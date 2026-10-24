@@ -1,0 +1,142 @@
+@*
+    =====================================================================
+    DC12 - Lista de usuarios.
+
+    O botao "Perfil" abre a pagina do DS12, com os dados e o historico
+    de acoes. O botao "Excluir" nao apaga nada direto: ele leva para a
+    pagina de confirmacao do DS14, que mostra o que sera apagado e pede
+    a senha do admin.
+
+    TRES PERFIS NESTA VERSAO: cada um ganhou a sua cor de etiqueta.
+    =====================================================================
+*@
+@model List<Usuario>
+@{
+    ViewData["Title"] = "Usuarios";
+
+    string afr_termo = ViewBag.Termo as string ?? "";
+    int afr_meuId = ViewBag.MeuId != null ? (int)ViewBag.MeuId : 0;
+}
+
+<h1>Usuarios</h1>
+<p class="subtitulo">Quem pode entrar no sistema e com qual nivel de acesso.</p>
+
+<div class="cartao">
+    <form asp-controller="Usuarios" asp-action="Index" method="get">
+        <div class="filtros">
+            <div class="campo campo-largo">
+                <label for="termo">Buscar usuario</label>
+                <input type="search" id="termo" name="termo" value="@afr_termo"
+                       placeholder="Nome ou email" />
+            </div>
+
+            <button type="submit" class="botao">Buscar (SELECT)</button>
+
+            <a asp-controller="Usuarios" asp-action="Novo" class="botao botao-primario">
+                Novo usuario
+            </a>
+        </div>
+    </form>
+
+    @if (ViewBag.Resumo != null)
+    {
+        <p class="resumo-filtro">@ViewBag.Resumo</p>
+    }
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="cartao vazio">
+        <p>Nenhum usuario encontrado.</p>
+    </div>
+}
+else
+{
+    <div class="cartao" style="padding:0; overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Perfil</th>
+                    <th>Situacao</th>
+                    <th>Cadastro</th>
+                    <th class="coluna-acoes">Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Usuario afr_usuario in Model)
+                {
+                    <tr>
+                        <td>@afr_usuario.afr_Id</td>
+                        <td>
+                            <strong>@afr_usuario.afr_Nome</strong>
+                            @if (afr_usuario.afr_Id == afr_meuId)
+                            {
+                                <span class="ajuda">(voce)</span>
+                            }
+                        </td>
+                        <td>@afr_usuario.afr_Email</td>
+                        <td>
+                            @if (afr_usuario.EhAdministrador())
+                            {
+                                <span class="etiqueta etiqueta-admin">ADMIN</span>
+                            }
+                            else if (afr_usuario.EhTutor())
+                            {
+                                <span class="etiqueta etiqueta-tutor">TUTOR</span>
+                            }
+                            else
+                            {
+                                <span class="etiqueta etiqueta-aluno">ALUNO</span>
+                            }
+                        </td>
+                        <td>
+                            @if (afr_usuario.afr_Ativo)
+                            {
+                                <span class="etiqueta etiqueta-ativo">Ativo</span>
+                            }
+                            else
+                            {
+                                <span class="etiqueta etiqueta-inativo">Inativo</span>
+                            }
+                        </td>
+                        <td>@afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy")</td>
+                        <td class="coluna-acoes">
+                            <div class="acoes-linha" style="justify-content:flex-end;">
+                                @* DS12 - solicitarVisualizacaoPerfil(usuario) *@
+                                <a class="botao botao-pequeno"
+                                   asp-controller="Usuarios" asp-action="Perfil"
+                                   asp-route-id="@afr_usuario.afr_Id">Perfil</a>
+
+                                <a class="botao botao-pequeno"
+                                   asp-controller="Usuarios" asp-action="Editar"
+                                   asp-route-id="@afr_usuario.afr_Id">Editar</a>
+
+                                @*
+                                    DS14 - solicitarExclusaoUsuario(usuario)
+                                    Vai para a pagina de confirmacao, nao apaga
+                                    nada aqui.
+                                *@
+                                <a class="botao botao-perigo botao-pequeno"
+                                   asp-controller="Usuarios" asp-action="ConfirmarExclusao"
+                                   asp-route-id="@afr_usuario.afr_Id">Excluir</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <p class="ajuda">
+        @Model.Count usuario(s) na tabela dbo.Usuarios. @ViewBag.StatusBanco
+    </p>
+
+    <p class="ajuda">
+        A exclusao acontece em duas etapas (DS14): a proxima pagina mostra o
+        que sera apagado e pede a sua senha. Voce nao pode excluir a sua
+        propria conta, nem o ultimo administrador ativo do sistema.
+    </p>
+}

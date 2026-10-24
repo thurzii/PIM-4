@@ -1,0 +1,148 @@
+@*
+    =====================================================================
+    DC02 / DS02 - Recuperacao de senha em TRES ETAPAS.
+
+    O diagrama DS02 tem quatro linhas de vida: Aluno, TelaRecuperacao,
+    Sistema e EMAIL. E a linha "Email", com a mensagem
+    enviarCodigo(email), que obriga as tres etapas:
+
+        1) informar o email      -> solicitarRecuperacao / enviarCodigo
+        2) conferir o codigo     -> conferirCodigo
+        3) escolher a nova senha -> recuperacaoConcluida
+
+    UMA PAGINA, TRES FORMULARIOS. O campo afr_Etapa do ViewModel diz
+    qual mostrar. Os dados das etapas anteriores viajam em campos
+    escondidos (hidden), e o codigo e conferido DE NOVO no servidor na
+    etapa 3: ninguem pula a etapa 2 mandando o formulario na mao.
+    =====================================================================
+*@
+@model RecuperarSenhaViewModel
+@{
+    ViewData["Title"] = "Recuperar senha";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recuperar senha - Plataforma de Cursos</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+<div class="tela-acesso">
+    <div class="caixa-acesso">
+
+        <div class="marca-grande">Recuperar senha</div>
+        <div class="marca-sub">Plataforma de Cursos</div>
+
+        @* O indicador das tres etapas *@
+        <div class="passos">
+            <div class="passo @(Model.afr_Etapa == 1 ? "atual" : "pronto")">1. Email</div>
+            <div class="passo @(Model.afr_Etapa == 2 ? "atual" : (Model.afr_Etapa > 2 ? "pronto" : ""))">2. Codigo</div>
+            <div class="passo @(Model.afr_Etapa == 3 ? "atual" : "")">3. Nova senha</div>
+        </div>
+
+        @if (ViewBag.Sucesso != null)
+        {
+            <div class="aviso aviso-sucesso">@ViewBag.Sucesso</div>
+        }
+
+        @if (ViewBag.Erro != null)
+        {
+            <div class="aviso aviso-erro">@ViewBag.Erro</div>
+        }
+
+        <div class="cartao">
+            <p class="etapa-titulo">@Model.ObterTituloEtapa()</p>
+            <p class="ajuda" style="margin-bottom:18px;">@Model.ObterExplicacaoEtapa()</p>
+
+            @* ======================= ETAPA 1 ======================= *@
+            @if (Model.afr_Etapa == 1)
+            {
+                <form asp-controller="Conta" asp-action="EnviarCodigo" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="campo">
+                        <label asp-for="afr_Email">Email cadastrado</label>
+                        <input asp-for="afr_Email" type="email" autocomplete="username"
+                               placeholder="maria@@escola.com" />
+                    </div>
+
+                    <button type="submit" class="botao botao-primario botao-largo">
+                        Enviar codigo
+                    </button>
+                </form>
+            }
+
+            @* ======================= ETAPA 2 ======================= *@
+            @if (Model.afr_Etapa == 2)
+            {
+                <form asp-controller="Conta" asp-action="ConferirCodigo" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @* O email segue escondido para a etapa seguinte *@
+                    <input type="hidden" asp-for="afr_Email" />
+
+                    <div class="campo">
+                        <label asp-for="afr_Codigo">Codigo de 6 digitos</label>
+                        <input asp-for="afr_Codigo" type="text" maxlength="6"
+                               inputmode="numeric" autocomplete="one-time-code"
+                               placeholder="000000" />
+                    </div>
+
+                    <button type="submit" class="botao botao-primario botao-largo">
+                        Conferir codigo
+                    </button>
+                </form>
+
+                <p class="ajuda" style="margin-top:16px;">
+                    Enviado para <strong>@Model.afr_Email</strong>.
+                    Este trabalho nao tem servidor de email, entao a mensagem
+                    foi gravada num arquivo no servidor:
+                    <a asp-controller="Conta" asp-action="CaixaDeEntrada" target="_blank">
+                        abrir a caixa de entrada
+                    </a>.
+                </p>
+            }
+
+            @* ======================= ETAPA 3 ======================= *@
+            @if (Model.afr_Etapa == 3)
+            {
+                <form asp-controller="Conta" asp-action="RedefinirSenha" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @* Email e codigo seguem escondidos: o servidor
+                       confere o codigo outra vez antes de trocar a senha *@
+                    <input type="hidden" asp-for="afr_Email" />
+                    <input type="hidden" asp-for="afr_Codigo" />
+
+                    <div class="campo">
+                        <label asp-for="afr_NovaSenha">Nova senha</label>
+                        <input asp-for="afr_NovaSenha" type="password"
+                               autocomplete="new-password" />
+                    </div>
+
+                    <div class="campo">
+                        <label asp-for="afr_Confirmacao">Confirmar a nova senha</label>
+                        <input asp-for="afr_Confirmacao" type="password"
+                               autocomplete="new-password" />
+                    </div>
+
+                    <button type="submit" class="botao botao-primario botao-largo">
+                        Redefinir senha
+                    </button>
+                </form>
+            }
+
+            <p class="ajuda" style="margin-top:14px;">
+                <a asp-controller="Conta" asp-action="Login">Voltar para o login</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

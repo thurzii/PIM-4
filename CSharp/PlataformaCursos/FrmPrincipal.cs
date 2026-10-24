@@ -1,12 +1,23 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - Trabalho em grupo
    Arquivo...: FrmPrincipal.cs  (menu principal)
+   Autor.....: Arthur Fernandes Reis (prefixo afr_)
    ---------------------------------------------------------------------
-   Esta tela mostra opcoes DIFERENTES conforme quem entrou:
-     ADMIN -> ve o grupo Administracao (cursos e usuarios)
-     ALUNO -> ve apenas a Area do Aluno
+   Esta tela mostra opcoes DIFERENTES conforme quem entrou. O modelo
+   do Astah tem tres atores nos diagramas de sequencia (Aluno, Tutor e
+   Admin), entao o menu tem tres areas:
+
+     ALUNO -> Area do Aluno
+     TUTOR -> Area do Aluno + Area do Tutor
+     ADMIN -> as tres areas (o admin pode tudo)
+
+   Quem decide o que aparece sao os metodos da classe Sessao, que por
+   baixo chamam os metodos PodeGerenciarCursos, PodeGerenciarUsuarios
+   e PodeVerProgressoDeOutros da classe Usuario. A tela nao fica
+   comparando texto de perfil na mao.
 
    CASO DE USO DC06 - Fazer Logout (botao Sair)
+   DIAGRAMA DE SEQUENCIA DS06
    ===================================================================== */
 
 using System;
@@ -57,18 +68,36 @@ namespace PlataformaCursos
             afr_lblBoasVindas.Text = "Ola, " + afr_usuario.ObterPrimeiroNome() +
                                      ".  |  " + afr_usuario.ObterResumo();
 
-            // O grupo de administracao so aparece para o ADMIN
-            afr_grpAdmin.Visible = Sessao.EhAdministrador();
+            afr_lblSessao.Text = "Sessao aberta " + Sessao.ObterTempoSessao() +
+                                 ".  |  Cadastro desde " +
+                                 afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy") + ".";
+
+            // Area do aluno: todo mundo tem. O tutor e o admin tambem
+            // podem navegar no catalogo como qualquer pessoa.
+            afr_grpAluno.Visible = true;
+
+            // Area do tutor: tutor e admin
+            afr_grpTutor.Visible = Sessao.PodeGerenciarCursos();
+
+            // Area de administracao: somente admin
+            afr_grpAdmin.Visible = Sessao.PodeGerenciarUsuarios();
+
+            afr_lblStatus.ForeColor = Color.DimGray;
 
             if (Sessao.EhAdministrador())
             {
-                afr_lblStatus.Text = "Perfil administrador: acesso ao catalogo e a administracao.  " +
-                                     afr_bancoService.ObterDescricao();
+                afr_lblStatus.Text = "Perfil ADMIN: catalogo, cursos, progresso dos alunos e usuarios.  "
+                                   + afr_bancoService.ObterDescricao();
+            }
+            else if (Sessao.EhTutor())
+            {
+                afr_lblStatus.Text = "Perfil TUTOR: catalogo, cursos e aulas, e progresso dos alunos.  "
+                                   + afr_bancoService.ObterDescricao();
             }
             else
             {
-                afr_lblStatus.Text = "Perfil aluno: acesso ao catalogo de cursos.  " +
-                                     afr_bancoService.ObterDescricao();
+                afr_lblStatus.Text = "Perfil ALUNO: catalogo de cursos e as suas aulas.  "
+                                   + afr_bancoService.ObterDescricao();
             }
         }
 
@@ -87,6 +116,16 @@ namespace PlataformaCursos
         private void afr_btnCursos_Click(object sender, EventArgs e)
         {
             FrmCursos afr_tela = new FrmCursos();
+            afr_tela.ShowDialog();
+        }
+
+        // =============================================================
+        // EVENTO - PROGRESSO DOS ALUNOS (DS07)
+        // Tela nova: e o "acessarProgresso()" do diagrama.
+        // =============================================================
+        private void afr_btnProgresso_Click(object sender, EventArgs e)
+        {
+            FrmProgressoAlunos afr_tela = new FrmProgressoAlunos();
             afr_tela.ShowDialog();
         }
 
@@ -125,17 +164,24 @@ namespace PlataformaCursos
         }
 
         // =============================================================
-        // EVENTO - LOGOUT (DC06)
+        // EVENTO - LOGOUT (DC06 / DS06)
+        // DS06: clicarLogout() -> encerrarSessao() -> finalizarSessao()
+        //       -> sessaoEncerrada() -> retornarLogin() -> logoutConcluido()
         // =============================================================
         private void afr_btnLogout_Click(object sender, EventArgs e)
         {
+            // clicarLogout()
             DialogResult afr_resposta = MessageBox.Show("Deseja encerrar a sessao?", "Logout",
                                                         MessageBoxButtons.YesNo,
                                                         MessageBoxIcon.Question);
 
             if (afr_resposta == DialogResult.Yes)
             {
+                // encerrarSessao() -> finalizarSessao() -> sessaoEncerrada()
                 afr_autenticacaoService.EncerrarSessao();
+
+                // retornarLogin(): fechar esta tela devolve o controle
+                // para o FrmLogin, que volta a aparecer.
                 this.Close();
             }
         }

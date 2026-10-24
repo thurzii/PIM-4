@@ -1,0 +1,181 @@
+@*
+    =====================================================================
+    DC12 / DS12 - PERFIL DO USUARIO COM O HISTORICO DE ACOES
+
+    E o FrmPerfilUsuario do desktop, que nasceu nesta versao. A
+    sequencia do diagrama:
+
+        realizarBuscarPerfil(admin, usuario)
+        verificarPermissaoAdmin(admin)
+        solicitarVisualizacaoPerfil(usuario)
+        elegivelParaVisualizacao(true)
+        buscarDadosUsuario(usuario)
+        dadosUsuario(nome, email, papel, dataCadastro)
+        buscarHistoricoAcoes(usuario)
+        historicoAcoes(loginLog, acoesCrud, cursosRelacionados)
+        perfilCompleto(dadosEHistorico)
+        exibirPerfilUsuario(dadosEHistorico)
+
+    POR QUE TRES LISTAS E NAO UMA: o modelo nomeia os tres conjuntos
+    separadamente. Por isso a tabela dbo.LogAcoes tem a coluna Tipo,
+    com os valores LOGIN, CRUD e CURSO, e a pagina mostra uma lista
+    para cada um.
+    =====================================================================
+*@
+@model PerfilUsuarioViewModel
+@{
+    ViewData["Title"] = "Perfil de " + Model.afr_Usuario.afr_Nome;
+
+    string afr_classeEtiqueta = "etiqueta-aluno";
+
+    if (Model.afr_Usuario.EhAdministrador())
+    {
+        afr_classeEtiqueta = "etiqueta-admin";
+    }
+    else if (Model.afr_Usuario.EhTutor())
+    {
+        afr_classeEtiqueta = "etiqueta-tutor";
+    }
+}
+
+<p class="subtitulo" style="margin-bottom:6px;">
+    <a asp-controller="Usuarios" asp-action="Index">&larr; Voltar para a lista</a>
+</p>
+
+<h1>@Model.afr_Usuario.afr_Nome</h1>
+
+@* ---------------------------------------------------------------- *@
+@* DS12 - dadosUsuario(nome, email, papel, dataCadastro)             *@
+@* ---------------------------------------------------------------- *@
+<p class="subtitulo">
+    @Model.afr_Usuario.afr_Email &middot;
+    <span class="etiqueta @afr_classeEtiqueta">@Model.afr_Usuario.afr_Perfil</span>
+    &middot;
+    @if (Model.afr_Usuario.afr_Ativo)
+    {
+        <span class="etiqueta etiqueta-ativo">Ativo</span>
+    }
+    else
+    {
+        <span class="etiqueta etiqueta-inativo">Inativo</span>
+    }
+    &middot;
+    cadastro em @Model.afr_Usuario.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm")
+</p>
+
+<div class="grade grade-3" style="margin-bottom:24px;">
+    <div class="cartao">
+        <div class="numero">@Model.afr_LoginLog.Count</div>
+        <div class="numero-rotulo">acesso(s) registrado(s)</div>
+    </div>
+
+    <div class="cartao">
+        <div class="numero">@Model.afr_AcoesCrud.Count</div>
+        <div class="numero-rotulo">cadastro(s) feito(s)</div>
+    </div>
+
+    <div class="cartao">
+        <div class="numero">@Model.afr_CursosRelacionados.Count</div>
+        <div class="numero-rotulo">acao(oes) em cursos</div>
+    </div>
+</div>
+
+@* ---------------------------------------------------------------- *@
+@* DS12 - historicoAcoes(loginLog, acoesCrud, cursosRelacionados)    *@
+@* ---------------------------------------------------------------- *@
+<h2>Historico de acoes</h2>
+
+@if (Model.ContarTudo() == 0)
+{
+    <div class="cartao vazio">
+        <p>
+            Este usuario ainda nao tem nenhuma acao registrada.<br />
+            O historico comeca a encher a partir do primeiro login dele.
+        </p>
+    </div>
+}
+else
+{
+    <div class="historico">
+
+        @* -------- loginLog -------- *@
+        <div class="cartao">
+            <h3>Acessos <span class="ajuda">(loginLog)</span></h3>
+
+            @if (Model.afr_LoginLog.Count == 0)
+            {
+                <p class="ajuda">Sem registros.</p>
+            }
+            else
+            {
+                <ul class="lista-log">
+                    @foreach (LogAcao afr_registro in Model.afr_LoginLog)
+                    {
+                        <li>
+                            <span class="quando">
+                                @afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+                            @afr_registro.afr_Descricao
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        @* -------- acoesCrud -------- *@
+        <div class="cartao">
+            <h3>Cadastros <span class="ajuda">(acoesCrud)</span></h3>
+
+            @if (Model.afr_AcoesCrud.Count == 0)
+            {
+                <p class="ajuda">Sem registros.</p>
+            }
+            else
+            {
+                <ul class="lista-log">
+                    @foreach (LogAcao afr_registro in Model.afr_AcoesCrud)
+                    {
+                        <li>
+                            <span class="quando">
+                                @afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+                            @afr_registro.afr_Descricao
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        @* -------- cursosRelacionados -------- *@
+        <div class="cartao">
+            <h3>Cursos <span class="ajuda">(cursosRelacionados)</span></h3>
+
+            @if (Model.afr_CursosRelacionados.Count == 0)
+            {
+                <p class="ajuda">Sem registros.</p>
+            }
+            else
+            {
+                <ul class="lista-log">
+                    @foreach (LogAcao afr_registro in Model.afr_CursosRelacionados)
+                    {
+                        <li>
+                            <span class="quando">
+                                @afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+                            @afr_registro.afr_Descricao
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+    </div>
+}
+
+<div class="acoes">
+    <a class="botao botao-primario" asp-controller="Usuarios" asp-action="Editar"
+       asp-route-id="@Model.afr_Usuario.afr_Id">Editar este usuario</a>
+
+    <a class="botao" asp-controller="Usuarios" asp-action="Index">Voltar para a lista</a>
+</div>

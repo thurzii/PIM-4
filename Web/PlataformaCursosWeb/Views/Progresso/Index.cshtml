@@ -1,0 +1,190 @@
+@*
+    =====================================================================
+    DS07 - PROGRESSO DOS ALUNOS (visao do tutor)
+
+    E o FrmProgressoAlunos do desktop, que nasceu nesta versao. No
+    Astah o diagrama esta salvo com o nome "Criar Curso", mas as
+    mensagens dentro dele sao todas de progresso e a linha de vida do
+    Tutor aparece nele:
+
+        acessarProgresso()          abrir esta pagina
+        solicitarProgresso(aluno)   escolher o aluno
+        buscarProgresso(aluno)      o servico vai ao banco
+        aulasConcluidas()           conta as aulas feitas
+        progresso(dados)            devolve a lista
+        exibirProgresso(dados)      a tabela abaixo
+        mostrarProgresso()          o resumo do rodape
+
+    Quem entra: tutor e admin. O aluno comum ve o proprio progresso no
+    catalogo.
+    =====================================================================
+*@
+@model ProgressoAlunosViewModel
+@{
+    ViewData["Title"] = "Progresso dos alunos";
+}
+
+<h1>Progresso dos alunos</h1>
+<p class="subtitulo">
+    Perfil @ViewBag.Perfil &middot;
+    escolha um aluno para acompanhar o andamento dele em cada curso.
+</p>
+
+@if (ViewBag.Aviso != null)
+{
+    <div class="aviso aviso-info">@ViewBag.Aviso</div>
+}
+
+@* ---------------------------------------------------------------- *@
+@* DS07 - solicitarProgresso(aluno)                                  *@
+@* ---------------------------------------------------------------- *@
+<div class="cartao">
+    <form asp-controller="Progresso" asp-action="Index" method="get">
+        <div class="filtros">
+            @*
+                O nome do campo e "termo" porque a acao do controller
+                recebe parametros soltos (string termo, int alunoId), e
+                nao o ViewModel inteiro. Por isso aqui vai um input
+                comum, nao o asp-for.
+            *@
+            <div class="campo campo-largo">
+                <label for="termo">Buscar aluno por nome ou email</label>
+                <input type="search" id="termo" name="termo"
+                       value="@Model.afr_Termo" placeholder="Ex.: maria" />
+            </div>
+
+            <button type="submit" class="botao botao-primario">Buscar</button>
+
+            @if (!string.IsNullOrWhiteSpace(Model.afr_Termo))
+            {
+                <a asp-controller="Progresso" asp-action="Index" class="botao">Ver todos</a>
+            }
+        </div>
+    </form>
+</div>
+
+@* ---------------------------------------------------------------- *@
+@* A LISTA DE ALUNOS                                                 *@
+@* ---------------------------------------------------------------- *@
+@if (Model.afr_Alunos.Count > 0)
+{
+    <div class="cartao">
+        <h3>Alunos</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Cadastro</th>
+                    <th class="coluna-acoes">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (Usuario afr_aluno in Model.afr_Alunos)
+            {
+                <tr>
+                    <td>@afr_aluno.afr_Nome</td>
+                    <td>@afr_aluno.afr_Email</td>
+                    <td>@afr_aluno.afr_DataCadastro.ToString("dd/MM/yyyy")</td>
+                    <td class="coluna-acoes">
+                        <a class="botao botao-pequeno @(afr_aluno.afr_Id == Model.afr_AlunoId ? "botao-primario" : "")"
+                           asp-controller="Progresso" asp-action="Index"
+                           asp-route-termo="@Model.afr_Termo"
+                           asp-route-alunoId="@afr_aluno.afr_Id">Ver progresso</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+@* ---------------------------------------------------------------- *@
+@* DS07 - exibirProgresso(dados)                                     *@
+@* ---------------------------------------------------------------- *@
+@if (Model.TemResultado())
+{
+    <h2>@Model.afr_Aluno.afr_Nome</h2>
+    <p class="subtitulo">
+        @Model.afr_Aluno.afr_Email &middot;
+        cadastro em @Model.afr_Aluno.afr_DataCadastro.ToString("dd/MM/yyyy")
+    </p>
+
+    @if (Model.afr_Progresso.Count == 0)
+    {
+        <div class="cartao vazio">
+            <p>Nao existe nenhum curso ativo cadastrado no sistema.</p>
+        </div>
+    }
+    else
+    {
+        <div class="grade grade-3" style="margin-bottom:20px;">
+            <div class="cartao">
+                <div class="numero">@Model.afr_Progresso.Count</div>
+                <div class="numero-rotulo">curso(s) acompanhado(s)</div>
+            </div>
+
+            <div class="cartao">
+                <div class="numero">@Model.ContarConcluidos()</div>
+                <div class="numero-rotulo">curso(s) concluido(s)</div>
+            </div>
+
+            <div class="cartao">
+                <div class="numero">@Model.CalcularMedia()%</div>
+                <div class="numero-rotulo">media geral de conclusao</div>
+            </div>
+        </div>
+
+        <div class="cartao">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Curso</th>
+                        <th>Aulas</th>
+                        <th>Percentual</th>
+                        <th>Minimo</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (ProgressoCurso afr_linha in Model.afr_Progresso)
+                {
+                    ResultadoConclusao afr_r = afr_linha.afr_Resultado;
+
+                    string afr_classeLinha = afr_r.afr_Aprovado ? "linha-aprovada" : "";
+
+                    string afr_classeStatus = "situacao-neutro";
+
+                    if (afr_r.afr_Aprovado)
+                    {
+                        afr_classeStatus = "situacao-aprovado";
+                    }
+                    else if (afr_r.afr_Concluidas > 0)
+                    {
+                        afr_classeStatus = "situacao-andamento";
+                    }
+
+                    <tr class="@afr_classeLinha">
+                        <td>@afr_linha.afr_Curso.afr_Titulo</td>
+
+                        <td>@afr_r.afr_Concluidas de @afr_r.afr_Total</td>
+
+                        <td>
+                            <span class="barra-pequena">
+                                <span class="@(afr_r.afr_Aprovado ? "completo" : "")"
+                                      style="width:@(afr_r.afr_Percentual)%"></span>
+                            </span>
+                            @afr_r.afr_Percentual%
+                        </td>
+
+                        <td>@afr_r.afr_PercentualMinimo%</td>
+
+                        <td class="@afr_classeStatus">@afr_r.ObterStatus()</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+}

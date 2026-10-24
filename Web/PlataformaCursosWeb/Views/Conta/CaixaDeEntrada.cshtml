@@ -1,0 +1,77 @@
+@*
+    =====================================================================
+    A CAIXA DE ENTRADA SIMULADA (DS02 - a linha de vida "Email")
+
+    O trabalho nao tem servidor de email. No desktop, o botao
+    "Ver o codigo" abria o arquivo dados/emails.txt no Bloco de Notas,
+    porque o programa rodava na propria maquina da pessoa.
+
+    Na web o arquivo fica no SERVIDOR, e o navegador nao consegue abrir
+    um arquivo de la. Entao a aplicacao le o arquivo e mostra aqui.
+
+    NUM SISTEMA REAL esta pagina nao existiria: o codigo chegaria no
+    email da pessoa e mais ninguem poderia ve-lo.
+    =====================================================================
+*@
+@{
+    ViewData["Title"] = "Caixa de entrada simulada";
+    Layout = null;
+
+    string afr_conteudo = ViewBag.Conteudo as string ?? "";
+    string afr_caminho = ViewBag.Caminho as string ?? "";
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Caixa de entrada - Plataforma de Cursos</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+<main>
+    <h1>Caixa de entrada simulada</h1>
+    <p class="subtitulo">
+        A mensagem mais recente aparece primeiro.
+    </p>
+
+    <div class="aviso aviso-info">
+        Esta pagina existe porque o trabalho nao tem servidor de email.
+        O diagrama DS02 tem a linha de vida <strong>Email</strong>, com a
+        mensagem <code>enviarCodigo(email)</code>; aqui o "email" e um
+        arquivo de texto no servidor. Num sistema de verdade, o codigo
+        chegaria na caixa de entrada da pessoa e esta pagina nao existiria.
+    </div>
+
+    @if (string.IsNullOrWhiteSpace(afr_conteudo))
+    {
+        <div class="cartao">
+            <div class="vazio">
+                Nenhuma mensagem ainda.<br />
+                Peca a recuperacao de senha primeiro: o codigo aparece aqui.
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="caixa-entrada">@afr_conteudo</div>
+    }
+
+    <p class="caminho-arquivo">Arquivo no servidor: @afr_caminho</p>
+
+    <div class="acoes">
+        <a class="botao" asp-controller="Conta" asp-action="CaixaDeEntrada">Atualizar</a>
+        <a class="botao" asp-controller="Conta" asp-action="RecuperarSenha">
+            Voltar para a recuperacao
+        </a>
+        <a class="botao" asp-controller="Conta" asp-action="Login">Ir para o login</a>
+    </div>
+</main>
+
+<footer class="rodape">
+    Plataforma de Cursos Online &middot; Projeto academico &middot; Professor Antonio Gra&ccedil;a
+</footer>
+
+</body>
+</html>

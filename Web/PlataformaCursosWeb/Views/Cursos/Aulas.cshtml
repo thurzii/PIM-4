@@ -1,0 +1,144 @@
+@*
+    =====================================================================
+    AS AULAS DE UM CURSO - visao do tutor.
+
+    NOVO NESTA VERSAO: a aula tem CONTEUDO. Veio do DS05, que manda
+    abrirAula(aula) e exibirConteudo() - e uma caixa de selecao no
+    catalogo nao exibe conteudo nenhum.
+
+    As aulas que ainda nao tem conteudo escrito aparecem destacadas em
+    laranja, para o tutor ver de longe o que falta.
+    =====================================================================
+*@
+@model AulasAdminViewModel
+@{
+    ViewData["Title"] = "Aulas de " + Model.afr_Curso.afr_Titulo;
+
+    int afr_semConteudo = Model.ContarSemConteudo();
+}
+
+<p class="subtitulo" style="margin-bottom:6px;">
+    <a asp-controller="Cursos" asp-action="Index">&larr; Voltar para a lista de cursos</a>
+</p>
+
+<h1>Aulas de "@Model.afr_Curso.afr_Titulo"</h1>
+<p class="subtitulo">
+    @Model.afr_Curso.afr_CargaHoraria h &middot;
+    @Model.afr_Aulas.Count aula(s) &middot;
+    minimo de @Model.afr_Curso.afr_PercentualMinimo% para concluir
+</p>
+
+@if (afr_semConteudo > 0)
+{
+    <div class="aviso aviso-info">
+        @afr_semConteudo aula(s) ainda sem conteudo escrito. O aluno abre a
+        aula e nao encontra nada para ler. Clique em <strong>Editar</strong>
+        na aula para escrever o conteudo.
+    </div>
+}
+
+@* ---------------------------------------------------------------- *@
+@* INCLUIR UMA AULA                                                  *@
+@* ---------------------------------------------------------------- *@
+<div class="cartao">
+    <h3>Incluir uma aula</h3>
+
+    <form asp-controller="Cursos" asp-action="IncluirAula" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="cursoId" value="@Model.afr_Curso.afr_Id" />
+
+        <div class="filtros">
+            <div class="campo campo-largo">
+                <label for="titulo">Titulo da aula</label>
+                <input type="text" id="titulo" name="titulo" maxlength="120" required
+                       placeholder="Ex.: Variaveis e tipos de dados" />
+            </div>
+
+            <div class="campo campo-estreito">
+                <label for="duracao">Duracao (min)</label>
+                <input type="number" id="duracao" name="duracao" min="1" max="600"
+                       value="45" required />
+            </div>
+        </div>
+
+        <div class="campo" style="margin-top:14px;">
+            <label for="conteudo">Conteudo da aula</label>
+            <textarea id="conteudo" name="conteudo" rows="5"
+                      placeholder="O texto que o aluno vai ler quando abrir a aula."></textarea>
+            <div class="ajuda">
+                Pode ficar em branco agora e ser escrito depois, pelo botao
+                Editar da aula.
+            </div>
+        </div>
+
+        <div class="acoes">
+            <button type="submit" class="botao botao-primario">
+                Incluir aula (INSERT)
+            </button>
+        </div>
+    </form>
+
+    <p class="ajuda">
+        A ordem e calculada pelo sistema: a aula nova entra sempre como a
+        ultima do curso.
+    </p>
+</div>
+
+@* ---------------------------------------------------------------- *@
+@* AS AULAS JA CADASTRADAS                                           *@
+@* ---------------------------------------------------------------- *@
+<h2>Aulas cadastradas</h2>
+
+@if (Model.afr_Aulas.Count == 0)
+{
+    <div class="cartao vazio">
+        <p>Este curso ainda nao tem aulas. Use o formulario acima.</p>
+    </div>
+}
+else
+{
+    foreach (Aula afr_aula in Model.afr_Aulas)
+    {
+        bool afr_vazia = string.IsNullOrWhiteSpace(afr_aula.afr_Conteudo);
+
+        <div class="aula @(afr_vazia ? "sem-conteudo" : "")">
+
+            <div class="ordem">@afr_aula.afr_Ordem</div>
+
+            <div class="titulo">
+                @afr_aula.afr_Titulo
+
+                @if (afr_vazia)
+                {
+                    <span class="ajuda">(sem conteudo)</span>
+                }
+            </div>
+
+            <div class="duracao">@afr_aula.afr_DuracaoMin min</div>
+
+            <div class="acoes-linha">
+                <a class="botao botao-pequeno"
+                   asp-controller="Cursos" asp-action="EditarAula"
+                   asp-route-id="@afr_aula.afr_Id">Editar</a>
+
+                <form asp-controller="Cursos" asp-action="ExcluirAula" method="post"
+                      onsubmit="return confirm('Excluir a aula &quot;@afr_aula.afr_Titulo&quot;? O progresso dos alunos nesta aula tambem sai.');">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="cursoId" value="@Model.afr_Curso.afr_Id" />
+                    <input type="hidden" name="aulaId" value="@afr_aula.afr_Id" />
+
+                    <button type="submit" class="botao botao-perigo botao-pequeno">
+                        Excluir
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    }
+
+    <p class="ajuda">
+        As aulas em laranja ainda estao sem conteudo escrito.
+    </p>
+}

@@ -1,0 +1,620 @@
+/* =====================================================================
+   PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
+   Arquivo: wwwroot/css/site.css
+   ---------------------------------------------------------------------
+   Folha de estilo propria, sem Bootstrap nem qualquer biblioteca
+   externa. Motivo: o sistema funciona sem internet, o que importa no
+   dia da apresentacao, e todo o visual fica explicavel linha a linha.
+   ===================================================================== */
+
+:root {
+    --cor-fundo: #f4f5f7;
+    --cor-superficie: #ffffff;
+    --cor-borda: #dfe1e6;
+    --cor-texto: #172b4d;
+    --cor-texto-suave: #5e6c84;
+
+    --cor-primaria: #2f4f7f;
+    --cor-primaria-escura: #233c61;
+    --cor-primaria-clara: #e8eef7;
+
+    --cor-sucesso: #0b7a52;
+    --cor-sucesso-fundo: #e4f4ed;
+    --cor-alerta: #9a6300;
+    --cor-alerta-fundo: #fdf3e2;
+    --cor-erro: #a62020;
+    --cor-erro-fundo: #fbeaea;
+
+    --raio: 8px;
+    --sombra: 0 1px 3px rgba(23, 43, 77, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--cor-texto);
+    background: var(--cor-fundo);
+}
+
+/* ---------------------------------------------------------------- */
+/* BARRA DO TOPO                                                     */
+/* ---------------------------------------------------------------- */
+.topo {
+    background: var(--cor-primaria);
+    color: #fff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    min-height: 58px;
+    flex-wrap: wrap;
+}
+
+.topo .marca {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.topo nav { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
+
+.topo nav a {
+    color: #d7e1f0;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: var(--raio);
+    font-size: 14px;
+}
+
+.topo nav a:hover { background: var(--cor-primaria-escura); color: #fff; }
+.topo nav a.ativo { background: var(--cor-primaria-escura); color: #fff; }
+
+.topo .usuario {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: #d7e1f0;
+    white-space: nowrap;
+}
+
+.topo .usuario .perfil {
+    background: var(--cor-primaria-escura);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+}
+
+.topo .usuario a { color: #fff; text-decoration: underline; }
+
+/* ---------------------------------------------------------------- */
+/* ESTRUTURA DA PAGINA                                               */
+/* ---------------------------------------------------------------- */
+main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 60px; }
+
+h1 { font-size: 24px; margin: 0 0 4px; font-weight: 600; }
+h2 { font-size: 18px; margin: 28px 0 12px; font-weight: 600; }
+h3 { font-size: 15px; margin: 0 0 8px; font-weight: 600; }
+
+.subtitulo { color: var(--cor-texto-suave); margin: 0 0 22px; font-size: 14px; }
+
+.cartao {
+    background: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    padding: 20px 22px;
+    margin-bottom: 18px;
+}
+
+.grade { display: grid; gap: 16px; }
+.grade-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grade-3 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+
+/* ---------------------------------------------------------------- */
+/* FAIXAS DE AVISO                                                   */
+/* ---------------------------------------------------------------- */
+.aviso {
+    padding: 12px 16px;
+    border-radius: var(--raio);
+    margin-bottom: 18px;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+
+.aviso-sucesso { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); border-color: #b9e0ce; }
+.aviso-erro    { background: var(--cor-erro-fundo);    color: var(--cor-erro);    border-color: #eec4c4; }
+.aviso-info    { background: var(--cor-primaria-clara); color: var(--cor-primaria); border-color: #c6d5ea; }
+
+/* ---------------------------------------------------------------- */
+/* FORMULARIOS                                                       */
+/* ---------------------------------------------------------------- */
+.campo { margin-bottom: 16px; }
+
+.campo label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--cor-texto);
+}
+
+.campo input[type="text"],
+.campo input[type="email"],
+.campo input[type="password"],
+.campo input[type="number"],
+.campo input[type="search"],
+.campo select,
+.campo textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    font-family: inherit;
+    font-size: 14px;
+    background: #fff;
+    color: var(--cor-texto);
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px var(--cor-primaria-clara);
+}
+
+.campo textarea { min-height: 90px; resize: vertical; }
+
+.campo-inline { display: flex; align-items: center; gap: 8px; }
+.campo-inline label { margin: 0; font-weight: 400; font-size: 14px; }
+
+.erro-validacao { color: var(--cor-erro); font-size: 13px; display: block; margin-top: 4px; }
+
+.ajuda { color: var(--cor-texto-suave); font-size: 13px; margin-top: 4px; }
+
+/* ---------------------------------------------------------------- */
+/* BOTOES                                                            */
+/* ---------------------------------------------------------------- */
+.botao {
+    display: inline-block;
+    padding: 9px 18px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    background: #fff;
+    color: var(--cor-texto);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.botao:hover { background: #f1f2f4; }
+
+.botao-primario {
+    background: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+    color: #fff;
+}
+
+.botao-primario:hover { background: var(--cor-primaria-escura); }
+
+.botao-perigo { background: #fff; border-color: #eec4c4; color: var(--cor-erro); }
+.botao-perigo:hover { background: var(--cor-erro-fundo); }
+
+.botao-pequeno { padding: 5px 12px; font-size: 13px; }
+.botao-largo { width: 100%; padding: 12px; font-size: 15px; }
+
+.acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+.acoes-linha { display: flex; gap: 6px; }
+
+/* ---------------------------------------------------------------- */
+/* TABELAS                                                           */
+/* ---------------------------------------------------------------- */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+thead th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #fafbfc;
+    border-bottom: 2px solid var(--cor-borda);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--cor-texto-suave);
+}
+
+tbody td { padding: 11px 12px; border-bottom: 1px solid var(--cor-borda); }
+tbody tr:hover { background: #fafbfc; }
+
+.coluna-acoes { text-align: right; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- */
+/* ETIQUETAS DE SITUACAO                                             */
+/* ---------------------------------------------------------------- */
+.etiqueta {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.etiqueta-ativo   { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
+.etiqueta-inativo { background: #eceef1; color: var(--cor-texto-suave); }
+.etiqueta-admin   { background: var(--cor-primaria-clara); color: var(--cor-primaria); }
+.etiqueta-aluno   { background: #eceef1; color: var(--cor-texto-suave); }
+
+/* ---------------------------------------------------------------- */
+/* BARRA DE PROGRESSO                                                */
+/* ---------------------------------------------------------------- */
+.progresso-trilha {
+    height: 10px;
+    background: #e4e6ea;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.progresso-barra { height: 100%; background: var(--cor-primaria); border-radius: 20px; }
+.progresso-barra.completo { background: var(--cor-sucesso); }
+
+.situacao-aprovado  { color: var(--cor-sucesso); font-weight: 600; }
+.situacao-andamento { color: var(--cor-alerta);  font-weight: 600; }
+.situacao-neutro    { color: var(--cor-texto-suave); }
+
+/* ---------------------------------------------------------------- */
+/* LISTA DE AULAS                                                    */
+/* ---------------------------------------------------------------- */
+.aula {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    margin-bottom: 8px;
+    background: #fff;
+}
+
+.aula.concluida { background: var(--cor-sucesso-fundo); border-color: #b9e0ce; }
+.aula .ordem {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #eceef1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+    flex-shrink: 0;
+}
+.aula.concluida .ordem { background: var(--cor-sucesso); color: #fff; }
+.aula .titulo { flex: 1; }
+.aula .duracao { color: var(--cor-texto-suave); font-size: 13px; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- */
+/* CARTOES DE CURSO (catalogo do aluno)                              */
+/* ---------------------------------------------------------------- */
+.curso-cartao {
+    background: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+}
+
+.curso-cartao:hover { border-color: var(--cor-primaria); }
+.curso-cartao .descricao { color: var(--cor-texto-suave); font-size: 14px; flex: 1; margin: 6px 0 14px; }
+.curso-cartao .rodape { display: flex; gap: 14px; font-size: 13px; color: var(--cor-texto-suave); }
+
+/* ---------------------------------------------------------------- */
+/* NUMEROS DO PAINEL                                                 */
+/* ---------------------------------------------------------------- */
+.numero { font-size: 30px; font-weight: 600; color: var(--cor-primaria); line-height: 1.1; }
+.numero-rotulo { font-size: 13px; color: var(--cor-texto-suave); }
+
+/* ---------------------------------------------------------------- */
+/* TELA DE LOGIN                                                     */
+/* ---------------------------------------------------------------- */
+.tela-acesso {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.caixa-acesso { width: 100%; max-width: 420px; }
+
+.caixa-acesso .marca-grande {
+    text-align: center;
+    font-size: 21px;
+    font-weight: 600;
+    color: var(--cor-primaria);
+    margin-bottom: 4px;
+}
+
+.caixa-acesso .marca-sub {
+    text-align: center;
+    color: var(--cor-texto-suave);
+    font-size: 14px;
+    margin-bottom: 22px;
+}
+
+.credenciais {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: var(--cor-primaria-clara);
+    border-radius: var(--raio);
+    font-size: 13px;
+    color: var(--cor-primaria);
+}
+
+.credenciais code { font-family: Consolas, monospace; }
+
+/* ---------------------------------------------------------------- */
+/* RODAPE                                                            */
+/* ---------------------------------------------------------------- */
+.rodape {
+    text-align: center;
+    color: var(--cor-texto-suave);
+    font-size: 12px;
+    padding: 20px;
+    border-top: 1px solid var(--cor-borda);
+    margin-top: 40px;
+}
+
+.vazio {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--cor-texto-suave);
+}
+
+/* ---------------------------------------------------------------- */
+/* TELAS ESTREITAS                                                   */
+/* ---------------------------------------------------------------- */
+@media (max-width: 640px) {
+    .topo { padding: 10px 16px; gap: 10px; }
+    main { padding: 20px 16px 40px; }
+    .coluna-acoes { text-align: left; }
+}
+
+/* ================================================================== */
+/* ACRESCENTADO NA VERSAO 2                                           */
+/* Alinhamento com a modelagem UML: terceiro perfil, filtros de        */
+/* busca, pagina da aula, historico de acoes e exclusao em 2 etapas.   */
+/* ================================================================== */
+
+/* ---------------------------------------------------------------- */
+/* O TERCEIRO PERFIL                                                 */
+/* ---------------------------------------------------------------- */
+.etiqueta-tutor { background: #efe7f7; color: #6b3fa0; }
+
+/* ---------------------------------------------------------------- */
+/* AS TRES ETAPAS DA RECUPERACAO DE SENHA (DS02)                     */
+/* ---------------------------------------------------------------- */
+.passos {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 18px;
+    font-size: 12px;
+}
+
+.passos .passo {
+    flex: 1;
+    padding: 7px 4px;
+    text-align: center;
+    border-radius: var(--raio);
+    background: #eceef1;
+    color: var(--cor-texto-suave);
+    border: 1px solid var(--cor-borda);
+}
+
+.passos .passo.atual {
+    background: var(--cor-primaria);
+    color: #fff;
+    border-color: var(--cor-primaria);
+    font-weight: 600;
+}
+
+.passos .passo.pronto {
+    background: var(--cor-sucesso-fundo);
+    color: var(--cor-sucesso);
+    border-color: #b9e0ce;
+}
+
+.etapa-titulo {
+    font-weight: 600;
+    color: var(--cor-primaria);
+    margin: 0 0 4px;
+}
+
+/* ---------------------------------------------------------------- */
+/* FILTROS DA BUSCA (DS04)                                           */
+/* ---------------------------------------------------------------- */
+.filtros {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.filtros .campo { margin-bottom: 0; }
+.filtros .campo-largo { flex: 1; min-width: 220px; }
+.filtros .campo-estreito { width: 110px; }
+
+.filtros .campo-inline { padding-bottom: 8px; }
+
+.resumo-filtro {
+    font-size: 13px;
+    color: var(--cor-texto-suave);
+    margin: 14px 0 0;
+}
+
+/* ---------------------------------------------------------------- */
+/* PAGINA DA AULA (DS05)                                             */
+/* ---------------------------------------------------------------- */
+.conteudo-aula {
+    background: var(--cor-superficie);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 22px 24px;
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-wrap;        /* respeita os paragrafos do tutor */
+    min-height: 160px;
+}
+
+.conteudo-aula.vazia {
+    color: var(--cor-texto-suave);
+    font-style: italic;
+}
+
+.trilha-aula {
+    font-size: 13px;
+    color: var(--cor-texto-suave);
+    margin: 0 0 6px;
+}
+
+.navegacao-aula {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* Aula sem conteudo escrito, na lista do tutor */
+.aula.sem-conteudo { border-color: #f0d8bb; background: var(--cor-alerta-fundo); }
+.aula.sem-conteudo .ordem { background: var(--cor-alerta); color: #fff; }
+
+/* ---------------------------------------------------------------- */
+/* HISTORICO DE ACOES (DS12)                                         */
+/* ---------------------------------------------------------------- */
+.historico {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.historico .cartao { margin: 0; }
+
+.lista-log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.lista-log li {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.lista-log li:last-child { border-bottom: none; }
+
+.lista-log .quando {
+    display: block;
+    color: var(--cor-texto-suave);
+    font-size: 12px;
+    font-family: Consolas, monospace;
+}
+
+/* ---------------------------------------------------------------- */
+/* CONFIRMACAO DE EXCLUSAO (DS10 e DS14)                             */
+/* ---------------------------------------------------------------- */
+.caixa-perigo {
+    max-width: 620px;
+    margin: 0 auto;
+    border-color: #eec4c4;
+}
+
+.motivo-bloqueio {
+    color: var(--cor-erro);
+    font-weight: 600;
+    margin: 0 0 14px;
+}
+
+.lista-detalhes {
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 14px 16px;
+    background: var(--cor-erro-fundo);
+    border: 1px solid #eec4c4;
+    border-radius: var(--raio);
+    font-size: 14px;
+}
+
+.lista-detalhes li { padding: 3px 0; }
+
+.lista-detalhes li::before {
+    content: "- ";
+    color: var(--cor-erro);
+}
+
+/* ---------------------------------------------------------------- */
+/* CAIXA DE ENTRADA SIMULADA (DS02)                                  */
+/* ---------------------------------------------------------------- */
+.caixa-entrada {
+    background: #1f2430;
+    color: #e6e8ee;
+    border-radius: var(--raio);
+    padding: 18px 20px;
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-height: 420px;
+}
+
+.caminho-arquivo {
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    color: var(--cor-texto-suave);
+    word-break: break-all;
+    margin-top: 10px;
+}
+
+/* ---------------------------------------------------------------- */
+/* TABELA DE PROGRESSO (DS07)                                        */
+/* ---------------------------------------------------------------- */
+.linha-aprovada td { background: var(--cor-sucesso-fundo); }
+
+.barra-pequena {
+    height: 6px;
+    width: 90px;
+    background: #e4e6ea;
+    border-radius: 20px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.barra-pequena span {
+    display: block;
+    height: 100%;
+    background: var(--cor-primaria);
+}
+
+.barra-pequena span.completo { background: var(--cor-sucesso); }
+
+@media (max-width: 640px) {
+    .filtros .campo-estreito { width: 100%; }
+    .passos { font-size: 11px; }
+}

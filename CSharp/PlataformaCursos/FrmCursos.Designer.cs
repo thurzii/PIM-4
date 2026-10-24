@@ -3,6 +3,8 @@
    Arquivo...: FrmCursos.Designer.cs
    ---------------------------------------------------------------------
    Arquivo do DESIGNER da tela de cursos e aulas.
+   Ganhou o campo do percentual minimo de conclusao (DS08) e o editor
+   do conteudo da aula (DS05).
    ===================================================================== */
 
 namespace PlataformaCursos
@@ -33,6 +35,9 @@ namespace PlataformaCursos
             this.afr_lblCarga = new System.Windows.Forms.Label();
             this.afr_txtCarga = new System.Windows.Forms.TextBox();
             this.afr_chkAtivoCurso = new System.Windows.Forms.CheckBox();
+            this.afr_lblMinimo = new System.Windows.Forms.Label();
+            this.afr_numMinimo = new System.Windows.Forms.NumericUpDown();
+            this.afr_lblMinimoDica = new System.Windows.Forms.Label();
             this.afr_btnNovoCurso = new System.Windows.Forms.Button();
             this.afr_btnSalvarCurso = new System.Windows.Forms.Button();
             this.afr_btnExcluirCurso = new System.Windows.Forms.Button();
@@ -45,6 +50,7 @@ namespace PlataformaCursos
             this.afr_colTitulo = new System.Windows.Forms.ColumnHeader();
             this.afr_colCarga = new System.Windows.Forms.ColumnHeader();
             this.afr_colAulas = new System.Windows.Forms.ColumnHeader();
+            this.afr_colMinimo = new System.Windows.Forms.ColumnHeader();
             this.afr_colAtivo = new System.Windows.Forms.ColumnHeader();
             this.afr_grpAulas = new System.Windows.Forms.GroupBox();
             this.afr_lblAulaTitulo = new System.Windows.Forms.Label();
@@ -58,8 +64,13 @@ namespace PlataformaCursos
             this.afr_colAulaOrdem = new System.Windows.Forms.ColumnHeader();
             this.afr_colAulaTitulo = new System.Windows.Forms.ColumnHeader();
             this.afr_colAulaDuracao = new System.Windows.Forms.ColumnHeader();
+            this.afr_lblAulaConteudo = new System.Windows.Forms.Label();
+            this.afr_txtAulaConteudo = new System.Windows.Forms.TextBox();
+            this.afr_btnSalvarAula = new System.Windows.Forms.Button();
+            this.afr_lblDicaConteudo = new System.Windows.Forms.Label();
             this.afr_lblStatus = new System.Windows.Forms.Label();
             this.afr_btnFechar = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.afr_numMinimo)).BeginInit();
             this.afr_grpCurso.SuspendLayout();
             this.afr_grpAulas.SuspendLayout();
             this.SuspendLayout();
@@ -84,13 +95,16 @@ namespace PlataformaCursos
             this.afr_grpCurso.Controls.Add(this.afr_lblCarga);
             this.afr_grpCurso.Controls.Add(this.afr_txtCarga);
             this.afr_grpCurso.Controls.Add(this.afr_chkAtivoCurso);
+            this.afr_grpCurso.Controls.Add(this.afr_lblMinimo);
+            this.afr_grpCurso.Controls.Add(this.afr_numMinimo);
+            this.afr_grpCurso.Controls.Add(this.afr_lblMinimoDica);
             this.afr_grpCurso.Controls.Add(this.afr_btnNovoCurso);
             this.afr_grpCurso.Controls.Add(this.afr_btnSalvarCurso);
             this.afr_grpCurso.Controls.Add(this.afr_btnExcluirCurso);
             this.afr_grpCurso.Controls.Add(this.afr_lblAvisoCurso);
             this.afr_grpCurso.Location = new System.Drawing.Point(25, 56);
             this.afr_grpCurso.Name = "afr_grpCurso";
-            this.afr_grpCurso.Size = new System.Drawing.Size(400, 292);
+            this.afr_grpCurso.Size = new System.Drawing.Size(400, 318);
             this.afr_grpCurso.TabIndex = 1;
             this.afr_grpCurso.TabStop = false;
             this.afr_grpCurso.Text = "Dados do Curso";
@@ -171,12 +185,41 @@ namespace PlataformaCursos
             this.afr_chkAtivoCurso.Text = "Ativo (visivel para o aluno)";
             this.afr_chkAtivoCurso.UseVisualStyleBackColor = true;
             //
+            // afr_lblMinimo
+            //
+            this.afr_lblMinimo.AutoSize = true;
+            this.afr_lblMinimo.Location = new System.Drawing.Point(20, 196);
+            this.afr_lblMinimo.Name = "afr_lblMinimo";
+            this.afr_lblMinimo.Size = new System.Drawing.Size(85, 15);
+            this.afr_lblMinimo.TabIndex = 8;
+            this.afr_lblMinimo.Text = "Minimo (%):";
+            //
+            // afr_numMinimo
+            //
+            this.afr_numMinimo.Location = new System.Drawing.Point(110, 193);
+            this.afr_numMinimo.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
+            this.afr_numMinimo.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            this.afr_numMinimo.Name = "afr_numMinimo";
+            this.afr_numMinimo.Size = new System.Drawing.Size(80, 23);
+            this.afr_numMinimo.TabIndex = 9;
+            this.afr_numMinimo.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.afr_numMinimo.Value = new decimal(new int[] { 100, 0, 0, 0 });
+            //
+            // afr_lblMinimoDica
+            //
+            this.afr_lblMinimoDica.ForeColor = System.Drawing.Color.DimGray;
+            this.afr_lblMinimoDica.Location = new System.Drawing.Point(207, 194);
+            this.afr_lblMinimoDica.Name = "afr_lblMinimoDica";
+            this.afr_lblMinimoDica.Size = new System.Drawing.Size(175, 32);
+            this.afr_lblMinimoDica.TabIndex = 10;
+            this.afr_lblMinimoDica.Text = "das aulas para concluir o curso";
+            //
             // afr_btnNovoCurso
             //
-            this.afr_btnNovoCurso.Location = new System.Drawing.Point(20, 200);
+            this.afr_btnNovoCurso.Location = new System.Drawing.Point(20, 232);
             this.afr_btnNovoCurso.Name = "afr_btnNovoCurso";
             this.afr_btnNovoCurso.Size = new System.Drawing.Size(118, 40);
-            this.afr_btnNovoCurso.TabIndex = 8;
+            this.afr_btnNovoCurso.TabIndex = 11;
             this.afr_btnNovoCurso.Text = "Novo";
             this.afr_btnNovoCurso.UseVisualStyleBackColor = true;
             this.afr_btnNovoCurso.Click += new System.EventHandler(this.afr_btnNovoCurso_Click);
@@ -184,10 +227,10 @@ namespace PlataformaCursos
             // afr_btnSalvarCurso
             //
             this.afr_btnSalvarCurso.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.afr_btnSalvarCurso.Location = new System.Drawing.Point(148, 200);
+            this.afr_btnSalvarCurso.Location = new System.Drawing.Point(148, 232);
             this.afr_btnSalvarCurso.Name = "afr_btnSalvarCurso";
             this.afr_btnSalvarCurso.Size = new System.Drawing.Size(118, 40);
-            this.afr_btnSalvarCurso.TabIndex = 9;
+            this.afr_btnSalvarCurso.TabIndex = 12;
             this.afr_btnSalvarCurso.Text = "Salvar";
             this.afr_btnSalvarCurso.UseVisualStyleBackColor = false;
             this.afr_btnSalvarCurso.Click += new System.EventHandler(this.afr_btnSalvarCurso_Click);
@@ -195,10 +238,10 @@ namespace PlataformaCursos
             // afr_btnExcluirCurso
             //
             this.afr_btnExcluirCurso.BackColor = System.Drawing.Color.MistyRose;
-            this.afr_btnExcluirCurso.Location = new System.Drawing.Point(276, 200);
+            this.afr_btnExcluirCurso.Location = new System.Drawing.Point(276, 232);
             this.afr_btnExcluirCurso.Name = "afr_btnExcluirCurso";
             this.afr_btnExcluirCurso.Size = new System.Drawing.Size(104, 40);
-            this.afr_btnExcluirCurso.TabIndex = 10;
+            this.afr_btnExcluirCurso.TabIndex = 13;
             this.afr_btnExcluirCurso.Text = "Excluir";
             this.afr_btnExcluirCurso.UseVisualStyleBackColor = false;
             this.afr_btnExcluirCurso.Click += new System.EventHandler(this.afr_btnExcluirCurso_Click);
@@ -206,10 +249,10 @@ namespace PlataformaCursos
             // afr_lblAvisoCurso
             //
             this.afr_lblAvisoCurso.ForeColor = System.Drawing.Color.DimGray;
-            this.afr_lblAvisoCurso.Location = new System.Drawing.Point(20, 248);
+            this.afr_lblAvisoCurso.Location = new System.Drawing.Point(20, 278);
             this.afr_lblAvisoCurso.Name = "afr_lblAvisoCurso";
-            this.afr_lblAvisoCurso.Size = new System.Drawing.Size(360, 35);
-            this.afr_lblAvisoCurso.TabIndex = 11;
+            this.afr_lblAvisoCurso.Size = new System.Drawing.Size(360, 34);
+            this.afr_lblAvisoCurso.TabIndex = 14;
             this.afr_lblAvisoCurso.Text = "Clique em um curso da lista para editar e para ver ou cadastrar as aulas dele.";
             //
             // afr_lblBusca
@@ -246,13 +289,14 @@ namespace PlataformaCursos
             this.afr_colTitulo,
             this.afr_colCarga,
             this.afr_colAulas,
+            this.afr_colMinimo,
             this.afr_colAtivo});
             this.afr_lstCursos.FullRowSelect = true;
             this.afr_lstCursos.GridLines = true;
             this.afr_lstCursos.Location = new System.Drawing.Point(445, 96);
             this.afr_lstCursos.MultiSelect = false;
             this.afr_lstCursos.Name = "afr_lstCursos";
-            this.afr_lstCursos.Size = new System.Drawing.Size(430, 252);
+            this.afr_lstCursos.Size = new System.Drawing.Size(430, 278);
             this.afr_lstCursos.TabIndex = 5;
             this.afr_lstCursos.UseCompatibleStateImageBehavior = false;
             this.afr_lstCursos.View = System.Windows.Forms.View.Details;
@@ -261,12 +305,12 @@ namespace PlataformaCursos
             // afr_colId
             //
             this.afr_colId.Text = "Id";
-            this.afr_colId.Width = 40;
+            this.afr_colId.Width = 35;
             //
             // afr_colTitulo
             //
             this.afr_colTitulo.Text = "Titulo";
-            this.afr_colTitulo.Width = 200;
+            this.afr_colTitulo.Width = 170;
             //
             // afr_colCarga
             //
@@ -276,7 +320,12 @@ namespace PlataformaCursos
             // afr_colAulas
             //
             this.afr_colAulas.Text = "Aulas";
-            this.afr_colAulas.Width = 55;
+            this.afr_colAulas.Width = 50;
+            //
+            // afr_colMinimo
+            //
+            this.afr_colMinimo.Text = "Minimo";
+            this.afr_colMinimo.Width = 60;
             //
             // afr_colAtivo
             //
@@ -292,9 +341,13 @@ namespace PlataformaCursos
             this.afr_grpAulas.Controls.Add(this.afr_btnAddAula);
             this.afr_grpAulas.Controls.Add(this.afr_btnDelAula);
             this.afr_grpAulas.Controls.Add(this.afr_lstAulas);
-            this.afr_grpAulas.Location = new System.Drawing.Point(25, 358);
+            this.afr_grpAulas.Controls.Add(this.afr_lblAulaConteudo);
+            this.afr_grpAulas.Controls.Add(this.afr_txtAulaConteudo);
+            this.afr_grpAulas.Controls.Add(this.afr_btnSalvarAula);
+            this.afr_grpAulas.Controls.Add(this.afr_lblDicaConteudo);
+            this.afr_grpAulas.Location = new System.Drawing.Point(25, 384);
             this.afr_grpAulas.Name = "afr_grpAulas";
-            this.afr_grpAulas.Size = new System.Drawing.Size(850, 170);
+            this.afr_grpAulas.Size = new System.Drawing.Size(850, 230);
             this.afr_grpAulas.TabIndex = 6;
             this.afr_grpAulas.TabStop = false;
             this.afr_grpAulas.Text = "Aulas do curso selecionado";
@@ -368,35 +421,74 @@ namespace PlataformaCursos
             this.afr_lstAulas.Location = new System.Drawing.Point(20, 58);
             this.afr_lstAulas.MultiSelect = false;
             this.afr_lstAulas.Name = "afr_lstAulas";
-            this.afr_lstAulas.Size = new System.Drawing.Size(810, 100);
+            this.afr_lstAulas.Size = new System.Drawing.Size(400, 160);
             this.afr_lstAulas.TabIndex = 6;
             this.afr_lstAulas.UseCompatibleStateImageBehavior = false;
             this.afr_lstAulas.View = System.Windows.Forms.View.Details;
+            this.afr_lstAulas.SelectedIndexChanged += new System.EventHandler(this.afr_lstAulas_SelectedIndexChanged);
             //
             // afr_colAulaId
             //
             this.afr_colAulaId.Text = "Id";
-            this.afr_colAulaId.Width = 50;
+            this.afr_colAulaId.Width = 40;
             //
             // afr_colAulaOrdem
             //
             this.afr_colAulaOrdem.Text = "Ordem";
-            this.afr_colAulaOrdem.Width = 70;
+            this.afr_colAulaOrdem.Width = 60;
             //
             // afr_colAulaTitulo
             //
             this.afr_colAulaTitulo.Text = "Titulo da aula";
-            this.afr_colAulaTitulo.Width = 560;
+            this.afr_colAulaTitulo.Width = 210;
             //
             // afr_colAulaDuracao
             //
             this.afr_colAulaDuracao.Text = "Duracao";
-            this.afr_colAulaDuracao.Width = 100;
+            this.afr_colAulaDuracao.Width = 70;
+            //
+            // afr_lblAulaConteudo
+            //
+            this.afr_lblAulaConteudo.AutoSize = true;
+            this.afr_lblAulaConteudo.Location = new System.Drawing.Point(440, 58);
+            this.afr_lblAulaConteudo.Name = "afr_lblAulaConteudo";
+            this.afr_lblAulaConteudo.Size = new System.Drawing.Size(230, 15);
+            this.afr_lblAulaConteudo.TabIndex = 7;
+            this.afr_lblAulaConteudo.Text = "Conteudo da aula selecionada:";
+            //
+            // afr_txtAulaConteudo
+            //
+            this.afr_txtAulaConteudo.Location = new System.Drawing.Point(440, 78);
+            this.afr_txtAulaConteudo.Multiline = true;
+            this.afr_txtAulaConteudo.Name = "afr_txtAulaConteudo";
+            this.afr_txtAulaConteudo.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.afr_txtAulaConteudo.Size = new System.Drawing.Size(390, 112);
+            this.afr_txtAulaConteudo.TabIndex = 8;
+            //
+            // afr_btnSalvarAula
+            //
+            this.afr_btnSalvarAula.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.afr_btnSalvarAula.Location = new System.Drawing.Point(440, 196);
+            this.afr_btnSalvarAula.Name = "afr_btnSalvarAula";
+            this.afr_btnSalvarAula.Size = new System.Drawing.Size(200, 26);
+            this.afr_btnSalvarAula.TabIndex = 9;
+            this.afr_btnSalvarAula.Text = "Salvar conteudo da aula";
+            this.afr_btnSalvarAula.UseVisualStyleBackColor = false;
+            this.afr_btnSalvarAula.Click += new System.EventHandler(this.afr_btnSalvarAula_Click);
+            //
+            // afr_lblDicaConteudo
+            //
+            this.afr_lblDicaConteudo.ForeColor = System.Drawing.Color.DimGray;
+            this.afr_lblDicaConteudo.Location = new System.Drawing.Point(650, 200);
+            this.afr_lblDicaConteudo.Name = "afr_lblDicaConteudo";
+            this.afr_lblDicaConteudo.Size = new System.Drawing.Size(180, 20);
+            this.afr_lblDicaConteudo.TabIndex = 10;
+            this.afr_lblDicaConteudo.Text = "E o que o aluno le na aula.";
             //
             // afr_lblStatus
             //
             this.afr_lblStatus.ForeColor = System.Drawing.Color.DimGray;
-            this.afr_lblStatus.Location = new System.Drawing.Point(25, 540);
+            this.afr_lblStatus.Location = new System.Drawing.Point(25, 624);
             this.afr_lblStatus.Name = "afr_lblStatus";
             this.afr_lblStatus.Size = new System.Drawing.Size(690, 34);
             this.afr_lblStatus.TabIndex = 7;
@@ -404,7 +496,7 @@ namespace PlataformaCursos
             //
             // afr_btnFechar
             //
-            this.afr_btnFechar.Location = new System.Drawing.Point(735, 540);
+            this.afr_btnFechar.Location = new System.Drawing.Point(735, 622);
             this.afr_btnFechar.Name = "afr_btnFechar";
             this.afr_btnFechar.Size = new System.Drawing.Size(140, 32);
             this.afr_btnFechar.TabIndex = 8;
@@ -416,7 +508,7 @@ namespace PlataformaCursos
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(900, 585);
+            this.ClientSize = new System.Drawing.Size(900, 668);
             this.Controls.Add(this.afr_lblTitulo);
             this.Controls.Add(this.afr_grpCurso);
             this.Controls.Add(this.afr_lblBusca);
@@ -431,6 +523,8 @@ namespace PlataformaCursos
             this.Name = "FrmCursos";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Gerenciar Cursos e Aulas";
+            this.Load += new System.EventHandler(this.FrmCursos_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.afr_numMinimo)).EndInit();
             this.afr_grpCurso.ResumeLayout(false);
             this.afr_grpCurso.PerformLayout();
             this.afr_grpAulas.ResumeLayout(false);
@@ -452,6 +546,9 @@ namespace PlataformaCursos
         private System.Windows.Forms.Label afr_lblCarga;
         private System.Windows.Forms.TextBox afr_txtCarga;
         private System.Windows.Forms.CheckBox afr_chkAtivoCurso;
+        private System.Windows.Forms.Label afr_lblMinimo;
+        private System.Windows.Forms.NumericUpDown afr_numMinimo;
+        private System.Windows.Forms.Label afr_lblMinimoDica;
         private System.Windows.Forms.Button afr_btnNovoCurso;
         private System.Windows.Forms.Button afr_btnSalvarCurso;
         private System.Windows.Forms.Button afr_btnExcluirCurso;
@@ -464,6 +561,7 @@ namespace PlataformaCursos
         private System.Windows.Forms.ColumnHeader afr_colTitulo;
         private System.Windows.Forms.ColumnHeader afr_colCarga;
         private System.Windows.Forms.ColumnHeader afr_colAulas;
+        private System.Windows.Forms.ColumnHeader afr_colMinimo;
         private System.Windows.Forms.ColumnHeader afr_colAtivo;
         private System.Windows.Forms.GroupBox afr_grpAulas;
         private System.Windows.Forms.Label afr_lblAulaTitulo;
@@ -477,6 +575,10 @@ namespace PlataformaCursos
         private System.Windows.Forms.ColumnHeader afr_colAulaOrdem;
         private System.Windows.Forms.ColumnHeader afr_colAulaTitulo;
         private System.Windows.Forms.ColumnHeader afr_colAulaDuracao;
+        private System.Windows.Forms.Label afr_lblAulaConteudo;
+        private System.Windows.Forms.TextBox afr_txtAulaConteudo;
+        private System.Windows.Forms.Button afr_btnSalvarAula;
+        private System.Windows.Forms.Label afr_lblDicaConteudo;
         private System.Windows.Forms.Label afr_lblStatus;
         private System.Windows.Forms.Button afr_btnFechar;
     }

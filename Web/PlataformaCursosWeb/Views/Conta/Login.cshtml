@@ -1,0 +1,86 @@
+@*
+    =====================================================================
+    DC01 / DS01 - Tela de login.
+    Usa um layout proprio (sem a barra do topo), porque quem ve esta
+    pagina ainda nao esta logado e nao tem menu para navegar.
+    =====================================================================
+*@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Entrar";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Entrar - Plataforma de Cursos</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+<div class="tela-acesso">
+    <div class="caixa-acesso">
+
+        <div class="marca-grande">Plataforma de Cursos</div>
+        <div class="marca-sub">Acesse com seu email e sua senha</div>
+
+        @if (TempData["Sucesso"] != null)
+        {
+            <div class="aviso aviso-sucesso">@TempData["Sucesso"]</div>
+        }
+
+        @if (ViewBag.Erro != null)
+        {
+            <div class="aviso aviso-erro">@ViewBag.Erro</div>
+        }
+
+        @if (ViewBag.ErroBanco != null)
+        {
+            <div class="aviso aviso-erro">@ViewBag.ErroBanco</div>
+        }
+
+        <div class="cartao">
+            <form asp-controller="Conta" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="campo">
+                    <label asp-for="afr_Email">Email</label>
+                    <input asp-for="afr_Email" type="email" autocomplete="username"
+                           placeholder="admin@@escola.com" />
+                    <span asp-validation-for="afr_Email" class="erro-validacao"></span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="afr_Senha">Senha</label>
+                    <input asp-for="afr_Senha" type="password" autocomplete="current-password" />
+                    <span asp-validation-for="afr_Senha" class="erro-validacao"></span>
+                </div>
+
+                <button type="submit" class="botao botao-primario botao-largo">Entrar</button>
+            </form>
+
+            <p class="ajuda" style="margin-top:14px;">
+                <a asp-controller="Conta" asp-action="RecuperarSenha"
+                   asp-route-email="@Model.afr_Email">Esqueci minha senha</a>
+            </p>
+        </div>
+
+        @*
+            Credenciais de teste: facilita a correcao e a apresentacao.
+            Sao os tres perfis dos diagramas de sequencia - o TUTOR
+            entrou nesta versao, por causa dos diagramas DS07 a DS10.
+        *@
+        <div class="credenciais">
+            <strong>Usuarios para teste</strong><br />
+            Administrador: <code>admin@@escola.com</code> / <code>admin123</code><br />
+            Tutor: <code>carla@@escola.com</code> / <code>tutor123</code><br />
+            Aluno: <code>maria@@escola.com</code> / <code>aluno123</code>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

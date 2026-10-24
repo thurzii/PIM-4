@@ -1,0 +1,119 @@
+@*
+    =====================================================================
+    DC11 (Criar) e DC13 (Editar) - o MESMO formulario serve para os dois:
+    Id zero significa novo, Id maior que zero significa edicao.
+
+    O <select> do perfil agora tem TRES opcoes, montadas a partir de
+    Usuario.ObterPerfis(). Assim, se o grupo acrescentar um quarto
+    perfil no modelo, basta mexer na classe Usuario: esta pagina
+    acompanha sozinha.
+    =====================================================================
+*@
+@model UsuarioViewModel
+@{
+    bool afr_edicao = Model.EhEdicao();
+    ViewData["Title"] = afr_edicao ? "Editar usuario" : "Novo usuario";
+}
+
+<p class="subtitulo" style="margin-bottom:6px;">
+    <a asp-controller="Usuarios" asp-action="Index">&larr; Voltar para a lista</a>
+</p>
+
+<h1>@(afr_edicao ? "Editar usuario" : "Novo usuario")</h1>
+
+<p class="subtitulo">
+    @if (afr_edicao)
+    {
+        <text>Gravar vai executar um <strong>UPDATE</strong> no registro Id @Model.afr_Id.</text>
+
+        if (Model.afr_DataCadastro > DateTime.MinValue)
+        {
+            <text>
+                &middot; cadastro em
+                @Model.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm")
+            </text>
+        }
+    }
+    else
+    {
+        <text>Gravar vai executar um <strong>INSERT</strong> na tabela dbo.Usuarios.</text>
+    }
+</p>
+
+<div class="cartao" style="max-width:640px;">
+    <form asp-controller="Usuarios" asp-action="Salvar" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="afr_Id" />
+
+        <div class="campo">
+            <label asp-for="afr_Nome">Nome completo</label>
+            <input asp-for="afr_Nome" type="text" maxlength="100" />
+            <span asp-validation-for="afr_Nome" class="erro-validacao"></span>
+        </div>
+
+        <div class="campo">
+            <label asp-for="afr_Email">Email</label>
+            <input asp-for="afr_Email" type="email" maxlength="100" />
+            <span asp-validation-for="afr_Email" class="erro-validacao"></span>
+            <div class="ajuda">
+                Nao pode repetir. O sistema confere em tres lugares: aqui, no
+                UsuarioService (DS11 - verificarDuplicidade) e no proprio
+                banco, que tem restricao UNIQUE nesta coluna.
+            </div>
+        </div>
+
+        <div class="campo">
+            <label asp-for="afr_Senha">Senha</label>
+            <input asp-for="afr_Senha" type="text" maxlength="100" />
+            <span asp-validation-for="afr_Senha" class="erro-validacao"></span>
+            <div class="ajuda">Pelo menos 6 caracteres.</div>
+        </div>
+
+        <div class="campo" style="max-width:280px;">
+            <label asp-for="afr_Perfil">Perfil</label>
+            <select asp-for="afr_Perfil">
+                @foreach (string afr_perfil in Model.ObterPerfis())
+                {
+                    <option value="@afr_perfil">@afr_perfil</option>
+                }
+            </select>
+            <span asp-validation-for="afr_Perfil" class="erro-validacao"></span>
+        </div>
+
+        @* Explica o que cada perfil alcanca *@
+        <ul class="ajuda" style="margin-top:-8px; padding-left:18px;">
+            @foreach (string afr_perfil in Model.ObterPerfis())
+            {
+                <li>
+                    <strong>@afr_perfil</strong>:
+                    @UsuarioViewModel.DescreverPerfil(afr_perfil)
+                </li>
+            }
+        </ul>
+
+        <div class="campo campo-inline">
+            <input asp-for="afr_Ativo" type="checkbox" />
+            <label asp-for="afr_Ativo">Usuario ativo (pode entrar no sistema)</label>
+        </div>
+
+        <div class="acoes">
+            <button type="submit" class="botao botao-primario">
+                @(afr_edicao ? "Salvar alteracoes" : "Cadastrar usuario")
+            </button>
+
+            <a asp-controller="Usuarios" asp-action="Index" class="botao">Cancelar</a>
+
+            @if (afr_edicao)
+            {
+                <a asp-controller="Usuarios" asp-action="Perfil" asp-route-id="@Model.afr_Id"
+                   class="botao">Ver perfil e historico</a>
+            }
+        </div>
+    </form>
+</div>
+
+<p class="ajuda" style="max-width:640px;">
+    Observacao: a senha e gravada como texto simples para facilitar a
+    demonstracao. Em um sistema real seria guardada como hash.
+</p>

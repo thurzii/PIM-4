@@ -1,0 +1,144 @@
+@*
+    =====================================================================
+    DC08 / DS08 - Visualizar Curso
+    DC05 / DS05 - Marcar Aula como Concluida
+
+    A tela mais importante da versao do aluno. Mostra o curso, o
+    REQUISITO DE CONCLUSAO, a lista de aulas e a barra de progresso.
+
+    O QUE MUDOU NESTA VERSAO:
+
+    1) O status nao e mais "concluiu tudo ou nao". O DS08 fala em
+       resultadoConclusao(status, percentual) e em
+       obterRequisitosCurso(curso), entao o curso tem um percentual
+       MINIMO: um curso de 75% fecha com tres quartos das aulas.
+
+    2) Cada aula virou um link para a propria pagina, porque o DS05
+       pede abrirAula(aula) e exibirConteudo(). O botao de marcar
+       continua aqui como atalho.
+    =====================================================================
+*@
+@model CursoAlunoViewModel
+@{
+    ViewData["Title"] = Model.afr_Curso.afr_Titulo;
+}
+
+<p class="subtitulo" style="margin-bottom:6px;">
+    <a asp-controller="Catalogo" asp-action="Index">&larr; Voltar ao catalogo</a>
+</p>
+
+<h1>@Model.afr_Curso.afr_Titulo</h1>
+<p class="subtitulo">
+    @Model.afr_Curso.afr_CargaHoraria h &middot;
+    @Model.afr_Resultado.afr_Total aula(s) &middot;
+    minimo de @Model.afr_Curso.afr_PercentualMinimo% para concluir
+</p>
+
+<div class="grade grade-2">
+
+    @* ------------------------------------------------------------ *@
+    @* DESCRICAO E REQUISITOS DO CURSO                               *@
+    @* DS08 - requisitosCurso(dados)                                 *@
+    @* ------------------------------------------------------------ *@
+    <div class="cartao">
+        <h3>Sobre o curso</h3>
+        <p>
+            @if (string.IsNullOrWhiteSpace(Model.afr_Curso.afr_Descricao))
+            {
+                <span class="ajuda">Este curso ainda nao tem descricao.</span>
+            }
+            else
+            {
+                @Model.afr_Curso.afr_Descricao
+            }
+        </p>
+
+        <p class="ajuda" style="margin-top:12px;">
+            <strong>Requisito:</strong> @Model.afr_Requisitos
+        </p>
+    </div>
+
+    @* ------------------------------------------------------------ *@
+    @* PROGRESSO (DS08)                                              *@
+    @* resultadoConclusao(status, percentual)                         *@
+    @* ------------------------------------------------------------ *@
+    <div class="cartao">
+        <h3>Seu progresso</h3>
+
+        <p style="margin:0;">
+            <strong>@Model.afr_Resultado.afr_Percentual%</strong>
+            <span class="ajuda">
+                (@Model.afr_Resultado.afr_Concluidas de
+                 @Model.afr_Resultado.afr_Total aulas)
+            </span>
+        </p>
+
+        <div class="progresso-trilha">
+            <div class="progresso-barra @(Model.afr_Resultado.afr_Aprovado ? "completo" : "")"
+                 style="width:@(Model.afr_Resultado.afr_Percentual)%;"></div>
+        </div>
+
+        <p class="@Model.ObterClasseProgresso()" style="margin:8px 0 0;">
+            @Model.ObterMensagemProgresso()
+        </p>
+    </div>
+
+</div>
+
+@* ---------------------------------------------------------------- *@
+@* AULAS (DS05)                                                      *@
+@* ---------------------------------------------------------------- *@
+<h2>Aulas</h2>
+
+@if (Model.afr_Aulas.Count == 0)
+{
+    <div class="cartao vazio">
+        <p>Este curso ainda nao tem aulas cadastradas.</p>
+    </div>
+}
+else
+{
+    <p class="ajuda" style="margin-top:-6px; margin-bottom:12px;">
+        Clique no titulo da aula para abrir o conteudo dela.
+    </p>
+
+    foreach (Aula afr_aula in Model.afr_Aulas)
+    {
+        <div class="aula @(afr_aula.afr_Concluida ? "concluida" : "")">
+
+            <div class="ordem">@afr_aula.afr_Ordem</div>
+
+            @* DS05 - assistirAula(aula): o link abre a pagina da aula *@
+            <div class="titulo">
+                <a asp-controller="Catalogo" asp-action="Aula" asp-route-id="@afr_aula.afr_Id">
+                    @afr_aula.afr_Titulo
+                </a>
+            </div>
+
+            <div class="duracao">@afr_aula.afr_DuracaoMin min</div>
+
+            <form asp-controller="Catalogo" asp-action="MarcarAula" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="cursoId" value="@Model.afr_Curso.afr_Id" />
+                <input type="hidden" name="aulaId" value="@afr_aula.afr_Id" />
+
+                @* Inverte o estado atual: marcada vira desmarcada e vice-versa *@
+                <input type="hidden" name="concluida"
+                       value="@((!afr_aula.afr_Concluida).ToString().ToLower())" />
+
+                @if (afr_aula.afr_Concluida)
+                {
+                    <button type="submit" class="botao botao-pequeno">Desmarcar</button>
+                }
+                else
+                {
+                    <button type="submit" class="botao botao-primario botao-pequeno">
+                        Marcar como concluida
+                    </button>
+                }
+            </form>
+
+        </div>
+    }
+}

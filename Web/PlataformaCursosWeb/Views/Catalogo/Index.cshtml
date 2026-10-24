@@ -1,0 +1,137 @@
+@*
+    =====================================================================
+    DC03 / DS03 - Visualizar Cursos
+    DC04 / DS04 - Buscar Cursos
+
+    A tela do aluno. Equivale a metade esquerda do FrmCatalogo do
+    desktop, mais os filtros.
+
+    POR QUE EXISTEM FILTROS AGORA: o diagrama DS04 manda
+    buscarCurso(termo, FILTROS), no plural. Antes a busca tinha so o
+    termo. Os campos de filtro desta pagina viram um objeto FiltroCurso
+    no controller, que e o "filtros" do diagrama.
+
+    O formulario usa method="get": assim o endereco guarda a busca e a
+    pessoa pode salvar o link ou usar o botao voltar do navegador.
+    =====================================================================
+*@
+@model CatalogoViewModel
+@{
+    ViewData["Title"] = "Catalogo";
+}
+
+<h1>Catalogo de cursos</h1>
+<p class="subtitulo">Escolha um curso para ver as aulas e acompanhar o seu progresso.</p>
+
+@* ---------------------------------------------------------------- *@
+@* BUSCA COM FILTROS (DS04)                                          *@
+@* ---------------------------------------------------------------- *@
+<div class="cartao">
+    <form asp-controller="Catalogo" asp-action="Index" method="get">
+
+        <div class="filtros">
+            <div class="campo campo-largo">
+                <label asp-for="afr_Termo">Buscar por titulo ou descricao</label>
+                <input asp-for="afr_Termo" type="search" placeholder="Ex.: banco de dados" />
+            </div>
+
+            <div class="campo campo-estreito">
+                <label asp-for="afr_CargaMinima">Carga de (h)</label>
+                <input asp-for="afr_CargaMinima" type="number" min="0" max="1000" />
+            </div>
+
+            <div class="campo campo-estreito">
+                <label asp-for="afr_CargaMaxima">ate (h)</label>
+                <input asp-for="afr_CargaMaxima" type="number" min="0" max="1000" />
+            </div>
+
+            <button type="submit" class="botao botao-primario">Buscar</button>
+
+            @if (Model.TemFiltro())
+            {
+                <a asp-controller="Catalogo" asp-action="Index" class="botao">Ver todos</a>
+            }
+        </div>
+
+        <div class="campo-inline" style="margin-top:12px;">
+            <input asp-for="afr_SomenteNaoConcluidos" type="checkbox" />
+            <label asp-for="afr_SomenteNaoConcluidos">
+                Somente os cursos que eu ainda nao conclui
+            </label>
+        </div>
+
+        <p class="ajuda">Use 0 na carga maxima para nao ter limite.</p>
+    </form>
+
+    @if (ViewBag.Resumo != null)
+    {
+        <p class="resumo-filtro">@ViewBag.Resumo</p>
+    }
+</div>
+
+@* ---------------------------------------------------------------- *@
+@* LISTA DE CURSOS (DS03)                                           *@
+@* Cada cartao mostra tambem o progresso do aluno naquele curso,     *@
+@* que vem do resultadoConclusao do DS08.                            *@
+@* ---------------------------------------------------------------- *@
+@if (Model.afr_Cursos.Count == 0)
+{
+    <div class="cartao vazio">
+        @if (!Model.TemFiltro())
+        {
+            <p>Nenhum curso disponivel no momento.</p>
+        }
+        else
+        {
+            <p>Nenhum curso encontrado com esses filtros.</p>
+            <a asp-controller="Catalogo" asp-action="Index" class="botao">Ver todos os cursos</a>
+        }
+    </div>
+}
+else
+{
+    <div class="grade grade-2">
+        @foreach (Curso afr_curso in Model.afr_Cursos)
+        {
+            ResultadoConclusao afr_resultado = Model.ObterProgresso(afr_curso.afr_Id);
+
+            @* A classe do status sai aqui, e nao no meio do atributo:
+               fica mais facil de ler e de explicar *@
+            string afr_classeStatus = "situacao-neutro";
+
+            if (afr_resultado.afr_Aprovado)
+            {
+                afr_classeStatus = "situacao-aprovado";
+            }
+            else if (afr_resultado.afr_Concluidas > 0)
+            {
+                afr_classeStatus = "situacao-andamento";
+            }
+
+            <a class="curso-cartao"
+               asp-controller="Catalogo" asp-action="Detalhes" asp-route-id="@afr_curso.afr_Id">
+
+                <h3>@afr_curso.afr_Titulo</h3>
+
+                <div class="descricao">@afr_curso.afr_Descricao</div>
+
+                <div class="progresso-trilha">
+                    <div class="progresso-barra @(afr_resultado.afr_Aprovado ? "completo" : "")"
+                         style="width:@(afr_resultado.afr_Percentual)%"></div>
+                </div>
+
+                <div class="rodape">
+                    <span>@afr_curso.afr_CargaHoraria h</span>
+                    <span>@afr_curso.afr_TotalAulas aula(s)</span>
+                    <span>min. @afr_curso.afr_PercentualMinimo%</span>
+                </div>
+
+                <div class="rodape">
+                    <span class="@afr_classeStatus">
+                        @afr_resultado.ObterStatus() &middot; @afr_resultado.afr_Percentual%
+                    </span>
+                </div>
+            </a>
+        }
+    </div>
+}

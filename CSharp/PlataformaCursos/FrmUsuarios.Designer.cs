@@ -48,7 +48,9 @@ namespace PlataformaCursos
             this.afr_colEmail = new System.Windows.Forms.ColumnHeader();
             this.afr_colPerfil = new System.Windows.Forms.ColumnHeader();
             this.afr_colAtivo = new System.Windows.Forms.ColumnHeader();
+            this.afr_colCadastro = new System.Windows.Forms.ColumnHeader();
             this.afr_btnRecarregar = new System.Windows.Forms.Button();
+            this.afr_btnVerPerfil = new System.Windows.Forms.Button();
             this.afr_btnFechar = new System.Windows.Forms.Button();
             this.afr_txtSaida = new System.Windows.Forms.TextBox();
             this.afr_lblStatus = new System.Windows.Forms.Label();
@@ -161,8 +163,10 @@ namespace PlataformaCursos
             // afr_cmbPerfil
             //
             this.afr_cmbPerfil.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            // Os tres perfis do modelo: Aluno, Tutor e Admin
             this.afr_cmbPerfil.Items.AddRange(new object[] {
             "ALUNO",
+            "TUTOR",
             "ADMIN"});
             this.afr_cmbPerfil.Location = new System.Drawing.Point(110, 164);
             this.afr_cmbPerfil.Name = "afr_cmbPerfil";
@@ -256,7 +260,8 @@ namespace PlataformaCursos
             this.afr_colNome,
             this.afr_colEmail,
             this.afr_colPerfil,
-            this.afr_colAtivo});
+            this.afr_colAtivo,
+            this.afr_colCadastro});
             this.afr_lstUsuarios.FullRowSelect = true;
             this.afr_lstUsuarios.GridLines = true;
             this.afr_lstUsuarios.Location = new System.Drawing.Point(445, 98);
@@ -276,39 +281,55 @@ namespace PlataformaCursos
             // afr_colNome
             //
             this.afr_colNome.Text = "Nome";
-            this.afr_colNome.Width = 125;
+            this.afr_colNome.Width = 105;
             //
             // afr_colEmail
             //
             this.afr_colEmail.Text = "Email";
-            this.afr_colEmail.Width = 150;
+            this.afr_colEmail.Width = 110;
             //
             // afr_colPerfil
             //
             this.afr_colPerfil.Text = "Perfil";
-            this.afr_colPerfil.Width = 55;
+            this.afr_colPerfil.Width = 50;
             //
             // afr_colAtivo
             //
             this.afr_colAtivo.Text = "Ativo";
-            this.afr_colAtivo.Width = 50;
+            this.afr_colAtivo.Width = 45;
+            //
+            // afr_colCadastro
+            //
+            this.afr_colCadastro.Text = "Cadastro";
+            this.afr_colCadastro.Width = 80;
             //
             // afr_btnRecarregar
             //
             this.afr_btnRecarregar.Location = new System.Drawing.Point(445, 380);
             this.afr_btnRecarregar.Name = "afr_btnRecarregar";
-            this.afr_btnRecarregar.Size = new System.Drawing.Size(180, 35);
+            this.afr_btnRecarregar.Size = new System.Drawing.Size(140, 35);
             this.afr_btnRecarregar.TabIndex = 6;
             this.afr_btnRecarregar.Text = "Recarregar lista";
             this.afr_btnRecarregar.UseVisualStyleBackColor = true;
             this.afr_btnRecarregar.Click += new System.EventHandler(this.afr_btnRecarregar_Click);
             //
+            // afr_btnVerPerfil
+            //
+            this.afr_btnVerPerfil.BackColor = System.Drawing.Color.AliceBlue;
+            this.afr_btnVerPerfil.Location = new System.Drawing.Point(595, 380);
+            this.afr_btnVerPerfil.Name = "afr_btnVerPerfil";
+            this.afr_btnVerPerfil.Size = new System.Drawing.Size(180, 35);
+            this.afr_btnVerPerfil.TabIndex = 7;
+            this.afr_btnVerPerfil.Text = "Ver perfil e historico";
+            this.afr_btnVerPerfil.UseVisualStyleBackColor = false;
+            this.afr_btnVerPerfil.Click += new System.EventHandler(this.afr_btnVerPerfil_Click);
+            //
             // afr_btnFechar
             //
-            this.afr_btnFechar.Location = new System.Drawing.Point(695, 380);
+            this.afr_btnFechar.Location = new System.Drawing.Point(785, 380);
             this.afr_btnFechar.Name = "afr_btnFechar";
-            this.afr_btnFechar.Size = new System.Drawing.Size(180, 35);
-            this.afr_btnFechar.TabIndex = 7;
+            this.afr_btnFechar.Size = new System.Drawing.Size(90, 35);
+            this.afr_btnFechar.TabIndex = 8;
             this.afr_btnFechar.Text = "Fechar";
             this.afr_btnFechar.UseVisualStyleBackColor = true;
             this.afr_btnFechar.Click += new System.EventHandler(this.afr_btnFechar_Click);
@@ -346,6 +367,7 @@ namespace PlataformaCursos
             this.Controls.Add(this.afr_btnBuscar);
             this.Controls.Add(this.afr_lstUsuarios);
             this.Controls.Add(this.afr_btnRecarregar);
+            this.Controls.Add(this.afr_btnVerPerfil);
             this.Controls.Add(this.afr_btnFechar);
             this.Controls.Add(this.afr_txtSaida);
             this.Controls.Add(this.afr_lblStatus);
@@ -354,6 +376,7 @@ namespace PlataformaCursos
             this.Name = "FrmUsuarios";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Gerenciar Usuarios";
+            this.Load += new System.EventHandler(this.FrmUsuarios_Load);
             this.afr_grpDados.ResumeLayout(false);
             this.afr_grpDados.PerformLayout();
             this.ResumeLayout(false);
@@ -388,6 +411,8 @@ namespace PlataformaCursos
         private System.Windows.Forms.ColumnHeader afr_colEmail;
         private System.Windows.Forms.ColumnHeader afr_colPerfil;
         private System.Windows.Forms.ColumnHeader afr_colAtivo;
+        private System.Windows.Forms.ColumnHeader afr_colCadastro;
+        private System.Windows.Forms.Button afr_btnVerPerfil;
         private System.Windows.Forms.Button afr_btnRecarregar;
         private System.Windows.Forms.Button afr_btnFechar;
         private System.Windows.Forms.TextBox afr_txtSaida;

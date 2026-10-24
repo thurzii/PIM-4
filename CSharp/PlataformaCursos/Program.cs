@@ -7,9 +7,14 @@
    A partir dai quem comanda o programa sao os eventos dos botoes.
 
    FLUXO DAS TELAS:
-     FrmLogin  ->  FrmPrincipal  ->  FrmCatalogo  (aluno)
-                                 ->  FrmCursos    (admin)
-                                 ->  FrmUsuarios  (admin)
+     FrmLogin ---> FrmPrincipal ---> FrmCatalogo         (todos)
+       |                               '-> FrmAula       (todos)
+       '-> FrmRecuperarSenha       ---> FrmCursos        (tutor e admin)
+                                         '-> FrmConfirmarExclusao
+                                   ---> FrmProgressoAlunos (tutor e admin)
+                                   ---> FrmUsuarios      (admin)
+                                         |-> FrmPerfilUsuario
+                                         '-> FrmConfirmarExclusao
    ===================================================================== */
 
 using System;

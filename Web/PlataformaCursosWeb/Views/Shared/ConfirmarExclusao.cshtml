@@ -1,0 +1,117 @@
+@*
+    =====================================================================
+    DS10 e DS14 - CONFIRMACAO DE EXCLUSAO
+
+    Esta pagina atende a parte final dos dois diagramas de exclusao, e
+    por isso fica em Views/Shared: a mesma pagina serve para curso
+    (DS10) e para usuario (DS14). Quem diz qual e o campo afr_Tipo.
+
+    A ORDEM DAS MENSAGENS NO MODELO:
+
+        1) solicitarExclusao(alvo)                 botao Excluir
+        2) verificarElegibilidadeExclusao(alvo)    servico
+        3) elegivelParaExclusao(true, dadosDetalhados)
+        4) solicitarConfirmacaoExclusao(dadosDetalhados)  <-- ESTA PAGINA
+        5) confirmarExclusaoFinal(alvo)                   <-- ESTA PAGINA
+        6) confirmarIdentidadeEAcao(ator, alvo)           <-- ESTA PAGINA
+        7) removerDefinitivamente(alvo)            servico
+        8) remocaoSucesso() / exibirMensagemSucesso()
+
+    POR QUE PEDIR A SENHA: e o passo 6 do modelo. Nenhum dos dois
+    diagramas apaga nada sem o ator confirmar que e ele mesmo. Num
+    sistema real isso evita que alguem apague registros numa maquina
+    que ficou desbloqueada.
+
+    QUANDO NAO E ELEGIVEL, a pagina abre so como aviso, sem campo de
+    senha: nao existe caminho para confirmar.
+    =====================================================================
+*@
+@model ConfirmarExclusaoViewModel
+@{
+    ViewData["Title"] = "Confirmar exclusao";
+}
+
+<div class="cartao caixa-perigo">
+
+    <h1>@Model.ObterTitulo()</h1>
+
+    @if (!Model.afr_Elegibilidade.afr_Elegivel)
+    {
+        @* ---------------------------------------------------------- *@
+        @* CAMINHO BLOQUEADO                                          *@
+        @* elegivelParaExclusao(false, motivo)                        *@
+        @* ---------------------------------------------------------- *@
+        <p class="motivo-bloqueio">@Model.afr_Elegibilidade.afr_Motivo</p>
+
+        @if (Model.afr_Elegibilidade.afr_DadosDetalhados.Count > 0)
+        {
+            <h3>Motivo do bloqueio</h3>
+            <ul class="lista-detalhes">
+                @foreach (string afr_linha in Model.afr_Elegibilidade.afr_DadosDetalhados)
+                {
+                    <li>@afr_linha</li>
+                }
+            </ul>
+        }
+
+        <p class="ajuda">
+            Esta exclusao nao pode ser feita agora. Resolva o que esta
+            listado acima e tente de novo.
+        </p>
+
+        <div class="acoes">
+            <a class="botao botao-primario"
+               asp-controller="@Model.ObterControllerDeVolta()" asp-action="Index">
+                Voltar
+            </a>
+        </div>
+    }
+    else
+    {
+        @* ---------------------------------------------------------- *@
+        @* CAMINHO NORMAL                                             *@
+        @* solicitarConfirmacaoExclusao(dadosDetalhados)              *@
+        @* ---------------------------------------------------------- *@
+        <p class="motivo-bloqueio">@Model.afr_Elegibilidade.afr_Motivo</p>
+
+        <h3>O que sera apagado</h3>
+        <ul class="lista-detalhes">
+            @foreach (string afr_linha in Model.afr_Elegibilidade.afr_DadosDetalhados)
+            {
+                <li>@afr_linha</li>
+            }
+        </ul>
+
+        <form asp-controller="@Model.ObterControllerDeVolta()" asp-action="Excluir"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="afr_Tipo" />
+            <input type="hidden" asp-for="afr_Id" />
+            <input type="hidden" asp-for="afr_Titulo" />
+
+            <p class="ajuda">
+                Esta operacao nao tem volta. Para confirmar, digite a sua
+                senha de acesso.
+            </p>
+
+            <div class="campo">
+                <label asp-for="afr_Senha">Sua senha</label>
+                <input asp-for="afr_Senha" type="password"
+                       autocomplete="current-password" autofocus />
+            </div>
+
+            <div class="acoes">
+                <button type="submit" class="botao botao-perigo">
+                    Confirmar e excluir
+                </button>
+
+                <a class="botao"
+                   asp-controller="@Model.ObterControllerDeVolta()" asp-action="Index">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    }
+
+</div>

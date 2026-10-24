@@ -1,0 +1,80 @@
+@*
+    =====================================================================
+    Pagina mostrada quando alguem tenta abrir uma area que o perfil dele
+    nao alcanca, digitando o endereco direto no navegador. Quem manda
+    para ca e o AccessDeniedPath, configurado no Program.cs.
+
+    E o equivalente ao MessageBox "somente tutor ou administrador" que o
+    desktop mostrava no evento Load de cada formulario.
+    =====================================================================
+*@
+@{
+    ViewData["Title"] = "Acesso negado";
+
+    string afr_perfil = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                        ?? Usuario.PERFIL_ALUNO;
+}
+
+<h1>Acesso negado</h1>
+<p class="subtitulo">
+    Voce esta logado com o perfil <strong>@afr_perfil</strong>, mas esta area
+    pede um perfil diferente.
+</p>
+
+<div class="cartao">
+    <p>O que cada perfil alcanca:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Perfil</th>
+                <th>Catalogo</th>
+                <th>Cursos e Aulas</th>
+                <th>Progresso dos Alunos</th>
+                <th>Usuarios</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="etiqueta etiqueta-aluno">ALUNO</span></td>
+                <td>sim</td>
+                <td>&mdash;</td>
+                <td>&mdash;</td>
+                <td>&mdash;</td>
+            </tr>
+            <tr>
+                <td><span class="etiqueta etiqueta-tutor">TUTOR</span></td>
+                <td>sim</td>
+                <td>sim</td>
+                <td>sim</td>
+                <td>&mdash;</td>
+            </tr>
+            <tr>
+                <td><span class="etiqueta etiqueta-admin">ADMIN</span></td>
+                <td>sim</td>
+                <td>sim</td>
+                <td>sim</td>
+                <td>sim</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p class="ajuda" style="margin-top:16px;">
+        Esta regra nao esta escrita dentro das paginas. Ela vem de duas
+        camadas: o atributo <code>[Authorize(Roles = ...)]</code> no inicio
+        dos controllers, que barra a requisicao antes de qualquer codigo
+        rodar, e os metodos <code>VerificarPermissaoTutor</code> e
+        <code>VerificarPermissaoAdmin</code> dos servicos, que conferem de
+        novo. E a mesma dupla protecao do desktop: esconder o botao no menu
+        e checar no evento Load.
+    </p>
+
+    <div class="acoes">
+        <a asp-controller="Home" asp-action="Index" class="botao botao-primario">
+            Voltar ao painel
+        </a>
+        <a asp-controller="Catalogo" asp-action="Index" class="botao">
+            Ir para o catalogo
+        </a>
+    </div>
+</div>

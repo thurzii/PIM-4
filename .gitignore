@@ -4,10 +4,15 @@
 # Lista do que o Git deve IGNORAR, ou seja, o que NAO sobe para o
 # GitHub mesmo estando na pasta.
 #
-# IMPORTANTE: as regras do projeto C# valem APENAS dentro da pasta
-# CSharp/. Isso e proposital. Antes elas valiam para o repositorio
-# inteiro, e um trabalho de outra materia com uma pasta chamada
-# "Debug" ou "bin" simplesmente nao subiria, sem nenhum aviso.
+# IMPORTANTE: as regras de projeto C# valem APENAS dentro das pastas
+# CSharp/, Web/ e Api/. Isso e proposital. Se elas valessem para o
+# repositorio inteiro, um trabalho de outra materia com uma pasta
+# chamada "Debug" ou "bin" simplesmente nao subiria, sem nenhum aviso.
+#
+# QUANDO NASCER UMA PASTA DE PROJETO NOVA (por exemplo Mobile/),
+# COPIE O BLOCO ABAIXO TROCANDO O PREFIXO. Se esquecer, as pastas bin
+# e obj daquele projeto vao para o GitHub: sao centenas de arquivos
+# que mudam a cada compilacao e geram conflito em todo mundo.
 # =====================================================================
 
 # ---------------------------------------------------------------------
@@ -24,7 +29,7 @@ Desktop.ini
 ~$*
 
 # ---------------------------------------------------------------------
-# Somente o projeto C#: resultado da compilacao e configuracao pessoal
+# CSharp/ - o sistema em Windows Forms
 # Estes arquivos sao gerados pelo Visual Studio a cada compilacao e
 # mudam na maquina de cada integrante, entao causariam conflito.
 # ---------------------------------------------------------------------
@@ -45,14 +50,61 @@ CSharp/**/*.exe
 CSharp/**/*.pdb
 CSharp/**/*.nupkg
 
+# ---------------------------------------------------------------------
+# Web/ - o mesmo sistema em ASP.NET Core MVC
+# ---------------------------------------------------------------------
+Web/**/[Bb]in/
+Web/**/[Oo]bj/
+Web/**/[Dd]ebug/
+Web/**/[Rr]elease/
+Web/**/.vs/
+Web/**/packages/
+Web/**/*.user
+Web/**/*.suo
+Web/**/*.cache
+Web/**/*.dll
+Web/**/*.exe
+Web/**/*.pdb
+Web/**/*.nupkg
+
+# A caixa de entrada simulada da recuperacao de senha (DS02). E gerada
+# em tempo de execucao e so faz sentido na maquina de quem testou.
+Web/**/dados/
+
+# ---------------------------------------------------------------------
+# Api/ - o servico que vai atender os dois sistemas
+# ---------------------------------------------------------------------
+Api/**/[Bb]in/
+Api/**/[Oo]bj/
+Api/**/[Dd]ebug/
+Api/**/[Rr]elease/
+Api/**/.vs/
+Api/**/packages/
+Api/**/*.user
+Api/**/*.suo
+Api/**/*.cache
+Api/**/*.dll
+Api/**/*.exe
+Api/**/*.pdb
+Api/**/*.nupkg
+
 # =====================================================================
 # O QUE NAO ESTA AQUI, DE PROPOSITO
 # ---------------------------------------------------------------------
-# Videos NAO sao ignorados. O GitHub recusa qualquer arquivo acima de
-# 100 MB, e uma gravacao de apresentacao costuma passar disso.
-# Se o video fosse ignorado aqui, a pessoa daria push, veria
-# "concluido" e o arquivo nao estaria la - sem nenhum aviso.
-# Preferimos que o push falhe com uma mensagem clara.
-# Para videos, use o Teams ou o Drive e coloque so o link em
-# Apresentacao/README.md
+# 1) VIDEOS nao sao ignorados. O GitHub recusa qualquer arquivo acima
+#    de 100 MB, e uma gravacao de apresentacao costuma passar disso.
+#    Se o video fosse ignorado aqui, a pessoa daria push, veria
+#    "concluido" e o arquivo nao estaria la - sem nenhum aviso.
+#    Preferimos que o push falhe com uma mensagem clara.
+#    Para videos, use o Teams ou o Drive e coloque so o link em
+#    Apresentacao/README.md
+#
+# 2) appsettings.json NAO e ignorado. Hoje ele nao guarda senha
+#    nenhuma: a conexao com o banco e montada no codigo, com
+#    Integrated Security (a conta do Windows de quem esta rodando).
+#    ATENCAO PARA A API: se em algum momento alguem colocar usuario e
+#    senha do SQL Server num appsettings, esse arquivo PRECISA sair do
+#    Git. Senha em repositorio e um problema de verdade, mesmo em
+#    trabalho de faculdade. O caminho certo e deixar o appsettings com
+#    valores de exemplo e guardar os reais fora do repositorio.
 # =====================================================================

@@ -1,0 +1,124 @@
+@*
+    =====================================================================
+    LISTA DE CURSOS - visao do tutor e do admin.
+
+    O tutor enxerga cursos ATIVOS E INATIVOS, por isso o controller usa
+    LocalizarCurso em vez de BuscarCurso. O aluno, no catalogo, so ve
+    os ativos.
+
+    O botao "Excluir" nao apaga nada direto: leva para a pagina de
+    confirmacao do DS10, que lista o que sera apagado e pede a senha do
+    tutor.
+    =====================================================================
+*@
+@model List<Curso>
+@{
+    ViewData["Title"] = "Cursos";
+
+    string afr_termo = ViewBag.Termo as string ?? "";
+}
+
+<h1>Cursos e aulas</h1>
+<p class="subtitulo">
+    Cadastre os cursos, defina o requisito de conclusao e monte as aulas
+    de cada um.
+</p>
+
+<div class="cartao">
+    <form asp-controller="Cursos" asp-action="Index" method="get">
+        <div class="filtros">
+            <div class="campo campo-largo">
+                <label for="termo">Buscar curso</label>
+                <input type="search" id="termo" name="termo" value="@afr_termo"
+                       placeholder="Titulo ou descricao" />
+            </div>
+
+            <button type="submit" class="botao">Buscar (SELECT)</button>
+
+            <a asp-controller="Cursos" asp-action="Novo" class="botao botao-primario">
+                Novo curso
+            </a>
+        </div>
+    </form>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="cartao vazio">
+        <p>Nenhum curso encontrado.</p>
+    </div>
+}
+else
+{
+    <div class="cartao" style="padding:0; overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Titulo</th>
+                    <th>Carga</th>
+                    <th>Aulas</th>
+                    <th>Minimo</th>
+                    <th>Situacao</th>
+                    <th class="coluna-acoes">Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Curso afr_curso in Model)
+                {
+                    <tr>
+                        <td>@afr_curso.afr_Id</td>
+                        <td><strong>@afr_curso.afr_Titulo</strong></td>
+                        <td>@afr_curso.afr_CargaHoraria h</td>
+                        <td>@afr_curso.afr_TotalAulas</td>
+
+                        @* DS08 - o requisito de conclusao do curso *@
+                        <td>@afr_curso.afr_PercentualMinimo%</td>
+
+                        <td>
+                            @if (afr_curso.afr_Ativo)
+                            {
+                                <span class="etiqueta etiqueta-ativo">Ativo</span>
+                            }
+                            else
+                            {
+                                <span class="etiqueta etiqueta-inativo">Inativo</span>
+                            }
+                        </td>
+                        <td class="coluna-acoes">
+                            <div class="acoes-linha" style="justify-content:flex-end;">
+                                <a class="botao botao-pequeno"
+                                   asp-controller="Cursos" asp-action="Aulas"
+                                   asp-route-id="@afr_curso.afr_Id">Aulas</a>
+
+                                <a class="botao botao-pequeno"
+                                   asp-controller="Cursos" asp-action="Editar"
+                                   asp-route-id="@afr_curso.afr_Id">Editar</a>
+
+                                @* DS10 - solicitarExclusao(curso) *@
+                                <a class="botao botao-perigo botao-pequeno"
+                                   asp-controller="Cursos" asp-action="ConfirmarExclusao"
+                                   asp-route-id="@afr_curso.afr_Id">Excluir</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <p class="ajuda">
+        @Model.Count curso(s) na tabela dbo.Cursos. @ViewBag.StatusBanco
+    </p>
+
+    <p class="ajuda">
+        A coluna <strong>Minimo</strong> e o percentual de aulas que o aluno
+        precisa concluir para o curso contar como concluido (DS08). Um curso
+        de 75% fecha com tres quartos das aulas.
+    </p>
+
+    <p class="ajuda">
+        A exclusao acontece em duas etapas (DS10): a proxima pagina mostra
+        quantas aulas e quantos alunos serao afetados e pede a sua senha.
+    </p>
+}

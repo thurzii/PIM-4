@@ -1,15 +1,20 @@
 =====================================================================
 PLATAFORMA DE CURSOS ONLINE - Trabalho em grupo
 Professor: Antonio Graca
+VERSAO 2 - alinhada ao modelo do Astah (Projeto_UML.asta)
 =====================================================================
 
 O QUE E
-Sistema desenvolvido a partir da modelagem UML do grupo (Projeto_UML.asta):
-uma plataforma de cursos online com dois perfis de acesso, catalogo de
-cursos, controle de aulas e acompanhamento de progresso do aluno.
+Sistema desenvolvido a partir da modelagem UML do grupo: uma plataforma
+de cursos online com TRES perfis de acesso, catalogo com filtros,
+conteudo de aula, requisito de conclusao por curso, recuperacao de
+senha por codigo, historico de acoes e exclusao em duas etapas.
 
 Windows Forms (.NET 8) + SQL Server. Interface montada no Designer do
 Visual Studio, banco criado automaticamente na primeira execucao.
+
+O documento RASTREABILIDADE.md mostra, mensagem por mensagem, onde
+cada passo dos 14 diagramas de sequencia esta no codigo.
 
 ---------------------------------------------------------------------
 COMO ABRIR
@@ -21,6 +26,21 @@ COMO ABRIR
    Se nao baixar: Ferramentas > Gerenciador de Pacotes NuGet >
    Restaurar pacotes NuGet.
 4. Pressione Ctrl+F5.
+
+---------------------------------------------------------------------
+QUEM JA USOU A VERSAO 1
+---------------------------------------------------------------------
+Nao precisa apagar o banco. Na primeira execucao desta versao o
+programa acrescenta sozinho o que faltava, sem perder nenhum dado:
+
+  - a coluna PercentualMinimo na tabela Cursos;
+  - a coluna Conteudo na tabela Aulas;
+  - o alargamento da coluna Perfil, que antes nao cabia TUTOR;
+  - as tabelas CodigosRecuperacao e LogAcoes;
+  - o usuario tutor (carla@escola.com).
+
+Isso fica no metodo MigrarEstrutura, do BancoService.cs. Rodar duas
+vezes nao faz diferenca: cada ALTER so acontece uma vez.
 
 ---------------------------------------------------------------------
 SERVIDOR DE BANCO DE DADOS
@@ -44,10 +64,13 @@ inicio do arquivo BancoService.cs.
 ---------------------------------------------------------------------
 USUARIOS JA CADASTRADOS (criados automaticamente)
 ---------------------------------------------------------------------
-    Perfil ADMIN
+    Perfil ADMIN  - pode tudo
       email: admin@escola.com      senha: admin123
 
-    Perfil ALUNO
+    Perfil TUTOR  - cursos, aulas e progresso dos alunos
+      email: carla@escola.com      senha: tutor123
+
+    Perfil ALUNO  - catalogo e as proprias aulas
       email: maria@escola.com      senha: aluno123
       email: joao@escola.com       senha: aluno123
 
@@ -55,67 +78,168 @@ Observacao: as senhas sao gravadas como texto simples para facilitar a
 demonstracao. Em um sistema real seriam guardadas como hash.
 
 ---------------------------------------------------------------------
-AS TELAS
+O QUE CADA PERFIL VE NO MENU
 ---------------------------------------------------------------------
- FrmLogin ............ entrada no sistema e link de recuperacao
- FrmRecuperarSenha ... redefinicao de senha
- FrmPrincipal ........ menu; muda conforme o perfil de quem entrou
- FrmCatalogo ......... visao do ALUNO: cursos, busca, aulas, progresso
- FrmCursos ........... visao do ADMIN: CRUD de cursos e de aulas
- FrmUsuarios ......... visao do ADMIN: CRUD de usuarios
+                      Catalogo   Cursos e Aulas   Progresso   Usuarios
+    ALUNO                sim           -              -           -
+    TUTOR                sim          sim            sim          -
+    ADMIN                sim          sim            sim         sim
+
+Quem decide isso sao os metodos PodeGerenciarCursos,
+PodeVerProgressoDeOutros e PodeGerenciarUsuarios, da classe Usuario.
+As telas consultam esses metodos pela classe Sessao; nenhuma tela
+compara texto de perfil na mao. Alem de esconder o botao, cada tela
+confere a permissao de novo no evento Load.
+
+---------------------------------------------------------------------
+AS DEZ TELAS
+---------------------------------------------------------------------
+ FrmLogin ............. entrada no sistema e link de recuperacao
+ FrmRecuperarSenha .... recuperacao em 3 etapas, com codigo
+ FrmPrincipal ......... menu com as tres areas de perfil
+ FrmCatalogo .......... cursos, busca com filtros, aulas, progresso
+ FrmAula .............. NOVA: conteudo da aula e botao de concluir
+ FrmCursos ............ CRUD de cursos e de aulas (tutor e admin)
+ FrmUsuarios .......... CRUD de usuarios (admin)
+ FrmProgressoAlunos ... NOVA: tutor acompanha o progresso dos alunos
+ FrmPerfilUsuario ..... NOVA: perfil do usuario com historico de acoes
+ FrmConfirmarExclusao . NOVA: confirmacao de exclusao com senha
+
+---------------------------------------------------------------------
+COMO DEMONSTRAR CADA PARTE
+---------------------------------------------------------------------
+ RECUPERACAO DE SENHA (3 etapas)
+   Na tela de login, clique em "Esqueci minha senha".
+   1) digite maria@escola.com e clique em "1) Enviar codigo";
+   2) clique em "Ver o codigo": abre o arquivo dados/emails.txt, que
+      faz o papel da caixa de entrada (o trabalho nao tem servidor de
+      e-mail). Copie os 6 digitos;
+   3) cole o codigo, clique em "2) Conferir codigo", escolha a nova
+      senha e clique em "3) Redefinir senha".
+   O codigo vale 15 minutos e serve uma vez so.
+
+ CONTEUDO DA AULA
+   Entre como carla@escola.com, abra "Gerenciar Cursos e Aulas",
+   clique em um curso, clique em uma aula da lista: o conteudo dela
+   aparece na caixa a direita. As aulas em laranja ainda estao sem
+   conteudo. Edite o texto e clique em "Salvar conteudo da aula".
+
+ ABRIR A AULA COMO ALUNO
+   Entre como maria@escola.com, abra o catalogo, clique em um curso,
+   clique numa aula e em "Abrir a aula selecionada" (ou de dois
+   cliques na aula). A tela da aula mostra o conteudo e o botao
+   "Marcar como concluida".
+
+ REQUISITO DE CONCLUSAO
+   O curso "Banco de Dados com SQL Server" exige 75% das aulas, nao
+   100%. Conclua 2 das 2 aulas dele e veja o status virar CONCLUIDO;
+   no curso de Logica, que exige 100%, e preciso fazer as tres.
+
+ FILTROS DA BUSCA
+   No catalogo, preencha "Carga horaria de 50 ate 0" e clique em
+   "Buscar cursos": sai so o curso de 60h. Marque "Somente os cursos
+   que eu ainda nao conclui" para esconder os ja concluidos.
+
+ PROGRESSO DOS ALUNOS
+   Entre como carla@escola.com e abra "Progresso dos Alunos". Escolha
+   um aluno e clique em "Ver progresso": sai uma linha por curso, com
+   aulas feitas, percentual, minimo exigido e status.
+
+ PERFIL E HISTORICO
+   Entre como admin@escola.com, abra "Gerenciar Usuarios", clique em
+   um usuario e em "Ver perfil e historico". As tres listas sao os
+   acessos, os cadastros e as acoes em cursos daquela pessoa.
+
+ EXCLUSAO EM DUAS ETAPAS
+   Em "Gerenciar Usuarios" ou em "Gerenciar Cursos", clique em um
+   registro e em Excluir. Abre a tela de confirmacao, que lista o que
+   vai ser apagado junto e pede a SUA senha. Sem a senha certa, nada
+   e apagado.
+   Tente excluir a propria conta de admin: a tela abre em modo aviso,
+   explicando por que nao pode. O mesmo acontece com o ultimo
+   administrador ativo do sistema.
 
 ---------------------------------------------------------------------
 AS CLASSES
 ---------------------------------------------------------------------
- Modelo.cs
-   Pessoa ............ classe base (nome, email)
-   Usuario ........... herda de Pessoa; senha, perfil, ativo
-   Curso ............. titulo, descricao, carga horaria
-   Aula .............. pertence a um curso; ordem e duracao
-   Progresso ......... liga um aluno a uma aula concluida
-   Sessao ............ classe estatica; guarda quem esta logado
+ Modelo.cs  (11 classes de dominio + Sessao)
+   Pessoa ................. classe base (Id, nome, email)
+   Usuario ................ herda de Pessoa; senha, perfil, permissoes
+   Curso .................. titulo, descricao, carga, minimo exigido
+   Aula ................... pertence a um curso; ordem, duracao,
+                            conteudo
+   Progresso .............. liga um aluno a uma aula concluida
+   FiltroCurso ............ os "filtros" do DS04
+   ResultadoConclusao ..... o "resultadoConclusao" do DS08
+   ProgressoCurso ......... o "dados" do DS07
+   CodigoRecuperacao ...... o codigo do DS02
+   LogAcao ................ o historico do DS12
+   ElegibilidadeExclusao .. os "dadosDetalhados" do DS10 e DS14
+   Sessao ................. classe estatica; guarda quem esta logado
+
+   Pessoa tem ObterResumo() como virtual e Usuario faz o override: e
+   o polimorfismo pedido na disciplina.
 
  BancoService.cs
    Unica classe que conhece SQL. Cria o banco, as tabelas e os dados
-   iniciais, e concentra todos os comandos.
+   iniciais, migra o banco da versao 1 e concentra todos os comandos.
+   Todo valor vai por parametro @, nunca colado no texto do comando.
 
- Servicos.cs
-   AutenticacaoService  login, logout, redefinicao de senha
-   UsuarioService ..... CRUD de usuarios e validacoes
-   CursoService ....... CRUD de cursos, listagem e busca
-   AulaService ........ aulas de cada curso
-   ProgressoService ... progresso e percentual de conclusao
+ Servicos.cs  (7 classes de negocio)
+   EmailService ......... gera e "envia" o codigo de recuperacao
+   LogService ........... grava e le o historico de acoes
+   AutenticacaoService .. login, logout, recuperacao em 3 etapas e
+                          confirmacao de identidade
+   UsuarioService ....... CRUD de usuarios, duplicidade, elegibilidade
+   CursoService ......... CRUD de cursos, listagem, busca com filtros
+   AulaService .......... aulas de cada curso e conteudo delas
+   ProgressoService ..... progresso, requisitos e conclusao
 
 ---------------------------------------------------------------------
 CASOS DE USO DO ASTAH x ONDE ESTAO NO SISTEMA
 ---------------------------------------------------------------------
- DC01 Fazer Login ................ FrmLogin  -> ValidarLogin
- DC02 Recuperar Senha ............ FrmRecuperarSenha -> RedefinirSenha
+ DC01 Fazer Login ................ FrmLogin -> ValidarLogin
+ DC02 Recuperar Senha ............ FrmRecuperarSenha -> Solicitar,
+                                   Conferir e RedefinirSenha
  DC03 Visualizar Cursos .......... FrmCatalogo -> ExibirCursos
- DC04 Buscar Cursos .............. FrmCatalogo -> BuscarCurso
- DC05 Marcar Aula como Concluida . FrmCatalogo -> AtualizarProgresso
+ DC04 Buscar Cursos .............. FrmCatalogo -> BuscarCurso(filtro)
+ DC05 Marcar Aula como Concluida . FrmAula -> AtualizarProgresso
  DC06 Fazer Logout ............... FrmPrincipal -> EncerrarSessao
  DC07 Criar Curso ................ FrmCursos -> CriarCurso (INSERT)
  DC08 Visualizar Curso ........... FrmCatalogo -> VerificarConclusao
  DC09 Editar Curso ............... FrmCursos -> EditarCurso (UPDATE)
- DC10 Excluir Curso .............. FrmCursos -> ExcluirCurso (DELETE)
+ DC10 Excluir Curso .............. FrmCursos + FrmConfirmarExclusao
+                                   -> RemoverDefinitivamente (DELETE)
  DC11 Criar Usuario .............. FrmUsuarios -> CriarUsuario
- DC12 Visualizar Usuarios ........ FrmUsuarios -> ListarUsuarios
+ DC12 Visualizar Usuario ......... FrmPerfilUsuario -> BuscarDados e
+                                   BuscarHistoricoAcoes
  DC13 Editar Usuario ............. FrmUsuarios -> EditarUsuario
- DC14 Excluir Usuario ............ FrmUsuarios -> ExcluirUsuario
+ DC14 Excluir Usuario ............ FrmUsuarios + FrmConfirmarExclusao
+                                   -> RemoverDefinitivamente (DELETE)
+
+ O detalhe mensagem por mensagem dos 14 diagramas de sequencia esta
+ no arquivo RASTREABILIDADE.md.
 
 ---------------------------------------------------------------------
 BANCO DE DADOS
 ---------------------------------------------------------------------
  Banco: CursosDB
- Tabelas: Usuarios, Cursos, Aulas, Progresso
+ Tabelas: Usuarios, Cursos, Aulas, Progresso, CodigosRecuperacao,
+          LogAcoes
 
  Relacionamentos:
-   Cursos 1 --- N Aulas          (uma aula pertence a um curso)
-   Usuarios N --- N Aulas        (pela tabela Progresso)
+   Cursos 1 --- N Aulas                (uma aula pertence a um curso)
+   Usuarios N --- N Aulas              (pela tabela Progresso)
+   Usuarios 1 --- N CodigosRecuperacao (codigos de recuperacao)
+   Usuarios 1 --- N LogAcoes           (historico de acoes)
+
+ Todas as chaves estrangeiras usam ON DELETE CASCADE: apagar o curso
+ apaga as aulas, apagar o usuario apaga o progresso e o historico
+ dele. E por isso que a tela de confirmacao mostra antes o que vai
+ sair junto.
 
  O arquivo Banco_CursosDB.sql traz o mesmo script para rodar na mao,
- mais as consultas usadas pelo programa.
+ os comandos de migracao e as consultas de conferencia.
 
  Para ver os dados durante a apresentacao, no Visual Studio:
  Exibir > Pesquisador de Objetos do SQL Server > (localdb)MSSQLLocalDB
@@ -127,5 +251,10 @@ ANTES DE ENTREGAR
  - Preencher os nomes dos integrantes do grupo no cabecalho dos .cs
  - Conferir se o prefixo das variaveis atende ao pedido do professor
    (o codigo usa afr_ ; para trocar, use Ctrl+H em todos os arquivos)
+ - No arquivo do Astah, ainda falta: o diagrama de atividades, as
+   classes dentro do diagrama de classes, os atores no diagrama de
+   casos de uso, e corrigir os nomes do DS07 e do DS08 (estao como
+   "Criar Curso" e "Visualizar Curso", que nao combinam com o
+   conteudo). A lista completa esta no fim do RASTREABILIDADE.md.
  - Fechar o Visual Studio e compactar a pasta inteira em .zip
 =====================================================================

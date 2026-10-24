@@ -1,7 +1,8 @@
-# Trabalho Grupo PIM 4ª semestre
+# Trabalho em Grupo — Linguagem de Programação C#
 
 Repositório central do grupo. Cada matéria ou etapa do trabalho tem a sua pasta.
 
+**Professor:** Antonio Graça
 
 ---
 
@@ -9,10 +10,29 @@ Repositório central do grupo. Cada matéria ou etapa do trabalho tem a sua past
 
 | Pasta | Conteúdo |
 |---|---|
-| **[CSharp/](CSharp/)** | O sistema em Windows Forms + SQL Server. Instruções completas em [CSharp/README.md](CSharp/README.md) |
+| **[CSharp/](CSharp/)** | O sistema em **Windows Forms** + SQL Server. Instruções em [CSharp/README.md](CSharp/README.md) |
+| **[Web/](Web/)** | O **mesmo sistema** em ASP.NET Core MVC. Instruções em [Web/README.md](Web/README.md) |
+| **[Api/](Api/)** | O serviço que vai atender os dois. Ainda não começou — o briefing está em [Api/README.md](Api/README.md) |
 | **[Modelagem/](Modelagem/)** | O arquivo do Astah e os diagramas exportados |
 | **[Documentacao/](Documentacao/)** | Relatórios, textos e documentos das demais matérias |
 | **[Apresentacao/](Apresentacao/)** | Slides e roteiros. Vídeos ficam fora, só o link |
+
+### Os três projetos, e como se encaixam
+
+```
+hoje:
+  Windows Forms  →  Servicos  →  BancoService  →  SQL Server (CursosDB)
+  ASP.NET MVC    →  Servicos  →  BancoService  →  SQL Server (CursosDB)
+
+depois da API:
+  Windows Forms  →  Servicos  →  ApiService  ┐
+                                             ├→  API  →  BancoService  →  SQL Server
+  ASP.NET MVC    →  Servicos  →  ApiService  ┘
+```
+
+**O banco de dados é o mesmo para os dois sistemas.** Quem entrar no desktop e depois na web vê o mesmo progresso, os mesmos cursos e os mesmos usuários. O script está em [CSharp/Banco_CursosDB.sql](CSharp/Banco_CursosDB.sql), numa cópia só.
+
+**A versão 2 está alinhada com a modelagem do Astah.** Os dois sistemas foram revisados mensagem por mensagem contra os 14 diagramas de sequência. O mapa completo está em [CSharp/RASTREABILIDADE.md](CSharp/RASTREABILIDADE.md) e [Web/RASTREABILIDADE_WEB.md](Web/RASTREABILIDADE_WEB.md) — são os documentos para levar na apresentação.
 
 ---
 
@@ -26,20 +46,23 @@ No Visual Studio: **Git → Clonar Repositório**, cole o endereço e escolha um
 
 ### 2. Rodar o sistema
 
-1. Abra `CSharp/PlataformaCursos.sln`
-2. Aguarde a restauração do pacote NuGet (precisa de internet na primeira vez)
-3. Pressione **Ctrl+F5**
+**Versão desktop:** abra `CSharp/PlataformaCursos.sln` e pressione **Ctrl+F5**.
 
-O banco de dados é criado automaticamente na primeira execução. Não é preciso configurar conexão nem rodar script.
+**Versão web:** abra `Web/PlataformaCursosWeb.sln` e pressione **F5**. O navegador abre sozinho em `http://localhost:5000`.
+
+Nos dois casos, aguarde a restauração do pacote NuGet na primeira vez (precisa de internet). O banco de dados é criado automaticamente na primeira execução — não é preciso configurar conexão nem rodar script.
+
+> Quem já rodou a versão 1 **não precisa apagar o banco**. Na primeira execução da versão 2 o programa acrescenta sozinho as colunas e tabelas novas, sem perder nenhum dado.
 
 ### 3. Entrar no sistema
 
-| Perfil | Email | Senha |
-|---|---|---|
-| Administrador | `admin@escola.com` | `admin123` |
-| Aluno | `maria@escola.com` | `aluno123` |
+| Perfil | Email | Senha | O que pode fazer |
+|---|---|---|---|
+| Administrador | `admin@escola.com` | `admin123` | tudo |
+| Tutor | `carla@escola.com` | `tutor123` | cursos, aulas e progresso dos alunos |
+| Aluno | `maria@escola.com` | `aluno123` | catálogo e as próprias aulas |
 
-Deu algum erro? A seção de problemas comuns está em [CSharp/README.md](CSharp/README.md).
+Deu algum erro? A seção de problemas comuns está em [CSharp/README.md](CSharp/README.md) e [Web/README.md](Web/README.md).
 
 ---
 
@@ -63,13 +86,14 @@ Dois integrantes mexendo no mesmo arquivo ao mesmo tempo gera conflito, e algué
 
 | Integrante | Responsável por |
 |---|---|
-| *(preencher)* | *(ex.: FrmLogin e FrmRecuperarSenha)* |
-| *(preencher)* | *(ex.: FrmPrincipal e FrmCatalogo)* |
-| *(preencher)* | *(ex.: FrmCursos e FrmUsuarios)* |
+| *(preencher)* | *(ex.: Api/ — o serviço e a integração)* |
+| *(preencher)* | *(ex.: Web/Views e Web/Controllers)* |
+| *(preencher)* | *(ex.: CSharp/ — formulários)* |
+| *(preencher)* | *(ex.: Modelagem e Documentacao)* |
 
-Os arquivos mais sensíveis são os `.Designer.cs`: quando alguém arrasta um controle na tela, o Visual Studio reescreve o arquivo quase inteiro, e o Git não consegue juntar duas versões dessas.
+Os arquivos mais sensíveis são os **`.Designer.cs`** do projeto desktop: quando alguém arrasta um controle na tela, o Visual Studio reescreve o arquivo quase inteiro, e o Git não consegue juntar duas versões dessas. A web não tem esse problema — as views `.cshtml` são texto escrito à mão.
 
-`BancoService.cs` e `Servicos.cs` são de uso comum — avise no grupo antes de mexer.
+`BancoService.cs`, `Servicos.cs` e `Modelo.cs` são de uso comum, e **existem nos dois projetos** — avise no grupo antes de mexer, e lembre de aplicar a mesma correção nos dois lugares.
 
 ---
 
@@ -77,17 +101,19 @@ Os arquivos mais sensíveis são os `.Designer.cs`: quando alguém arrasta um co
 
 **Arquivos acima de 100 MB não sobem.** O GitHub recusa, e o push falha inteiro — não só aquele arquivo. Vídeos de apresentação quase sempre passam disso: deixe no Teams ou no Drive e coloque o link em `Apresentacao/README.md`.
 
-**As pastas `bin` e `obj` do projeto C# não sobem**, de propósito. São geradas na compilação e mudam em cada máquina. Isso vale só dentro de `CSharp/` — o trabalho das outras matérias não sofre nenhuma restrição.
+**As pastas `bin` e `obj` não sobem**, de propósito. São geradas na compilação e mudam em cada máquina. Isso vale dentro de `CSharp/`, `Web/` e `Api/` — o trabalho das outras matérias não sofre nenhuma restrição.
 
-**Trabalho de outra matéria vai na pasta certa**, não na raiz. Se nenhuma pasta servir, crie uma nova e avisar o grupo.
+> **Criou uma pasta de projeto nova?** Copie o bloco correspondente no `.gitignore`, trocando o prefixo. Se esquecer, as pastas `bin` e `obj` daquele projeto vão para o GitHub: são centenas de arquivos que mudam a cada compilação e geram conflito em todo mundo.
+
+**Senha nenhuma vai para o repositório.** Hoje a conexão com o banco usa a conta do Windows de quem está rodando, então não há senha em lugar algum. Quando a API nascer, se alguém configurar usuário e senha do SQL Server num `appsettings.json`, esse arquivo precisa sair do Git.
+
+**Trabalho de outra matéria vai na pasta certa**, não na raiz. Se nenhuma pasta servir, crie uma nova e avise o grupo.
 
 ---
 
 ## Integrantes
 
-- *Arthur Fernandes Reis*
-- *Leonardo Alves Fudoli*
-- *Lucas Matheus Gonçalves Marques*
-- *Nicolas Gramani Machado França*
-- *Maria Clara Vilas Boas de Souza*
-- *Guilherme Alves Martins dos Santos*
+- *(preencher)*
+- *(preencher)*
+- *(preencher)*
+- *(preencher)*

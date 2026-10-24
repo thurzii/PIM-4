@@ -1,0 +1,39 @@
+@*
+    Pagina de erro generica. Aparece quando acontece uma excecao nao
+    tratada e a aplicacao NAO esta em modo de desenvolvimento.
+*@
+@{
+    ViewData["Title"] = "Erro";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Erro - Plataforma de Cursos</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+<div class="tela-acesso">
+    <div class="caixa-acesso">
+        <div class="marca-grande">Algo deu errado</div>
+        <div class="marca-sub">A operacao nao pode ser concluida.</div>
+
+        <div class="cartao">
+            <p>
+                Se o problema continuar, confira se o SQL Server esta no ar
+                e tente novamente.
+            </p>
+
+            <div class="acoes">
+                <a asp-controller="Home" asp-action="Index" class="botao botao-primario">Voltar ao painel</a>
+                <a asp-controller="Conta" asp-action="Login" class="botao">Ir para o login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

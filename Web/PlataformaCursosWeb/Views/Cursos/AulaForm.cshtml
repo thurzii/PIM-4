@@ -1,0 +1,75 @@
+@*
+    =====================================================================
+    DS05 - EDITAR UMA AULA (visao do tutor)
+
+    E aqui que o tutor escreve o CONTEUDO que o aluno vai ler quando
+    abrir a aula. O diagrama DS05 manda exibirConteudo(); este
+    formulario e a outra ponta disso - alguem precisa escrever o texto.
+    =====================================================================
+*@
+@model AulaFormViewModel
+@{
+    ViewData["Title"] = "Editar aula";
+}
+
+<p class="subtitulo" style="margin-bottom:6px;">
+    <a asp-controller="Cursos" asp-action="Aulas" asp-route-id="@Model.afr_CursoId">
+        &larr; Voltar para as aulas do curso
+    </a>
+</p>
+
+<h1>Aula @Model.afr_Ordem: @Model.afr_Titulo</h1>
+<p class="subtitulo">
+    Curso: @Model.afr_CursoTitulo &middot;
+    gravar vai executar um <strong>UPDATE</strong> na tabela dbo.Aulas.
+</p>
+
+<div class="cartao" style="max-width:760px;">
+    <form asp-controller="Cursos" asp-action="SalvarAula" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="afr_Id" />
+        <input type="hidden" asp-for="afr_CursoId" />
+        <input type="hidden" asp-for="afr_CursoTitulo" />
+        <input type="hidden" asp-for="afr_Ordem" />
+
+        <div class="filtros">
+            <div class="campo campo-largo">
+                <label asp-for="afr_Titulo">Titulo da aula</label>
+                <input asp-for="afr_Titulo" type="text" maxlength="120" />
+            </div>
+
+            <div class="campo campo-estreito">
+                <label asp-for="afr_DuracaoMin">Duracao (min)</label>
+                <input asp-for="afr_DuracaoMin" type="number" min="1" max="600" />
+            </div>
+        </div>
+
+        <span asp-validation-for="afr_Titulo" class="erro-validacao"></span>
+        <span asp-validation-for="afr_DuracaoMin" class="erro-validacao"></span>
+
+        <div class="campo" style="margin-top:16px;">
+            <label asp-for="afr_Conteudo">Conteudo da aula</label>
+            <textarea asp-for="afr_Conteudo" rows="14"></textarea>
+            <div class="ajuda">
+                E este texto que aparece para o aluno na pagina da aula. As
+                quebras de linha sao respeitadas, entao pode escrever em
+                paragrafos.
+            </div>
+        </div>
+
+        <div class="acoes">
+            <button type="submit" class="botao botao-primario">
+                Salvar a aula (UPDATE)
+            </button>
+
+            <a class="botao" asp-controller="Cursos" asp-action="Aulas"
+               asp-route-id="@Model.afr_CursoId">Cancelar</a>
+
+            <a class="botao" asp-controller="Catalogo" asp-action="Aula"
+               asp-route-id="@Model.afr_Id" target="_blank">
+                Ver como o aluno ve
+            </a>
+        </div>
+    </form>
+</div>

@@ -1,12 +1,28 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - Trabalho em grupo
    Arquivo...: FrmUsuarios.cs
+   Autor.....: Arthur Fernandes Reis (prefixo afr_)
    ---------------------------------------------------------------------
    CASOS DE USO ATENDIDOS NESTA TELA (CRUD completo de usuarios):
-   DC11 - Criar Usuario ........ botao Salvar em modo NOVO  -> INSERT
-   DC12 - Visualizar Usuarios .. lista e busca              -> SELECT
-   DC13 - Editar Usuario ....... botao Salvar em modo EDICAO-> UPDATE
-   DC14 - Excluir Usuario ...... botao Excluir              -> DELETE
+   DC11 / DS11 - Criar Usuario ..... Salvar em modo NOVO   -> INSERT
+   DC12 / DS12 - Visualizar Usuario  botao Ver perfil      -> SELECT
+   DC13 / DS13 - Editar Usuario .... Salvar em modo EDICAO -> UPDATE
+   DC14 / DS14 - Excluir Usuario ... Excluir em 2 etapas   -> DELETE
+
+   O QUE MUDOU POR CAUSA DO MODELO:
+
+   1) DS11 pede verificarDuplicidade(email) -> emailDisponivel(true)
+      ANTES de salvar. A tela avisa na hora se o email ja existe.
+
+   2) DS12 nao e so a lista: pede o perfil completo com o historico de
+      acoes (loginLog, acoesCrud, cursosRelacionados). Isso virou o
+      botao "Ver perfil e historico", que abre o FrmPerfilUsuario.
+
+   3) DS14 exclui em duas etapas, igual ao DS10 dos cursos:
+      verificarElegibilidadeExclusao -> dadosDetalhados ->
+      confirmarIdentidadeEAcao -> removerDefinitivamente.
+
+   4) Existem TRES perfis agora: ALUNO, TUTOR e ADMIN.
    ===================================================================== */
 
 using System;
@@ -36,8 +52,25 @@ namespace PlataformaCursos
         public FrmUsuarios()
         {
             InitializeComponent();
+        }
 
-            afr_cmbPerfil.SelectedIndex = 0;
+        // =============================================================
+        // EVENTO LOAD
+        // DS12 - verificarPermissaoAdmin(admin)
+        // A checagem fica aqui, e nao no construtor, porque fechar um
+        // formulario que ainda nao apareceu causa erro.
+        // =============================================================
+        private void FrmUsuarios_Load(object sender, EventArgs e)
+        {
+            string afr_mensagem;
+
+            if (!afr_usuarioService.VerificarPermissaoAdmin(out afr_mensagem))
+            {
+                MessageBox.Show(afr_mensagem, "Acesso",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Close();
+                return;
+            }
 
             AtualizarLista("");
             EntrarModoNovo();
@@ -55,9 +88,25 @@ namespace PlataformaCursos
 
         // =============================================================
         // EVENTO - BOTAO SALVAR (INSERT ou UPDATE)
+        // DS11 - solicitarCadastro(dados) -> validaECria(dados)
+        // DS13 - confirmarEdicao(novosDados) -> validaEAtualiza(...)
         // =============================================================
         private void afr_btnSalvar_Click(object sender, EventArgs e)
         {
+            // DS11 - verificarDuplicidade(email) / emailDisponivel(true)
+            // Confere ANTES de mandar para o servico, para dar o aviso
+            // direto no campo do email.
+            if (afr_usuarioService.VerificarDuplicidade(afr_txtEmail.Text, afr_idSelecionado))
+            {
+                MessageBox.Show("Este email ja esta cadastrado para outro usuario. "
+                              + "Escolha outro email.",
+                                "Email em uso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                afr_txtEmail.Focus();
+                afr_txtEmail.SelectAll();
+                return;
+            }
+
             // Monta o objeto com o que esta na tela
             Usuario afr_usuario = new Usuario();
 
@@ -95,6 +144,7 @@ namespace PlataformaCursos
                                 afr_mensagem + Environment.NewLine +
                                 afr_usuario.ObterResumo();
 
+            // DS11 - exibirMensagemSucesso() / sucessoConfirmado()
             MessageBox.Show(afr_mensagem, "Sucesso",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -103,10 +153,17 @@ namespace PlataformaCursos
         }
 
         // =============================================================
-        // EVENTO - BOTAO EXCLUIR (DELETE)
+        // EVENTO - BOTAO EXCLUIR (DELETE em duas etapas)
+        // DS14 - solicitarExclusaoUsuario(usuario)
+        //        -> verificarElegibilidadeExclusao(usuario)
+        //        -> elegivelParaExclusao(true, dadosDetalhados)
+        //        -> solicitarConfirmacaoExclusao(dadosDetalhados)
+        //        -> confirmarExclusaoFinal + confirmarIdentidadeEAcao
+        //        -> removerDefinitivamente(usuario)
         // =============================================================
         private void afr_btnExcluir_Click(object sender, EventArgs e)
         {
+            // solicitarExclusaoUsuario(usuario)
             if (afr_idSelecionado == 0)
             {
                 MessageBox.Show("Clique primeiro no usuario da lista que voce quer excluir.",
@@ -114,22 +171,37 @@ namespace PlataformaCursos
                 return;
             }
 
-            DialogResult afr_resposta = MessageBox.Show(
-                "Excluir o usuario " + afr_txtNome.Text + " (Id " + afr_idSelecionado + ")?" +
-                Environment.NewLine + Environment.NewLine +
-                "O progresso dele nas aulas tambem sera apagado.",
-                "Confirmacao", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            // verificarElegibilidadeExclusao(usuario)
+            // -> elegivelParaExclusao(true, dadosDetalhados)
+            // O servico ja barra, por exemplo, o admin tentando apagar
+            // a propria conta ou o ultimo administrador do sistema.
+            ElegibilidadeExclusao afr_elegibilidade =
+                afr_usuarioService.VerificarElegibilidadeExclusao(afr_idSelecionado);
 
-            if (afr_resposta != DialogResult.Yes)
+            // solicitarConfirmacaoExclusao(dadosDetalhados)
+            FrmConfirmarExclusao afr_confirmacao = new FrmConfirmarExclusao(
+                "Excluir o usuario " + afr_txtNome.Text + " (Id " + afr_idSelecionado + ")",
+                afr_elegibilidade);
+
+            afr_confirmacao.ShowDialog();
+
+            // confirmarExclusaoFinal(usuario)
+            if (!afr_confirmacao.afr_Confirmado)
             {
+                afr_txtSaida.Text = "Exclusao cancelada. Nenhum DELETE foi executado.";
                 return;
             }
 
+            // removerDefinitivamente(usuario)
             string afr_mensagem;
 
-            if (afr_usuarioService.ExcluirUsuario(afr_idSelecionado, out afr_mensagem))
+            if (afr_usuarioService.RemoverDefinitivamente(afr_idSelecionado, out afr_mensagem))
             {
+                // remocaoSucesso() / exibirMensagemSucesso()
                 afr_txtSaida.Text = "DELETE executado." + Environment.NewLine + afr_mensagem;
+
+                MessageBox.Show(afr_mensagem, "Sucesso",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 AtualizarLista(afr_txtBusca.Text);
                 EntrarModoNovo();
@@ -139,6 +211,27 @@ namespace PlataformaCursos
                 MessageBox.Show(afr_mensagem, "Erro",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        // =============================================================
+        // EVENTO - BOTAO VER PERFIL E HISTORICO
+        // DS12 - realizarBuscarPerfil(admin, usuario)
+        //        -> solicitarVisualizacaoPerfil(usuario)
+        // =============================================================
+        private void afr_btnVerPerfil_Click(object sender, EventArgs e)
+        {
+            if (afr_idSelecionado == 0)
+            {
+                MessageBox.Show("Clique primeiro em um usuario da lista.", "Atencao",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            FrmPerfilUsuario afr_tela = new FrmPerfilUsuario(afr_idSelecionado);
+            afr_tela.ShowDialog();
+
+            afr_txtSaida.Text = "Perfil do Id " + afr_idSelecionado + " consultado: "
+                              + "dados do usuario e historico de acoes (login, CRUD e cursos).";
         }
 
         // =============================================================
@@ -176,6 +269,7 @@ namespace PlataformaCursos
 
         // =============================================================
         // EVENTO - CLIQUE EM UM USUARIO DA LISTA
+        // DS13 - solicitarEdicaoUsuario(usuario) -> getDadosUsuario
         // =============================================================
         private void afr_lstUsuarios_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -191,14 +285,20 @@ namespace PlataformaCursos
 
             int afr_id = Convert.ToInt32(afr_lstUsuarios.SelectedItems[0].Text);
 
-            foreach (Usuario afr_usuario in afr_listaAtual)
+            // getDadosUsuario(usuario) -> dadosUsuario(...)
+            // Vai ao banco em vez de usar o objeto da lista: assim a
+            // tela edita sempre o dado mais novo.
+            Usuario afr_usuario = afr_usuarioService.BuscarDadosUsuario(afr_id);
+
+            if (afr_usuario == null)
             {
-                if (afr_usuario.afr_Id == afr_id)
-                {
-                    PreencherCampos(afr_usuario);
-                    return;
-                }
+                afr_txtSaida.Text = "O usuario Id " + afr_id + " nao esta mais no banco. "
+                                  + "Clique em Recarregar lista.";
+                return;
             }
+
+            // exibirFormularioEdicao(dadosUsuario)
+            PreencherCampos(afr_usuario);
         }
 
         // =============================================================
@@ -211,6 +311,10 @@ namespace PlataformaCursos
             afr_lstUsuarios.Items.Clear();
 
             afr_listaAtual = afr_usuarioService.ListarUsuarios(afr_termo.Trim());
+
+            int afr_admins = 0;
+            int afr_tutores = 0;
+            int afr_alunos = 0;
 
             foreach (Usuario afr_usuario in afr_listaAtual)
             {
@@ -230,23 +334,50 @@ namespace PlataformaCursos
                     afr_item.ForeColor = Color.Gray;
                 }
 
-                // Destaca os administradores
-                if (afr_usuario.EhAdministrador() && afr_usuario.afr_Ativo)
+                // DS12 - dataCadastro faz parte dos dados do usuario
+                afr_item.SubItems.Add(afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy"));
+
+                // Cada perfil ganha a sua cor, so para ficar facil de ler
+                if (afr_usuario.afr_Ativo)
                 {
-                    afr_item.ForeColor = Color.DarkBlue;
+                    if (afr_usuario.EhAdministrador())
+                    {
+                        afr_item.ForeColor = Color.DarkBlue;
+                    }
+                    else if (afr_usuario.EhTutor())
+                    {
+                        afr_item.ForeColor = Color.DarkMagenta;
+                    }
+                }
+
+                // Conta quantos tem de cada perfil
+                if (afr_usuario.EhAdministrador())
+                {
+                    afr_admins = afr_admins + 1;
+                }
+                else if (afr_usuario.EhTutor())
+                {
+                    afr_tutores = afr_tutores + 1;
+                }
+                else
+                {
+                    afr_alunos = afr_alunos + 1;
                 }
 
                 afr_lstUsuarios.Items.Add(afr_item);
             }
 
-            afr_lblStatus.Text = afr_listaAtual.Count + " usuario(s) em dbo.Usuarios  |  " +
-                                 afr_bancoService.ObterDescricao();
+            afr_lblStatus.Text = afr_listaAtual.Count + " usuario(s) em dbo.Usuarios  |  "
+                               + afr_admins + " admin, " + afr_tutores + " tutor, "
+                               + afr_alunos + " aluno  |  "
+                               + afr_bancoService.ObterDescricao();
 
             afr_carregandoLista = false;
         }
 
         // =============================================================
         // METODO - CARREGA O USUARIO NOS CAMPOS (modo EDICAO)
+        // DS13 - exibirFormularioEdicao(dadosUsuario)
         // =============================================================
         private void PreencherCampos(Usuario afr_usuario)
         {
@@ -271,6 +402,9 @@ namespace PlataformaCursos
                                 "Altere os campos e clique em Salvar para executar o UPDATE." +
                                 Environment.NewLine +
                                 "O botao Novo cancela a edicao." + Environment.NewLine +
+                                "Cadastro em " +
+                                afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm") +
+                                Environment.NewLine +
                                 afr_usuario.ObterResumo();
         }
 
@@ -281,7 +415,9 @@ namespace PlataformaCursos
         {
             afr_idSelecionado = 0;
 
+            afr_carregandoLista = true;
             afr_lstUsuarios.SelectedItems.Clear();
+            afr_carregandoLista = false;
 
             afr_txtNome.Clear();
             afr_txtEmail.Clear();

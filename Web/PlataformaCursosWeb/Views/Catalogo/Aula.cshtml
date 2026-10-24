@@ -1,0 +1,145 @@
+@*
+    =====================================================================
+    DC05 / DS05 - A PAGINA DA AULA
+
+    E o FrmAula do desktop, que nasceu nesta versao. O diagrama DS05
+    manda, nesta ordem:
+
+        assistirAula(aula)                 o aluno clica na aula
+        abrirAula(aula)                    o sistema busca a aula
+        exibirConteudo()                   ESTA PAGINA
+        concluirAula()                     o botao abaixo
+        atualizarProgresso(aluno, aula)
+        salvarProgresso(progresso)
+        confirmacao() / progressoAtualizado() / aulaConcluida()
+        exibirConclusao()                  a faixa de progresso do curso
+
+    Antes do modelo, a aula era so uma linha com caixa de selecao no
+    catalogo. Uma caixa de selecao nao "exibe conteudo", entao a aula
+    ganhou a coluna Conteudo no banco e esta pagina.
+    =====================================================================
+*@
+@model AulaViewModel
+@{
+    ViewData["Title"] = Model.afr_Aula.afr_Titulo;
+
+    // A classe do status do CURSO (nao a da aula, que o ViewModel ja da)
+    string afr_classeCurso = "situacao-neutro";
+
+    if (Model.afr_Resultado.afr_Aprovado)
+    {
+        afr_classeCurso = "situacao-aprovado";
+    }
+    else if (Model.afr_Resultado.afr_Concluidas > 0)
+    {
+        afr_classeCurso = "situacao-andamento";
+    }
+}
+
+<p class="trilha-aula">
+    <a asp-controller="Catalogo" asp-action="Index">Catalogo</a>
+    &rsaquo;
+    <a asp-controller="Catalogo" asp-action="Detalhes" asp-route-id="@Model.afr_Curso.afr_Id">
+        @Model.afr_Curso.afr_Titulo
+    </a>
+    &rsaquo; aula @Model.afr_Aula.afr_Ordem
+</p>
+
+<h1>@Model.afr_Aula.afr_Ordem. @Model.afr_Aula.afr_Titulo</h1>
+<p class="subtitulo">
+    @Model.afr_Aula.afr_DuracaoMin minutos &middot;
+    aula @Model.afr_Aula.afr_Ordem de @Model.afr_Curso.afr_TotalAulas &middot;
+    <span class="@Model.ObterClasseStatus()">@Model.ObterStatusAula()</span>
+</p>
+
+@* ---------------------------------------------------------------- *@
+@* DS05 - exibirConteudo()                                           *@
+@* ---------------------------------------------------------------- *@
+@if (Model.TemConteudo())
+{
+    <div class="conteudo-aula">@Model.afr_Aula.afr_Conteudo</div>
+}
+else
+{
+    <div class="conteudo-aula vazia">
+        Esta aula ainda nao tem conteudo cadastrado. O tutor pode escrever
+        o conteudo na tela de cursos e aulas.
+    </div>
+}
+
+@* ---------------------------------------------------------------- *@
+@* DS05 - concluirAula()                                             *@
+@* ---------------------------------------------------------------- *@
+<div class="acoes">
+    <form asp-controller="Catalogo" asp-action="MarcarAula" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="cursoId" value="@Model.afr_Curso.afr_Id" />
+        <input type="hidden" name="aulaId" value="@Model.afr_Aula.afr_Id" />
+        <input type="hidden" name="concluida"
+               value="@((!Model.afr_Aula.afr_Concluida).ToString().ToLower())" />
+
+        @* Volta para esta mesma pagina depois de gravar *@
+        <input type="hidden" name="voltarParaAula" value="true" />
+
+        @if (Model.afr_Aula.afr_Concluida)
+        {
+            <button type="submit" class="botao">Desmarcar conclusao</button>
+        }
+        else
+        {
+            <button type="submit" class="botao botao-primario">
+                Marcar como concluida
+            </button>
+        }
+    </form>
+
+    <a class="botao" asp-controller="Catalogo" asp-action="Detalhes"
+       asp-route-id="@Model.afr_Curso.afr_Id">Voltar ao curso</a>
+</div>
+
+@* ---------------------------------------------------------------- *@
+@* DS05 - exibirConclusao(): como esta o curso inteiro               *@
+@* ---------------------------------------------------------------- *@
+<div class="cartao" style="margin-top:22px;">
+    <h3>Andamento do curso</h3>
+
+    <p style="margin:0;">
+        <strong>@Model.afr_Resultado.afr_Percentual%</strong>
+        <span class="ajuda">
+            (@Model.afr_Resultado.afr_Concluidas de
+             @Model.afr_Resultado.afr_Total aulas &middot;
+             minimo de @Model.afr_Resultado.afr_PercentualMinimo%)
+        </span>
+    </p>
+
+    <div class="progresso-trilha">
+        <div class="progresso-barra @(Model.afr_Resultado.afr_Aprovado ? "completo" : "")"
+             style="width:@(Model.afr_Resultado.afr_Percentual)%;"></div>
+    </div>
+
+    <p class="@afr_classeCurso" style="margin:8px 0 0;">
+        @Model.afr_Resultado.ObterResumo()
+    </p>
+</div>
+
+@* ---------------------------------------------------------------- *@
+@* NAVEGACAO ENTRE AS AULAS                                          *@
+@* ---------------------------------------------------------------- *@
+<div class="navegacao-aula">
+    @if (Model.afr_AulaAnterior > 0)
+    {
+        <a class="botao" asp-controller="Catalogo" asp-action="Aula"
+           asp-route-id="@Model.afr_AulaAnterior">&larr; Aula anterior</a>
+    }
+    else
+    {
+        <span></span>
+    }
+
+    @if (Model.afr_AulaSeguinte > 0)
+    {
+        <a class="botao" asp-controller="Catalogo" asp-action="Aula"
+           asp-route-id="@Model.afr_AulaSeguinte">Aula seguinte &rarr;</a>
+    }
+</div>

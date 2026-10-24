@@ -1,0 +1,99 @@
+@*
+    =====================================================================
+    DC07 (Criar) e DC09 / DS09 (Editar) - o MESMO formulario serve para
+    os dois: Id zero significa novo, Id maior que zero significa edicao.
+    E a mesma ideia do afr_idSelecionado do FrmCursos no desktop.
+
+    NOVO NESTA VERSAO: o campo "Minimo para concluir", que e o
+    PercentualMinimo do curso. Veio do DS08, que fala em
+    obterRequisitosCurso(curso) e resultadoConclusao(status, percentual)
+    em vez de um simples "concluiu tudo".
+    =====================================================================
+*@
+@model CursoViewModel
+@{
+    bool afr_edicao = Model.EhEdicao();
+    ViewData["Title"] = afr_edicao ? "Editar curso" : "Novo curso";
+}
+
+<p class="subtitulo" style="margin-bottom:6px;">
+    <a asp-controller="Cursos" asp-action="Index">&larr; Voltar para a lista</a>
+</p>
+
+<h1>@(afr_edicao ? "Editar curso" : "Novo curso")</h1>
+
+<p class="subtitulo">
+    @if (afr_edicao)
+    {
+        <text>Gravar vai executar um <strong>UPDATE</strong> no registro Id @Model.afr_Id.</text>
+
+        if (ViewBag.TotalAulas != null)
+        {
+            <text>&middot; @ViewBag.TotalAulas aula(s) cadastrada(s)</text>
+        }
+    }
+    else
+    {
+        <text>Gravar vai executar um <strong>INSERT</strong> na tabela dbo.Cursos.</text>
+    }
+</p>
+
+<div class="cartao" style="max-width:640px;">
+    <form asp-controller="Cursos" asp-action="Salvar" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="afr_Id" />
+
+        <div class="campo">
+            <label asp-for="afr_Titulo">Titulo</label>
+            <input asp-for="afr_Titulo" type="text" maxlength="120" />
+            <span asp-validation-for="afr_Titulo" class="erro-validacao"></span>
+        </div>
+
+        <div class="campo">
+            <label asp-for="afr_Descricao">Descricao</label>
+            <textarea asp-for="afr_Descricao" maxlength="500"></textarea>
+            <span asp-validation-for="afr_Descricao" class="erro-validacao"></span>
+        </div>
+
+        <div class="filtros">
+            <div class="campo campo-estreito">
+                <label asp-for="afr_CargaHoraria">Carga (horas)</label>
+                <input asp-for="afr_CargaHoraria" type="number" min="1" max="1000" />
+            </div>
+
+            <div class="campo campo-estreito">
+                <label asp-for="afr_PercentualMinimo">Minimo (%)</label>
+                <input asp-for="afr_PercentualMinimo" type="number" min="1" max="100" />
+            </div>
+        </div>
+
+        <span asp-validation-for="afr_CargaHoraria" class="erro-validacao"></span>
+        <span asp-validation-for="afr_PercentualMinimo" class="erro-validacao"></span>
+
+        <div class="ajuda" style="margin-top:8px;">
+            <strong>Minimo para concluir:</strong> percentual das aulas que o
+            aluno precisa concluir para o curso contar como concluido. 100 exige
+            todas as aulas; 75 exige tres quartos delas.
+        </div>
+
+        <div class="campo campo-inline" style="margin-top:16px;">
+            <input asp-for="afr_Ativo" type="checkbox" />
+            <label asp-for="afr_Ativo">Curso ativo (visivel para o aluno)</label>
+        </div>
+
+        <div class="acoes">
+            <button type="submit" class="botao botao-primario">
+                @(afr_edicao ? "Salvar alteracoes" : "Cadastrar curso")
+            </button>
+
+            <a asp-controller="Cursos" asp-action="Index" class="botao">Cancelar</a>
+
+            @if (afr_edicao)
+            {
+                <a asp-controller="Cursos" asp-action="Aulas" asp-route-id="@Model.afr_Id"
+                   class="botao">Aulas deste curso</a>
+            }
+        </div>
+    </form>
+</div>
