@@ -10,10 +10,6 @@ import {
   StyleSheet,
   Switch,
   Text,
-<<<<<<< HEAD
-=======
-  Pressable,
->>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   View,
 } from 'react-native';
 
@@ -51,47 +47,15 @@ export default function CourseDetailsScreen({ route }) {
     }, [id])
   );
 
-<<<<<<< HEAD
   async function toggle(aula, value) {
     try {
       await api.put(
-=======
-  async function enroll() {
-    try {
-      await api.post(`/cursos/${id}/matricula`);
-      await load();
-      Alert.alert('Matrícula realizada', 'Agora você pode acompanhar seu progresso nas aulas.');
-    } catch (error) {
-      Alert.alert('Erro', error.response?.data?.message || 'Falha ao realizar matrícula.');
-    }
-  }
-
-  async function toggle(aula, value) {
-    try {
-      const response = await api.put(
->>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
         `/cursos/${id}/aulas/${aula.id}/progresso`,
         {
           concluida: value,
         }
       );
 
-<<<<<<< HEAD
-=======
-      if (value && response.data.gamificacao?.xpGanho > 0) {
-        const gamification = response.data.gamificacao;
-        const unlocked = gamification.novasConquistas || [];
-        const achievementText = unlocked.length
-          ? `\nNova conquista: ${unlocked.map((item) => item.nome).join(', ')}`
-          : '';
-
-        Alert.alert(
-          'Aula concluída!',
-          `Você ganhou ${gamification.xpGanho} XP. Total: ${gamification.xpTotal} XP.${achievementText}`
-        );
-      }
-
->>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
       setData((currentData) => {
         const aulasAtualizadas = currentData.aulas.map(
           (item) =>
@@ -168,22 +132,6 @@ export default function CourseDetailsScreen({ route }) {
         </Text>
       </View>
 
-<<<<<<< HEAD
-=======
-      {!data.matriculado ? (
-        <Pressable
-          style={styles.enrollButton}
-          onPress={enroll}
-        >
-          <Text style={styles.enrollButtonText}>Matricular-se neste curso</Text>
-        </Pressable>
-      ) : (
-        <View style={styles.enrolledBadge}>
-          <Text style={styles.enrolledText}>Você está matriculado neste curso</Text>
-        </View>
-      )}
-
->>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
       <Text style={styles.heading}>
         Aulas
       </Text>
@@ -205,14 +153,9 @@ export default function CourseDetailsScreen({ route }) {
 
           <Switch
             value={!!aula.concluida}
-<<<<<<< HEAD
             onValueChange={(value) =>
               toggle(aula, value)
             }
-=======
-            onValueChange={(value) => toggle(aula, value)}
-            disabled={!data.matriculado}
->>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
           />
         </View>
       ))}
@@ -263,35 +206,6 @@ const styles = StyleSheet.create({
     marginTop: 7,
   },
 
-<<<<<<< HEAD
-=======
-  enrollButton: {
-    backgroundColor: '#2563eb',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 18,
-  },
-
-  enrollButtonText: {
-    color: '#fff',
-    fontWeight: '800',
-  },
-
-  enrolledBadge: {
-    backgroundColor: '#dcfce7',
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 18,
-  },
-
-  enrolledText: {
-    color: '#166534',
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-
->>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   heading: {
     fontSize: 20,
     fontWeight: '800',
