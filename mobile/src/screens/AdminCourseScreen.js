@@ -26,6 +26,10 @@ export default function AdminCourseScreen({ route, navigation }) {
   const [aulas, setAulas] = useState([]);
   const [aulaTitulo, setAulaTitulo] = useState('');
   const [aulaDuracao, setAulaDuracao] = useState('45');
+<<<<<<< HEAD
+=======
+  const [salvando, setSalvando] = useState(false);
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
 
   useEffect(() => {
     if (edit) {
@@ -40,17 +44,50 @@ export default function AdminCourseScreen({ route, navigation }) {
     } catch (error) {
       Alert.alert(
         'Erro',
+<<<<<<< HEAD
         'Não foi possível carregar as aulas.'
+=======
+        error.response?.data?.message ||
+          'Não foi possível carregar as aulas.'
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
       );
     }
   }
 
   async function salvar() {
+<<<<<<< HEAD
     try {
       const dadosCurso = {
         titulo,
         descricao,
         cargaHoraria: Number(carga),
+=======
+    const tituloLimpo = titulo.trim();
+    const cargaNumerica = Number(carga);
+
+    if (!tituloLimpo) {
+      Alert.alert('Atenção', 'Informe o título do curso.');
+      return;
+    }
+
+    if (tituloLimpo.length > 200) {
+      Alert.alert('Atenção', 'O título deve ter no máximo 200 caracteres.');
+      return;
+    }
+
+    if (!carga.trim() || !Number.isInteger(cargaNumerica) || cargaNumerica < 0) {
+      Alert.alert('Atenção', 'Informe uma carga horária válida.');
+      return;
+    }
+
+    setSalvando(true);
+
+    try {
+      const dadosCurso = {
+        titulo: tituloLimpo,
+        descricao: descricao.trim(),
+        cargaHoraria: cargaNumerica,
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
         ativo,
       };
 
@@ -80,8 +117,15 @@ export default function AdminCourseScreen({ route, navigation }) {
       Alert.alert(
         'Erro',
         error.response?.data?.message ||
+<<<<<<< HEAD
           'Falha ao salvar.'
       );
+=======
+          'Falha ao salvar o curso.'
+      );
+    } finally {
+      setSalvando(false);
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
     }
   }
 
@@ -94,16 +138,46 @@ export default function AdminCourseScreen({ route, navigation }) {
       return;
     }
 
+<<<<<<< HEAD
+=======
+    const tituloLimpo = aulaTitulo.trim();
+    const duracaoNumerica = Number(aulaDuracao);
+
+    if (!tituloLimpo) {
+      Alert.alert('Atenção', 'Informe o título da aula.');
+      return;
+    }
+
+    if (tituloLimpo.length > 300) {
+      Alert.alert('Atenção', 'O título da aula deve ter no máximo 300 caracteres.');
+      return;
+    }
+
+    if (!Number.isInteger(duracaoNumerica) || duracaoNumerica < 0) {
+      Alert.alert('Atenção', 'Informe uma duração válida em minutos.');
+      return;
+    }
+
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
     try {
       await api.post(
         `/admin/cursos/${initial.id}/aulas`,
         {
+<<<<<<< HEAD
           titulo: aulaTitulo,
           duracaoMin: Number(aulaDuracao),
+=======
+          titulo: tituloLimpo,
+          duracaoMin: duracaoNumerica,
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
         }
       );
 
       setAulaTitulo('');
+<<<<<<< HEAD
+=======
+      setAulaDuracao('45');
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
       await load();
     } catch (error) {
       Alert.alert(
@@ -114,6 +188,7 @@ export default function AdminCourseScreen({ route, navigation }) {
     }
   }
 
+<<<<<<< HEAD
   async function delAula(id) {
     try {
       await api.delete(`/admin/aulas/${id}`);
@@ -125,15 +200,53 @@ export default function AdminCourseScreen({ route, navigation }) {
           'Falha ao excluir aula.'
       );
     }
+=======
+  function delAula(id, nomeAula) {
+    Alert.alert(
+      'Excluir aula',
+      `Deseja realmente excluir a aula "${nomeAula}"? O progresso registrado para ela também será removido.`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.delete(`/admin/aulas/${id}`);
+              await load();
+            } catch (error) {
+              Alert.alert(
+                'Erro',
+                error.response?.data?.message ||
+                  'Falha ao excluir aula.'
+              );
+            }
+          },
+        },
+      ]
+    );
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   }
 
   function excluir() {
     Alert.alert(
+<<<<<<< HEAD
       'Excluir',
       'Deseja excluir este curso?',
       [
         {
           text: 'Cancelar',
+=======
+      'Excluir curso',
+      'Deseja excluir este curso? Todas as aulas e os progressos relacionados também serão removidos.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
         },
         {
           text: 'Excluir',
@@ -169,6 +282,10 @@ export default function AdminCourseScreen({ route, navigation }) {
         placeholder="Título"
         value={titulo}
         onChangeText={setTitulo}
+<<<<<<< HEAD
+=======
+        maxLength={200}
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
       />
 
       <TextInput
@@ -197,11 +314,20 @@ export default function AdminCourseScreen({ route, navigation }) {
       </View>
 
       <Pressable
+<<<<<<< HEAD
         style={styles.button}
         onPress={salvar}
       >
         <Text style={styles.buttonText}>
           Salvar curso
+=======
+        style={[styles.button, salvando && styles.buttonDisabled]}
+        onPress={salvar}
+        disabled={salvando}
+      >
+        <Text style={styles.buttonText}>
+          {salvando ? 'Salvando...' : 'Salvar curso'}
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
         </Text>
       </Pressable>
 
@@ -227,7 +353,11 @@ export default function AdminCourseScreen({ route, navigation }) {
               </View>
 
               <Pressable
+<<<<<<< HEAD
                 onPress={() => delAula(aula.id)}
+=======
+                onPress={() => delAula(aula.id, aula.titulo)}
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
               >
                 <Text style={styles.deleteText}>
                   Excluir
@@ -241,6 +371,10 @@ export default function AdminCourseScreen({ route, navigation }) {
             placeholder="Título da nova aula"
             value={aulaTitulo}
             onChangeText={setAulaTitulo}
+<<<<<<< HEAD
+=======
+            maxLength={300}
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
           />
 
           <TextInput
@@ -317,6 +451,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+<<<<<<< HEAD
+=======
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   buttonText: {
     color: '#fff',
     fontWeight: '700',
@@ -370,4 +511,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 20,
   },
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)

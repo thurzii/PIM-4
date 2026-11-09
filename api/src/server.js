@@ -1,4 +1,5 @@
 require('dotenv').config();
+<<<<<<< HEAD
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -15,10 +16,41 @@ const SECRET = process.env.JWT_SECRET || 'plataforma-cursos-segredo';
 function tokenFor(user) {
   return jwt.sign({ id: user.Id, nome: user.Nome, email: user.Email, perfil: user.Perfil }, SECRET, { expiresIn: '8h' });
 }
+=======
+
+const express = require('express');
+const cors = require('cors');
+const { getPool } = require('./db');
+
+const authRoutes = require('./routes/authRoutes');
+const courseRoutes = require('./routes/courseRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const professorRoutes = require('./routes/professorRoutes');
+const gamificationRoutes = require('./routes/gamificationRoutes');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+const requiredDatabaseColumns = {
+  Usuarios: ['Id', 'Nome', 'Email', 'Senha', 'Perfil', 'Ativo'],
+  Cursos: ['Id', 'Titulo', 'Descricao', 'CargaHoraria', 'Ativo', 'DataCadastro', 'ProfessorId'],
+  Aulas: ['Id', 'CursoId', 'Titulo', 'Ordem', 'DuracaoMin'],
+  Progresso: ['Id', 'UsuarioId', 'AulaId', 'DataConclusao'],
+  Matriculas: ['Id', 'UsuarioId', 'CursoId', 'DataMatricula'],
+  Gamificacao: ['UsuarioId', 'XP', 'SequenciaAtual', 'MelhorSequencia', 'UltimaAtividade'],
+  Conquistas: ['Id', 'Codigo', 'Nome', 'Descricao', 'Icone', 'XPBonus'],
+  UsuarioConquistas: ['Id', 'UsuarioId', 'ConquistaId', 'DataConquista'],
+  HistoricoXP: ['Id', 'UsuarioId', 'Quantidade', 'Motivo', 'ReferenciaTipo', 'ReferenciaId', 'DataRegistro'],
+};
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
 
 app.get('/api/health', async (req, res) => {
   try {
     const pool = await getPool();
+<<<<<<< HEAD
     await pool.request().query('SELECT 1 AS ok');
     res.json({ api: 'ok', database: 'ok' });
   } catch (e) {
@@ -149,3 +181,63 @@ app.put('/api/admin/usuarios/:id/status', auth, adminOnly, async (req,res)=>{try
 
 app.use((req,res)=>res.status(404).json({message:'Rota nao encontrada.'}));
 app.listen(PORT,()=>console.log(`API Plataforma Cursos rodando em http://localhost:${PORT}`));
+=======
+    const result = await pool.request().query(`
+      SELECT TABLE_NAME AS tableName, COLUMN_NAME AS columnName
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_SCHEMA = 'dbo'
+    `);
+
+    const availableColumns = new Set(
+      result.recordset.map((column) => `${column.tableName}.${column.columnName}`)
+    );
+
+    const missingColumns = Object.entries(requiredDatabaseColumns)
+      .flatMap(([tableName, columns]) =>
+        columns
+          .filter((columnName) => !availableColumns.has(`${tableName}.${columnName}`))
+          .map((columnName) => `${tableName}.${columnName}`)
+      );
+
+    if (missingColumns.length > 0) {
+      return res.status(503).json({
+        api: 'ok',
+        database: 'ok',
+        schema: 'error',
+        missingColumns,
+      });
+    }
+
+    res.json({
+      api: 'ok',
+      database: 'ok',
+      schema: 'ok',
+    });
+  } catch (error) {
+    res.status(500).json({
+      api: 'ok',
+      database: 'error',
+      schema: 'not_checked',
+      message: error.message,
+    });
+  }
+});
+
+app.use('/api/auth', authRoutes);
+app.use('/api/cursos', courseRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/professor', professorRoutes);
+app.use('/api/gamificacao', gamificationRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({ message: 'Rota nao encontrada.' });
+});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`API Plataforma Cursos rodando em http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)

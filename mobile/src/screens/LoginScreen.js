@@ -116,7 +116,11 @@ export default function LoginScreen({ navigation }) {
         </Pressable>
 
         <Text style={styles.demo}>
+<<<<<<< HEAD
           Demo: maria@escola.com / aluno123
+=======
+          DEMONSTRAÇÃO\nAluno: maria@escola.com / aluno123\nProfessor: professor@escola.com / professor123\nAdmin: admin@escola.com / admin123
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
         </Text>
       </View>
     </KeyboardAvoidingView>
@@ -203,5 +207,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 25,
     fontSize: 12,
+<<<<<<< HEAD
+=======
+    lineHeight: 19,
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   },
 });

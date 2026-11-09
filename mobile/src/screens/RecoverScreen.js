@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 
 import {
@@ -45,12 +46,25 @@ export default function RecoverScreen({ navigation }) {
     }
   }
 
+=======
+import React from 'react';
+
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
+export default function RecoverScreen({ navigation }) {
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
         Recuperar senha
       </Text>
 
+<<<<<<< HEAD
       <Text style={styles.help}>
         Informe o email cadastrado e a nova senha.
       </Text>
@@ -84,14 +98,32 @@ export default function RecoverScreen({ navigation }) {
             </Text>
           </Pressable>
         )}
+=======
+      <View style={styles.notice}>
+        <Text style={styles.noticeTitle}>
+          Recuperação temporariamente indisponível
+        </Text>
+
+        <Text style={styles.noticeText}>
+          Para proteger as contas, a redefinição não pode ser feita apenas informando o e-mail.
+          Solicite ao administrador da plataforma que redefina sua senha.
+        </Text>
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
       </View>
 
       <Pressable
         style={styles.button}
+<<<<<<< HEAD
         onPress={recuperar}
       >
         <Text style={styles.buttonText}>
           Redefinir senha
+=======
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.buttonText}>
+          Voltar para o login
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
         </Text>
       </Pressable>
     </View>
@@ -109,6 +141,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '800',
     marginTop: 30,
+<<<<<<< HEAD
   },
 
   help: {
@@ -144,6 +177,29 @@ const styles = StyleSheet.create({
     color: '#2563eb',
     fontWeight: '600',
     paddingHorizontal: 14,
+=======
+    marginBottom: 20,
+  },
+
+  notice: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    padding: 16,
+  },
+
+  noticeTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 8,
+  },
+
+  noticeText: {
+    color: '#667085',
+    lineHeight: 22,
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   },
 
   button: {
@@ -151,10 +207,18 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
+<<<<<<< HEAD
+=======
+    marginTop: 18,
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   },
 
   buttonText: {
     color: '#fff',
     fontWeight: '700',
   },
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
