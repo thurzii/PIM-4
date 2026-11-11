@@ -5,14 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-<<<<<<< HEAD
     "dev": "nodemon src/server.js"
-=======
-    "dev": "nodemon src/server.js",
-    "test": "node --test",
-    "test:unit": "node --test test/permissions.test.js",
-    "test:integration": "node --test test/api.integration.test.js"
->>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
   },
   "dependencies": {
     "cors": "^2.8.5",

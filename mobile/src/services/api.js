@@ -14,21 +14,4 @@ api.interceptors.request.use(async config => {
   return config;
 });
 
-<<<<<<< HEAD
-=======
-async function request(method, url, config = {}) {
-  if (isDemoMode()) {
-    const mocked = await demoRequest(method, url, config);
-    if (mocked) return mocked;
-  }
-  return client.request({ method, url, ...config });
-}
-
-const api = {
-  get: (url, config) => request('get', url, config),
-  post: (url, data, config = {}) => request('post', url, { ...config, data }),
-  put: (url, data, config = {}) => request('put', url, { ...config, data }),
-  delete: (url, config) => request('delete', url, config),
-};
->>>>>>> b3854cb (melhorias funções dos usuários / gamificação / melhorias api)
 export default api;
