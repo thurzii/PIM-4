@@ -105,6 +105,10 @@ export default function LoginScreen({ navigation }) {
           </Text>
         </Pressable>
 
+        <Pressable onPress={() => navigation.navigate('Cadastro')}>
+          <Text style={styles.link}>Criar conta</Text>
+        </Pressable>
+
         <Pressable
           onPress={() =>
             navigation.navigate('RecuperarSenha')
@@ -115,9 +119,7 @@ export default function LoginScreen({ navigation }) {
           </Text>
         </Pressable>
 
-        <Text style={styles.demo}>
-          Demo: maria@escola.com / aluno123
-        </Text>
+
       </View>
     </KeyboardAvoidingView>
   );

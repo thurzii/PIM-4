@@ -34,14 +34,6 @@ Fluxo:
 - Listagem e busca de usuários
 - Ativação/desativação de usuários
 
-## Usuários de demonstração
-
-Os usuários abaixo só funcionarão se já estiverem cadastrados no banco conectado à API:
-
-- ADMIN: `admin@escola.com` / `admin123`
-- ALUNO: `maria@escola.com` / `aluno123`
-- ALUNO: `joao@escola.com` / `aluno123`
-
 ## 1. Configurar o banco de dados na nuvem (Azure SQL)
 
 O projeto está preparado com estes valores iniciais:

@@ -1,12 +1,31 @@
+
 const express = require('express');
 const { sql, getPool } = require('../db');
-const { auth, studentOnly } = require('../middleware');
+const { auth } = require('../middleware');
 
 const router = express.Router();
 
+// Middleware de acesso exclusivo para alunos
+function studentOnly(req, res, next) {
+  const perfil = String(
+    req.user?.perfil || req.user?.Perfil || ''
+  ).toUpperCase();
+
+  if (perfil !== 'ALUNO') {
+    return res.status(403).json({
+      message: 'Acesso permitido apenas para alunos.'
+    });
+  }
+
+  next();
+}
+
+// GET /api/gamificacao/me
+// Retorna XP, nível, sequência e conquistas do aluno
 router.get('/me', auth, studentOnly, async (req, res) => {
   try {
     const pool = await getPool();
+
     const result = await pool.request()
       .input('usuarioId', sql.Int, req.user.id)
       .query(`
@@ -15,10 +34,15 @@ router.get('/me', auth, studentOnly, async (req, res) => {
           CAST(FLOOR(ISNULL(g.XP, 0) / 100.0) AS INT) + 1 AS nivel,
           ISNULL(g.SequenciaAtual, 0) AS sequenciaAtual,
           ISNULL(g.MelhorSequencia, 0) AS melhorSequencia,
-          (SELECT COUNT(*) FROM dbo.HistoricoXP h
-           WHERE h.UsuarioId = @usuarioId AND h.ReferenciaTipo = 'AULA') AS aulasConcluidas
+          (
+            SELECT COUNT(*)
+            FROM dbo.HistoricoXP h
+            WHERE h.UsuarioId = @usuarioId
+              AND h.ReferenciaTipo = 'AULA'
+          ) AS aulasConcluidas
         FROM (SELECT @usuarioId AS UsuarioId) u
-        LEFT JOIN dbo.Gamificacao g ON g.UsuarioId = u.UsuarioId;
+        LEFT JOIN dbo.Gamificacao g
+          ON g.UsuarioId = u.UsuarioId;
 
         SELECT
           c.Id AS id,
@@ -27,11 +51,15 @@ router.get('/me', auth, studentOnly, async (req, res) => {
           c.Descricao AS descricao,
           c.Icone AS icone,
           c.XPBonus AS xpBonus,
-          CASE WHEN uc.Id IS NULL THEN CAST(0 AS BIT) ELSE CAST(1 AS BIT) END AS conquistada,
+          CASE
+            WHEN uc.Id IS NULL THEN CAST(0 AS BIT)
+            ELSE CAST(1 AS BIT)
+          END AS conquistada,
           uc.DataConquista AS dataConquista
         FROM dbo.Conquistas c
         LEFT JOIN dbo.UsuarioConquistas uc
-          ON uc.ConquistaId = c.Id AND uc.UsuarioId = @usuarioId
+          ON uc.ConquistaId = c.Id
+          AND uc.UsuarioId = @usuarioId
         ORDER BY conquistada DESC, c.Id;
       `);
 
@@ -40,25 +68,29 @@ router.get('/me', auth, studentOnly, async (req, res) => {
       nivel: 1,
       sequenciaAtual: 0,
       melhorSequencia: 0,
-      aulasConcluidas: 0,
+      aulasConcluidas: 0
     };
+
     const nivel = Number(stats.nivel || 1);
     const xp = Number(stats.xp || 0);
     const xpBaseNivel = (nivel - 1) * 100;
 
-    res.json({
+    return res.json({
       ...stats,
       xp,
       nivel,
       xpProximoNivel: nivel * 100,
       xpNoNivel: xp - xpBaseNivel,
       progressoNivel: xp - xpBaseNivel,
-      conquistas: result.recordsets?.[1] || [],
+      conquistas: result.recordsets?.[1] || []
     });
+
   } catch (error) {
-    res.status(500).json({
+    console.error('Erro na gamificação:', error);
+
+    return res.status(500).json({
       message: 'Erro ao carregar gamificação.',
-      detail: error.message,
+      detail: error.message
     });
   }
 });

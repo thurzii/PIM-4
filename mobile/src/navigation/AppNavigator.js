@@ -1,4 +1,5 @@
 import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
 
 import {
   ActivityIndicator,
@@ -20,6 +21,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
 import RecoverScreen from '../screens/RecoverScreen';
 import CoursesScreen from '../screens/CoursesScreen';
 import CourseDetailsScreen from '../screens/CourseDetailsScreen';
@@ -27,16 +29,29 @@ import ProfileScreen from '../screens/ProfileScreen';
 import AdminScreen from '../screens/AdminScreen';
 import AdminCourseScreen from '../screens/AdminCourseScreen';
 import AdminUsersScreen from '../screens/AdminUsersScreen';
+import ProfessorCoursesScreen from '../screens/ProfessorCoursesScreen';
+import ProfessorCourseScreen from '../screens/ProfessorCourseScreen';
+import ProfessorStudentsScreen from '../screens/ProfessorStudentsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tabs = createBottomTabNavigator();
 
+const tabIcons = { 'Cursos': ['home-outline', 'home'], 'Perfil': ['person-outline', 'person'], 'Admin': ['grid-outline', 'grid'], 'Usuários': ['people-outline', 'people'], 'Meus cursos': ['book-outline', 'book'] };
+const tabOptions = ({ route }) => ({
+  headerShown: false,
+  tabBarActiveTintColor: '#4F46E5',
+  tabBarInactiveTintColor: '#8993A7',
+  tabBarLabelStyle: { fontSize: 11, fontWeight: '700', marginBottom: 3 },
+  tabBarStyle: { backgroundColor: '#FFFFFF', height: 66, paddingTop: 7, paddingBottom: 7, borderTopColor: '#E9EDF5' },
+  tabBarIcon: ({ focused, color, size }) => {
+    const icons = tabIcons[route.name] || ['ellipse-outline', 'ellipse'];
+    return <Ionicons name={icons[focused ? 1 : 0]} size={23} color={color} />;
+  },
+});
 function StudentTabs() {
   return (
     <Tabs.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
+      screenOptions={tabOptions}
     >
       <Tabs.Screen
         name="Cursos"
@@ -54,9 +69,7 @@ function StudentTabs() {
 function AdminTabs() {
   return (
     <Tabs.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
+      screenOptions={tabOptions}
     >
       <Tabs.Screen
         name="Admin"
@@ -74,6 +87,13 @@ function AdminTabs() {
       />
     </Tabs.Navigator>
   );
+}
+
+function ProfessorTabs() {
+  return <Tabs.Navigator screenOptions={tabOptions}>
+    <Tabs.Screen name="Meus cursos" component={ProfessorCoursesScreen} />
+    <Tabs.Screen name="Perfil" component={ProfileScreen} />
+  </Tabs.Navigator>;
 }
 
 export default function AppNavigator() {
@@ -100,6 +120,7 @@ export default function AppNavigator() {
               }}
             />
 
+            <Stack.Screen name="Cadastro" component={RegisterScreen} options={{ title: 'Criar conta' }} />
             <Stack.Screen
               name="RecuperarSenha"
               component={RecoverScreen}
@@ -125,6 +146,12 @@ export default function AppNavigator() {
                 title: 'Gerenciar curso',
               }}
             />
+          </>
+        ) : user.perfil === 'PROFESSOR' ? (
+          <>
+            <Stack.Screen name="Principal" component={ProfessorTabs} options={{ headerShown: false }} />
+            <Stack.Screen name="ProfessorCurso" component={ProfessorCourseScreen} options={{ title: 'Gerenciar curso' }} />
+            <Stack.Screen name="ProfessorAlunos" component={ProfessorStudentsScreen} options={{ title: 'Alunos matriculados' }} />
           </>
         ) : (
           <>

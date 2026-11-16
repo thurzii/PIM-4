@@ -5,6 +5,57 @@ const jwt = require('jsonwebtoken');
 const { sql, getPool } = require('./db');
 const { auth, adminOnly } = require('./middleware');
 
+
+const crypto = require('crypto');
+const { promisify } = require('util');
+const scrypt = promisify(crypto.scrypt);
+async function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = await scrypt(password, salt, 64);
+  return `scrypt:${salt}:${hash.toString('hex')}`;
+}
+async function verifyPassword(password, stored) {
+  if (typeof stored !== 'string') return false;
+  if (!stored.startsWith('scrypt:')) return stored === password; // compatibilidade com contas antigas
+  const parts = stored.split(':');
+  if (parts.length !== 3 || !/^[a-f0-9]{32}$/.test(parts[1]) || !/^[a-f0-9]{128}$/.test(parts[2])) return false;
+  const expected = Buffer.from(parts[2], 'hex');
+  const actual = await scrypt(password, parts[1], expected.length);
+  return crypto.timingSafeEqual(expected, actual);
+}
+function validateAccount(body, publicSignup = false) {
+  const nome = typeof body?.nome === 'string' ? body.nome.trim() : '';
+  const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
+  const senha = typeof body?.senha === 'string' ? body.senha : '';
+  const perfil = publicSignup ? 'ALUNO' : (typeof body?.perfil === 'string' ? body.perfil.toUpperCase() : '');
+  if (nome.length < 3 || nome.length > 200) return { error: 'Informe um nome entre 3 e 200 caracteres.' };
+  if (email.length > 200 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: 'Informe um email valido.' };
+  if (senha.length < 8 || senha.length > 128) return { error: 'A senha deve ter entre 8 e 128 caracteres.' };
+  if (publicSignup && senha !== body.confirmarSenha) return { error: 'As senhas nao conferem.' };
+  if (!['ALUNO', 'PROFESSOR', 'ADMIN'].includes(perfil)) return { error: 'Perfil invalido.' };
+  return { nome, email, senha, perfil };
+}
+async function createAccount(body, publicSignup, res) {
+  const data = validateAccount(body, publicSignup);
+  if (data.error) return res.status(400).json({ message: data.error });
+  try {
+    const pool = await getPool();
+    const senhaHash = await hashPassword(data.senha);
+    const result = await pool.request()
+      .input('nome', sql.NVarChar(200), data.nome)
+      .input('email', sql.NVarChar(200), data.email)
+      .input('senha', sql.NVarChar(200), senhaHash)
+      .input('perfil', sql.NVarChar(20), data.perfil)
+      .query(`INSERT INTO dbo.Usuarios (Nome, Email, Senha, Perfil, Ativo, DataCadastro)
+              OUTPUT INSERTED.Id VALUES (@nome, @email, @senha, @perfil, 1, GETDATE())`);
+    return res.status(201).json({ id: result.recordset[0].Id, message: 'Usuario criado com sucesso.' });
+  } catch (error) {
+    if (error.number === 2627 || error.number === 2601 || /duplicate|unique|duplicad/i.test(error.message))
+      return res.status(409).json({ message: 'Este email ja esta cadastrado.' });
+    return res.status(500).json({ message: 'Erro ao criar usuario.' });
+  }
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -26,37 +77,26 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.post('/api/auth/register', (req, res) => createAccount(req.body, true, res));
 app.post('/api/auth/login', async (req, res) => {
-  const { email, senha } = req.body;
-  if (!email || !senha) return res.status(400).json({ message: 'Informe email e senha.' });
+  const { email, senha } = req.body || {};
+  if (typeof email !== 'string' || typeof senha !== 'string' || !email.trim() || !senha)
+    return res.status(400).json({ message: 'Informe email e senha.' });
   try {
     const pool = await getPool();
-    const result = await pool.request()
-      .input('email', sql.NVarChar(200), email.trim())
-      .input('senha', sql.NVarChar(200), senha)
-      .query(`SELECT TOP 1 Id, Nome, Email, Perfil, Ativo FROM dbo.Usuarios WHERE Email=@email AND Senha=@senha`);
+    const result = await pool.request().input('email', sql.NVarChar(200), email.trim().toLowerCase())
+      .query('SELECT TOP 1 Id, Nome, Email, Senha, Perfil, Ativo FROM dbo.Usuarios WHERE Email=@email');
     const user = result.recordset[0];
-    if (!user) return res.status(401).json({ message: 'Email ou senha incorretos.' });
+    if (!user || !(await verifyPassword(senha, user.Senha)))
+      return res.status(401).json({ message: 'Email ou senha incorretos.' });
     if (!user.Ativo) return res.status(403).json({ message: 'Usuario inativo.' });
-    res.json({ token: tokenFor(user), user: { id: user.Id, nome: user.Nome, email: user.Email, perfil: user.Perfil } });
-  } catch (e) {
-    res.status(500).json({ message: 'Erro ao autenticar.', detail: e.message });
-  }
+    return res.json({ token: tokenFor(user), user: { id: user.Id, nome: user.Nome, email: user.Email, perfil: user.Perfil } });
+  } catch (e) { return res.status(500).json({ message: 'Erro ao autenticar.' }); }
 });
 
-app.post('/api/auth/recover', async (req, res) => {
-  const { email, novaSenha } = req.body;
-  if (!email || !novaSenha) return res.status(400).json({ message: 'Informe email e nova senha.' });
-  try {
-    const pool = await getPool();
-    const result = await pool.request()
-      .input('email', sql.NVarChar(200), email.trim())
-      .input('senha', sql.NVarChar(200), novaSenha)
-      .query('UPDATE dbo.Usuarios SET Senha=@senha WHERE Email=@email');
-    if (!result.rowsAffected[0]) return res.status(404).json({ message: 'Email nao encontrado.' });
-    res.json({ message: 'Senha redefinida com sucesso.' });
-  } catch (e) { res.status(500).json({ message: 'Erro ao redefinir senha.', detail: e.message }); }
-});
+app.post('/api/auth/recover', (req, res) => res.status(501).json({
+  message: 'Recuperacao automatica indisponivel. Solicite a redefinicao ao administrador.'
+}));
 
 app.get('/api/cursos', auth, async (req, res) => {
   const termo = (req.query.busca || '').trim();
@@ -142,7 +182,12 @@ app.post('/api/admin/cursos/:cursoId/aulas', auth, adminOnly, async (req,res)=>{
 
 app.delete('/api/admin/aulas/:id', auth, adminOnly, async (req,res)=>{try{const pool=await getPool();const r=await pool.request().input('id',sql.Int,Number(req.params.id)).query('DELETE FROM dbo.Aulas WHERE Id=@id');if(!r.rowsAffected[0])return res.status(404).json({message:'Aula nao encontrada.'});res.json({message:'Aula excluida.'});}catch(e){res.status(500).json({message:'Erro ao excluir aula.',detail:e.message});}});
 
+app.use('/api/professor', require('./routes/professorRoutes'));
+app.use('/api/gamificacao', require('./routes/gamificationRoutes'));
+
 // ---------------- ADMIN: USUARIOS ----------------
+app.post('/api/admin/usuarios', auth, adminOnly, (req, res) => createAccount(req.body, false, res));
+
 app.get('/api/admin/usuarios', auth, adminOnly, async (req,res)=>{const termo=(req.query.busca||'').trim();try{const pool=await getPool();const r=await pool.request().input('termo',sql.NVarChar(200),termo).query(`SELECT Id AS id,Nome AS nome,Email AS email,Perfil AS perfil,Ativo AS ativo FROM dbo.Usuarios WHERE @termo='' OR Nome LIKE '%'+@termo+'%' OR Email LIKE '%'+@termo+'%' ORDER BY Nome`);res.json(r.recordset);}catch(e){res.status(500).json({message:'Erro ao listar usuarios.',detail:e.message});}});
 
 app.put('/api/admin/usuarios/:id/status', auth, adminOnly, async (req,res)=>{try{const pool=await getPool();const r=await pool.request().input('id',sql.Int,Number(req.params.id)).input('ativo',sql.Bit,Boolean(req.body.ativo)).query('UPDATE dbo.Usuarios SET Ativo=@ativo WHERE Id=@id');if(!r.rowsAffected[0])return res.status(404).json({message:'Usuario nao encontrado.'});res.json({message:'Status atualizado.'});}catch(e){res.status(500).json({message:'Erro ao atualizar usuario.',detail:e.message});}});

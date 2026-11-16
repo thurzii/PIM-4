@@ -43,9 +43,4 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE Email = 'professor@escola.com')
-BEGIN
-    INSERT dbo.Usuarios (Nome, Email, Senha, Perfil, Ativo)
-    VALUES ('Professor Demo', 'professor@escola.com', 'professor123', 'PROFESSOR', 1);
-END
 GO
