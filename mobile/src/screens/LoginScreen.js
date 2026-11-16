@@ -105,10 +105,6 @@ export default function LoginScreen({ navigation }) {
           </Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate('Cadastro')}>
-          <Text style={styles.link}>Criar conta</Text>
-        </Pressable>
-
         <Pressable
           onPress={() =>
             navigation.navigate('RecuperarSenha')

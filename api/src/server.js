@@ -4,6 +4,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { sql, getPool } = require('./db');
 const { auth, adminOnly } = require('./middleware');
+const { awardLessonCompletion } = require('./gamificationService');
 
 
 const crypto = require('crypto');
@@ -77,7 +78,7 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-app.post('/api/auth/register', (req, res) => createAccount(req.body, true, res));
+// Cadastro publico desabilitado. Apenas /api/admin/usuarios pode criar usuarios.
 app.post('/api/auth/login', async (req, res) => {
   const { email, senha } = req.body || {};
   if (typeof email !== 'string' || typeof senha !== 'string' || !email.trim() || !senha)
@@ -140,7 +141,8 @@ app.put('/api/cursos/:cursoId/aulas/:aulaId/progresso', auth, async (req, res) =
     } else {
       await pool.request().input('usuarioId', sql.Int, req.user.id).input('aulaId', sql.Int, aulaId).query('DELETE FROM dbo.Progresso WHERE UsuarioId=@usuarioId AND AulaId=@aulaId');
     }
-    res.json({ message: concluida ? 'Aula concluida.' : 'Conclusao removida.' });
+    const gamificacao = concluida ? await awardLessonCompletion(req.user.id, aulaId) : null;
+    res.json({ message: concluida ? 'Aula concluida.' : 'Conclusao removida.', gamificacao });
   } catch (e) { res.status(500).json({ message: 'Erro ao atualizar progresso.', detail: e.message }); }
 });
 

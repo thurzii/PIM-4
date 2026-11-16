@@ -1,194 +1,25 @@
-import React, {
-  useCallback,
-  useState,
-} from 'react';
-
-import {
-  Alert,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-
+const C = { purple:'#5146D9', ink:'#202947', muted:'#8490A6', bg:'#F6F8FC' };
+function Metric({ icon, number, label }) { return <View style={s.metric}><View style={s.metricIcon}><Ionicons name={icon} size={20} color={C.purple}/></View><Text style={s.metricNumber}>{number}</Text><Text style={s.metricLabel}>{label}</Text></View>; }
+const s=StyleSheet.create({safe:{flex:1,backgroundColor:C.bg},content:{paddingHorizontal:20,paddingTop:20,paddingBottom:35},top:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:22},brand:{fontSize:15,fontWeight:'900',letterSpacing:2,color:C.ink},avatar:{width:42,height:42,borderRadius:15,backgroundColor:'#E7E7FF',alignItems:'center',justifyContent:'center'},avatarText:{color:C.purple,fontSize:17,fontWeight:'800'},greeting:{fontSize:27,fontWeight:'900',color:C.ink},sub:{fontSize:14,color:C.muted,marginTop:5,marginBottom:20},hero:{backgroundColor:C.purple,borderRadius:24,padding:23,marginBottom:22},eyebrow:{fontSize:10,color:'#DCD9FF',fontWeight:'900',letterSpacing:1.3},heroTitle:{fontSize:24,fontWeight:'900',color:'#fff',marginTop:9},heroSub:{fontSize:13,lineHeight:20,color:'#E6E4FF',marginTop:8},heroButton:{marginTop:19,alignSelf:'flex-start',backgroundColor:'#fff',paddingVertical:11,paddingHorizontal:16,borderRadius:12,flexDirection:'row',alignItems:'center',gap:8},heroButtonText:{color:C.purple,fontWeight:'800'},metrics:{flexDirection:'row',gap:10,marginBottom:25},metric:{flex:1,backgroundColor:'#fff',borderRadius:18,padding:13,borderWidth:1,borderColor:'#EEF0F6'},metricIcon:{width:34,height:34,borderRadius:11,backgroundColor:'#EEEDFF',alignItems:'center',justifyContent:'center',marginBottom:10},metricNumber:{fontSize:23,fontWeight:'900',color:C.ink},metricLabel:{fontSize:11,color:C.muted,marginTop:4},section:{fontSize:20,fontWeight:'900',color:C.ink,marginBottom:5},sectionSub:{fontSize:12,color:C.muted,marginBottom:14},actions:{flexDirection:'row',gap:10,marginBottom:26},action:{flex:1,backgroundColor:'#fff',padding:15,borderRadius:16,borderWidth:1,borderColor:'#EEF0F6',gap:9},actionText:{fontSize:12,fontWeight:'800',color:C.ink},search:{backgroundColor:'#fff',borderRadius:15,borderWidth:1,borderColor:'#E8ECF4',height:50,flexDirection:'row',alignItems:'center',paddingHorizontal:14,gap:10,marginBottom:14},searchInput:{flex:1,color:C.ink},card:{backgroundColor:'#fff',padding:17,borderRadius:17,borderWidth:1,borderColor:'#EDF0F6',marginBottom:11,flexDirection:'row',alignItems:'center'},cardTitle:{fontSize:16,fontWeight:'800',color:C.ink},cardSub:{color:C.muted,fontSize:12,marginTop:6},pill:{fontSize:11,color:'#168B55',fontWeight:'800',marginTop:8},empty:{alignItems:'center',padding:28},emptyText:{textAlign:'center',color:C.muted,marginTop:12,lineHeight:20},error:{color:'#B42318',marginBottom:12}});
 export default function AdminScreen({ navigation }) {
-  const [data, setData] = useState([]);
-  const [busca, setBusca] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  async function load(term = '') {
-    setLoading(true);
-
-    try {
-      const response = await api.get('/admin/cursos', {
-        params: {
-          busca: term,
-        },
-      });
-
-      setData(response.data);
-    } catch (error) {
-      Alert.alert(
-        'Erro',
-        error.response?.data?.message ||
-          'Falha ao carregar.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useFocusEffect(
-    useCallback(() => {
-      load(busca);
-    }, [])
-  );
-
-  function novo() {
-    navigation.navigate('AdminCurso', {
-      mode: 'new',
-    });
-  }
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>
-            Administração
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Gerenciamento de cursos
-          </Text>
-        </View>
-
-        <Pressable
-          style={styles.addButton}
-          onPress={novo}
-        >
-          <Text style={styles.addButtonText}>
-            + Novo
-          </Text>
-        </Pressable>
-      </View>
-
-      <TextInput
-        style={styles.search}
-        placeholder="Buscar..."
-        value={busca}
-        onChangeText={setBusca}
-        onSubmitEditing={() => load(busca)}
-      />
-
-      <FlatList
-        data={data}
-        keyExtractor={(item) => String(item.id)}
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={() => load(busca)}
-          />
-        }
-        renderItem={({ item }) => (
-          <Pressable
-            style={styles.card}
-            onPress={() =>
-              navigation.navigate('AdminCurso', {
-                mode: 'edit',
-                course: item,
-              })
-            }
-          >
-            <Text style={styles.courseTitle}>
-              {item.titulo}
-            </Text>
-
-            <Text>
-              {item.cargaHoraria}h • {item.totalAulas} aulas
-            </Text>
-
-            <Text
-              style={[
-                styles.status,
-                {
-                  color: item.ativo
-                    ? '#16a34a'
-                    : '#777',
-                },
-              ]}
-            >
-              {item.ativo ? 'Ativo' : 'Inativo'}
-            </Text>
-          </Pressable>
-        )}
-      />
-    </View>
-  );
+ const { user }=useAuth(); const [courses,setCourses]=useState([]);const [search,setSearch]=useState('');const [loading,setLoading]=useState(true);const [error,setError]=useState('');
+ const load=useCallback(async(term='')=>{setLoading(true);setError('');try{const r=await api.get('/admin/cursos',{params:{busca:term}});setCourses(Array.isArray(r.data)?r.data:[]);}catch(e){setError(e.response?.data?.message||'Não foi possível carregar os cursos.');}finally{setLoading(false);}},[]);
+ useFocusEffect(useCallback(()=>{load();},[load]));
+ const first=(user?.nome||'Admin').trim().split(' ')[0];const totalAulas=courses.reduce((sum,c)=>sum+Number(c.totalAulas||0),0);const ativos=courses.filter(c=>c.ativo).length;
+ const novo=()=>navigation.navigate('AdminCurso',{mode:'new'});
+ return <SafeAreaView style={s.safe} edges={['top']}><StatusBar barStyle="dark-content" backgroundColor={C.bg}/><FlatList data={courses} keyExtractor={x=>String(x.id)} contentContainerStyle={s.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={()=>load(search)} />} ListHeaderComponent={<>
+ <View style={s.top}><Text style={s.brand}>APRENDA<Text style={{color:C.purple}}>+</Text>  <Text style={{fontSize:10,color:C.muted}}>ADMIN</Text></Text><Pressable style={s.avatar} onPress={()=>navigation.navigate('Perfil')}><Text style={s.avatarText}>{first[0]?.toUpperCase()}</Text></Pressable></View>
+ <Text style={s.greeting}>Olá, {first}!</Text><Text style={s.sub}>Tudo pronto para gerenciar a plataforma?</Text>
+ <View style={s.hero}><Text style={s.eyebrow}>PAINEL ADMINISTRATIVO</Text><Text style={s.heroTitle}>Sua plataforma, sob controle.</Text><Text style={s.heroSub}>Organize cursos e mantenha tudo funcionando em um só lugar.</Text><Pressable style={s.heroButton} onPress={novo}><Ionicons name="add-circle-outline" color={C.purple} size={19}/><Text style={s.heroButtonText}>Criar novo curso</Text></Pressable></View>
+ <View style={s.metrics}><Metric icon="library-outline" number={courses.length} label="Cursos"/><Metric icon="checkmark-circle-outline" number={ativos} label="Ativos"/><Metric icon="play-circle-outline" number={totalAulas} label="Aulas"/></View>
+ <Text style={s.section}>Acesso rápido</Text><Text style={s.sectionSub}>Gerencie as principais áreas</Text><View style={s.actions}><Pressable style={s.action} onPress={()=>navigation.navigate('Usuários')}><Ionicons name="people-outline" size={23} color={C.purple}/><Text style={s.actionText}>Gerenciar usuários</Text></Pressable><Pressable style={s.action} onPress={novo}><Ionicons name="create-outline" size={23} color={C.purple}/><Text style={s.actionText}>Novo curso</Text></Pressable></View>
+ <Text style={s.section}>Gerenciar cursos</Text><Text style={s.sectionSub}>Toque em um curso para editar</Text><View style={s.search}><Ionicons name="search-outline" size={19} color={C.muted}/><TextInput style={s.searchInput} placeholder="Buscar cursos..." value={search} onChangeText={setSearch} onSubmitEditing={()=>load(search)} returnKeyType="search"/><Pressable onPress={()=>load(search)}><Ionicons name="arrow-forward-circle" size={24} color={C.purple}/></Pressable></View>{loading&&<ActivityIndicator color={C.purple}/>} {!!error&&<Text style={s.error}>{error}</Text>}
+ </>} renderItem={({item})=><Pressable style={s.card} onPress={()=>navigation.navigate('AdminCurso',{mode:'edit',course:item})}><View style={{flex:1}}><Text style={s.cardTitle}>{item.titulo}</Text><Text style={s.cardSub}>{item.cargaHoraria||0}h  •  {item.totalAulas||0} aulas</Text><Text style={[s.pill,!item.ativo&&{color:C.muted}]}>{item.ativo?'Ativo':'Inativo'}</Text></View><Ionicons name="chevron-forward" size={21} color={C.muted}/></Pressable>} ListEmptyComponent={!loading&&!error?<View style={s.empty}><Ionicons name="folder-open-outline" size={36} color={C.muted}/><Text style={s.emptyText}>Nenhum curso encontrado.</Text></View>:null}/></SafeAreaView>;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 18,
-    backgroundColor: '#f4f6f8',
-  },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  title: {
-    fontSize: 25,
-    fontWeight: '800',
-  },
-
-  subtitle: {
-    color: '#667085',
-  },
-
-  addButton: {
-    backgroundColor: '#2563eb',
-    padding: 11,
-    borderRadius: 9,
-  },
-
-  addButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-
-  search: {
-    backgroundColor: '#fff',
-    padding: 13,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginVertical: 15,
-  },
-
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-
-  courseTitle: {
-    fontWeight: '800',
-    fontSize: 16,
-    marginBottom: 5,
-  },
-
-  status: {
-    marginTop: 5,
-  },
-});

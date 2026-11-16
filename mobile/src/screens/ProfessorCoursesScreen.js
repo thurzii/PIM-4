@@ -1,166 +1,24 @@
-import React, {
-  useCallback,
-  useState,
-} from 'react';
-
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-
+const C = { purple:'#5146D9', ink:'#202947', muted:'#8490A6', bg:'#F6F8FC' };
+function Metric({ icon, number, label }) { return <View style={s.metric}><View style={s.metricIcon}><Ionicons name={icon} size={20} color={C.purple}/></View><Text style={s.metricNumber}>{number}</Text><Text style={s.metricLabel}>{label}</Text></View>; }
+const s=StyleSheet.create({safe:{flex:1,backgroundColor:C.bg},content:{paddingHorizontal:20,paddingTop:20,paddingBottom:35},top:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:22},brand:{fontSize:15,fontWeight:'900',letterSpacing:2,color:C.ink},avatar:{width:42,height:42,borderRadius:15,backgroundColor:'#E7E7FF',alignItems:'center',justifyContent:'center'},avatarText:{color:C.purple,fontSize:17,fontWeight:'800'},greeting:{fontSize:27,fontWeight:'900',color:C.ink},sub:{fontSize:14,color:C.muted,marginTop:5,marginBottom:20},hero:{backgroundColor:C.purple,borderRadius:24,padding:23,marginBottom:22},eyebrow:{fontSize:10,color:'#DCD9FF',fontWeight:'900',letterSpacing:1.3},heroTitle:{fontSize:24,fontWeight:'900',color:'#fff',marginTop:9},heroSub:{fontSize:13,lineHeight:20,color:'#E6E4FF',marginTop:8},heroButton:{marginTop:19,alignSelf:'flex-start',backgroundColor:'#fff',paddingVertical:11,paddingHorizontal:16,borderRadius:12,flexDirection:'row',alignItems:'center',gap:8},heroButtonText:{color:C.purple,fontWeight:'800'},metrics:{flexDirection:'row',gap:10,marginBottom:25},metric:{flex:1,backgroundColor:'#fff',borderRadius:18,padding:13,borderWidth:1,borderColor:'#EEF0F6'},metricIcon:{width:34,height:34,borderRadius:11,backgroundColor:'#EEEDFF',alignItems:'center',justifyContent:'center',marginBottom:10},metricNumber:{fontSize:23,fontWeight:'900',color:C.ink},metricLabel:{fontSize:11,color:C.muted,marginTop:4},section:{fontSize:20,fontWeight:'900',color:C.ink,marginBottom:5},sectionSub:{fontSize:12,color:C.muted,marginBottom:14},actions:{flexDirection:'row',gap:10,marginBottom:26},action:{flex:1,backgroundColor:'#fff',padding:15,borderRadius:16,borderWidth:1,borderColor:'#EEF0F6',gap:9},actionText:{fontSize:12,fontWeight:'800',color:C.ink},search:{backgroundColor:'#fff',borderRadius:15,borderWidth:1,borderColor:'#E8ECF4',height:50,flexDirection:'row',alignItems:'center',paddingHorizontal:14,gap:10,marginBottom:14},searchInput:{flex:1,color:C.ink},card:{backgroundColor:'#fff',padding:17,borderRadius:17,borderWidth:1,borderColor:'#EDF0F6',marginBottom:11,flexDirection:'row',alignItems:'center'},cardTitle:{fontSize:16,fontWeight:'800',color:C.ink},cardSub:{color:C.muted,fontSize:12,marginTop:6},pill:{fontSize:11,color:'#168B55',fontWeight:'800',marginTop:8},empty:{alignItems:'center',padding:28},emptyText:{textAlign:'center',color:C.muted,marginTop:12,lineHeight:20},error:{color:'#B42318',marginBottom:12}});
 export default function ProfessorCoursesScreen({ navigation }) {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  async function load() {
-    setLoading(true);
-
-    try {
-      const response = await api.get('/professor/cursos');
-      setCourses(response.data);
-    } catch (error) {
-      Alert.alert(
-        'Erro',
-        error.response?.data?.message || 'Falha ao carregar seus cursos.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [])
-  );
-
-  function novoCurso() {
-    navigation.navigate('ProfessorCurso', { mode: 'new' });
-  }
-
-  function abrirCurso(course) {
-    navigation.navigate('ProfessorCurso', {
-      mode: 'edit',
-      course,
-    });
-  }
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.heading}>
-          <Text style={styles.title}>Meus cursos</Text>
-          <Text style={styles.subtitle}>Gerencie seus cursos e acompanhe seus alunos.</Text>
-        </View>
-
-        <Pressable style={styles.addButton} onPress={novoCurso}>
-          <Text style={styles.addButtonText}>+ Novo</Text>
-        </Pressable>
-      </View>
-
-      {loading ? (
-        <ActivityIndicator style={styles.loading} size="large" />
-      ) : (
-        <FlatList
-          data={courses}
-          keyExtractor={(item) => String(item.id)}
-          refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={load} />
-          }
-          renderItem={({ item }) => (
-            <Pressable style={styles.card} onPress={() => abrirCurso(item)}>
-              <Text style={styles.courseTitle}>{item.titulo}</Text>
-              <Text style={styles.description} numberOfLines={2}>{item.descricao}</Text>
-              <View style={styles.metrics}>
-                <Text style={styles.metric}>{item.cargaHoraria}h</Text>
-                <Text style={styles.metric}>{item.totalAulas} aulas</Text>
-                <Text style={styles.metric}>{item.totalAlunos} alunos</Text>
-              </View>
-            </Pressable>
-          )}
-          ListEmptyComponent={
-            <Text style={styles.empty}>Você ainda não possui cursos. Toque em “+ Novo” para criar o primeiro.</Text>
-          }
-        />
-      )}
-    </View>
-  );
+ const {user}=useAuth();const [courses,setCourses]=useState([]);const [loading,setLoading]=useState(true);const [error,setError]=useState('');
+ const load=useCallback(async()=>{setLoading(true);setError('');try{const r=await api.get('/professor/cursos');setCourses(Array.isArray(r.data)?r.data:[]);}catch(e){setError(e.response?.data?.message||'Não foi possível carregar seus cursos.');}finally{setLoading(false);}},[]);
+ useFocusEffect(useCallback(()=>{load();},[load]));
+ const first=(user?.nome||'Professor').trim().split(' ')[0];const lessons=courses.reduce((n,c)=>n+Number(c.totalAulas||0),0);const students=courses.reduce((n,c)=>n+Number(c.totalAlunos||0),0);const novo=()=>navigation.navigate('ProfessorCurso',{mode:'new'});
+ return <SafeAreaView style={s.safe} edges={['top']}><StatusBar barStyle="dark-content" backgroundColor={C.bg}/><FlatList data={courses} keyExtractor={x=>String(x.id)} contentContainerStyle={s.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={load}/>} ListHeaderComponent={<>
+ <View style={s.top}><Text style={s.brand}>APRENDA<Text style={{color:C.purple}}>+</Text>  <Text style={{fontSize:10,color:C.muted}}>PROFESSOR</Text></Text><Pressable style={s.avatar} onPress={()=>navigation.navigate('Perfil')}><Text style={s.avatarText}>{first[0]?.toUpperCase()}</Text></Pressable></View>
+ <Text style={s.greeting}>Olá, {first}!</Text><Text style={s.sub}>Vamos transformar conhecimento em aprendizado?</Text>
+ <View style={s.hero}><Text style={s.eyebrow}>SEU ESPAÇO DE ENSINO</Text><Text style={s.heroTitle}>Inspire novos aprendizados.</Text><Text style={s.heroSub}>Crie conteúdos, acompanhe suas turmas e desenvolva seus cursos.</Text><Pressable style={s.heroButton} onPress={novo}><Ionicons name="add-circle-outline" size={19} color={C.purple}/><Text style={s.heroButtonText}>Criar novo curso</Text></Pressable></View>
+ <View style={s.metrics}><Metric icon="book-outline" number={courses.length} label="Meus cursos"/><Metric icon="people-outline" number={students} label="Matrículas"/><Metric icon="videocam-outline" number={lessons} label="Aulas"/></View>
+ <Text style={s.section}>Acesso rápido</Text><Text style={s.sectionSub}>Continue de onde parou</Text><View style={s.actions}><Pressable style={s.action} onPress={novo}><Ionicons name="add-circle-outline" size={23} color={C.purple}/><Text style={s.actionText}>Novo curso</Text></Pressable><Pressable style={s.action} onPress={()=>navigation.navigate('Perfil')}><Ionicons name="person-circle-outline" size={23} color={C.purple}/><Text style={s.actionText}>Meu perfil</Text></Pressable></View>
+ <Text style={s.section}>Seus cursos</Text><Text style={s.sectionSub}>Toque para gerenciar aulas e alunos</Text>{loading&&<ActivityIndicator color={C.purple}/>} {!!error&&<Text style={s.error}>{error}</Text>}
+ </>} renderItem={({item})=><Pressable style={s.card} onPress={()=>navigation.navigate('ProfessorCurso',{mode:'edit',course:item})}><View style={{flex:1}}><Text style={s.cardTitle}>{item.titulo}</Text><Text style={s.cardSub} numberOfLines={2}>{item.descricao||'Curso sem descrição'}</Text><Text style={[s.pill,{color:C.purple}]}>{item.cargaHoraria||0}h  •  {item.totalAulas||0} aulas  •  {item.totalAlunos||0} alunos</Text></View><Ionicons name="chevron-forward" size={21} color={C.muted}/></Pressable>} ListEmptyComponent={!loading&&!error?<View style={s.empty}><Ionicons name="school-outline" size={36} color={C.muted}/><Text style={s.emptyText}>Você ainda não possui cursos. Crie seu primeiro curso para começar.</Text></View>:null}/></SafeAreaView>;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 18,
-    backgroundColor: '#f4f6f8',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 18,
-  },
-  heading: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  title: {
-    fontSize: 25,
-    fontWeight: '800',
-  },
-  subtitle: {
-    color: '#667085',
-    marginTop: 3,
-  },
-  addButton: {
-    backgroundColor: '#2563eb',
-    paddingVertical: 11,
-    paddingHorizontal: 13,
-    borderRadius: 9,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-  loading: {
-    marginTop: 35,
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 11,
-  },
-  courseTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  description: {
-    color: '#667085',
-    marginTop: 5,
-  },
-  metrics: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 12,
-  },
-  metric: {
-    color: '#2563eb',
-    fontWeight: '700',
-    marginRight: 14,
-  },
-  empty: {
-    textAlign: 'center',
-    color: '#667085',
-    marginTop: 45,
-    lineHeight: 22,
-  },
-});

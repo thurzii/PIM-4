@@ -1,135 +1,83 @@
-# Plataforma de Cursos Online - Versão Mobile
+# Plataforma de Cursos Mobile — PIM IV
 
-Versão mobile do projeto original, desenvolvida em JavaScript.
+Aplicativo educacional em **React Native + Expo**, com API **Node.js/Express**, autenticação **JWT** e persistência no **SQL Server**. O aplicativo consome a API HTTP; credenciais de banco ficam somente no backend.
 
-## Arquitetura
+## Perfis e permissões
 
-- Mobile: React Native + Expo + React Navigation
-- API: Node.js + Express
-- Banco: SQL Server (configurado para Azure SQL; também pode usar SQL Server local)
-- Comunicação: HTTP + JSON
-- Autenticação: JWT
-- Persistência local: AsyncStorage
+- **ALUNO:** cadastro público, login, catálogo, progresso de aulas, perfil e conquistas.
+- **PROFESSOR:** criado por administrador; gerencia os próprios cursos, aulas e acompanha matrículas.
+- **ADMIN:** criado somente por outro administrador; gerencia usuários e cursos. Não existe cadastro público de administradores.
 
-Fluxo:
+A API define o perfil no cadastro público, independentemente de valores enviados pelo aplicativo. Senhas novas usam `scrypt`; há compatibilidade legada com senhas antigas, que devem ser migradas. Recuperação automática de senha ainda não foi implementada.
 
-`Aplicativo Mobile -> REST API -> SQL Server`
+## Instalação e execução
 
-## Funcionalidades
+Requisitos: Node.js compatível com o Expo do projeto, Android Emulator/Expo Go, SQL Server acessível.
 
-### Aluno
-- Login
-- Recuperação de senha demonstrativa
-- Catálogo e busca de cursos
-- Detalhes do curso e lista de aulas
-- Marcar/desmarcar aula concluída
-- Percentual de progresso sincronizado com o banco
-- Perfil e logout
+1. Copie `api/.env.example` para `api/.env` e preencha `DB_SERVER`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET` e configurações de criptografia. **Nunca publique `.env`**.
+2. Na pasta `api`, execute `npm install` e `npm run dev`.
+3. Verifique `http://localhost:3000/api/health` (API e banco devem indicar `ok`).
+4. Na pasta `mobile`, configure `EXPO_PUBLIC_API_URL` em `.env`: emulador Android `http://10.0.2.2:3000/api`; celular físico `http://IP_DO_PC:3000/api` na mesma rede.
+5. Execute `npm install`, `npx expo install @expo/vector-icons` e `npx expo start -c` na pasta `mobile`.
 
-### Administrador
-- Login por perfil
-- Cadastro, edição e exclusão de cursos
-- Cadastro e exclusão de aulas
-- Ativar/desativar cursos
-- Listagem e busca de usuários
-- Ativação/desativação de usuários
+## Banco de dados e scripts SQL
 
-## 1. Configurar o banco de dados na nuvem (Azure SQL)
+**Não execute scripts diretamente no banco de produção sem backup e conferência do banco selecionado.**
 
-O projeto está preparado com estes valores iniciais:
+| Script | Finalidade | Recomendação |
+|---|---|---|
+| `sql/CursosDB.sql` | Estrutura base de Usuarios, Cursos, Aulas e Progresso; inclui cursos de exemplo | Manter como bootstrap histórico; revisar antes de executar |
+| `sql/Etapa1_Professor.sql` | Adiciona Cursos.ProfessorId e Matriculas | Manter; executar após a estrutura base |
+| `sql/Etapa4_Gamificacao.sql` | Cria Gamificacao, HistoricoXP, Conquistas e UsuarioConquistas | Manter; executar após a estrutura base |
+| `sql/DiagnosticoBanco.sql` | Consulta colunas e relacionamentos sem modificar dados | Manter para suporte; diagnóstico ampliado pode incluir gamificação |
+| `sql/Desativar_Usuarios_Demo.sql` | Desativa contas de teste com e-mails fixos | Arquivar; não faz parte da instalação normal |
 
-- Servidor: `database-pim-iv.database.windows.net`
-- Porta: `1433`
-- Banco provisório: `banco_pim`
-- Usuário: `maria`
+### Atenção aos nomes de banco
 
-**Importante:** `banco_pim` é apenas um nome provisório. Quando você confirmar o nome real do banco no portal Azure, altere `DB_DATABASE` no arquivo `api/.env`. O banco precisa existir no servidor e conter as tabelas esperadas pela API: `Usuarios`, `Cursos`, `Aulas` e `Progresso`.
+`CursosDB.sql` cria/seleciona **CursosDB**; `Desativar_Usuarios_Demo.sql` seleciona **PlataformaCursosDB**. Esses nomes não devem ser presumidos como o banco Azure atual. Confirme `DB_DATABASE` em `api/.env` e a conexão no SSMS/Azure Data Studio. Para banco existente, **não rode novamente o script inicial sem revisar**. O script base inclui inserts de demonstração e `CREATE DATABASE`.
 
-No portal Azure, confira também se o firewall do servidor SQL permite conexões a partir do IP público da máquina onde a API será executada. Não libere acesso irrestrito (`0.0.0.0` a `255.255.255.255`) apenas para testar.
+### Tabelas e relacionamentos
 
-## 2. Configurar e iniciar a API
+- `Usuarios`: identidade, e-mail, hash de senha, perfil e status.
+- `Cursos`: catálogo, carga horária, estado e `ProfessorId` após a migração.
+- `Aulas`: aulas pertencentes aos cursos.
+- `Progresso`: conclusão atual por aluno e aula (par único).
+- `Matriculas`: vínculo aluno-curso.
+- `Gamificacao`: XP total e sequências de estudo.
+- `HistoricoXP`: eventos de XP concedidos uma única vez por referência.
+- `Conquistas`: catálogo de conquistas e bônus.
+- `UsuarioConquistas`: conquistas desbloqueadas pelos alunos.
 
-Abra um terminal na pasta `api` e instale as dependências:
+**Ordem para banco novo (revisar nomes e permissões antes):** estrutura base → professor/matrículas → gamificação → diagnóstico. O script de desativação de demo é opcional e não deve ser usado automaticamente.
 
-```bash
-npm install
-```
+## Progresso e gamificação
 
-Copie `api/.env.example` para `api/.env`. No Windows PowerShell, estando na pasta `api`, você pode usar:
+A tela de curso usa **checkboxes** para conclusão. O aplicativo atualiza a interface imediatamente e reverte se a API retornar erro. A API registra em `Progresso` e chama `awardLessonCompletion` para conceder **10 XP por aula nova**, além dos bônus de conquistas. O `HistoricoXP` impede conceder XP duplicado ao marcar a mesma aula novamente. Desmarcar a aula remove a conclusão atual, **mas não estorna XP já concedido**; o perfil conta aulas atualmente concluídas em `Progresso`, enquanto o XP é histórico. O perfil recarrega os dados ao receber foco.
 
-```powershell
-Copy-Item .env.example .env
-```
+O backend principal usado por `npm run dev` é `api/src/server.js`; existem módulos em `api/src/routes/` que não estão todos montados no servidor. Evite editar uma rota isolada supondo que esteja ativa. Para futura manutenção, recomenda-se consolidar as rotas em módulos únicos.
 
-Abra `api/.env` e confira os valores. Substitua `DB_PASSWORD` pela senha do usuário SQL. Não envie o arquivo `.env` ao GitHub nem compartilhe a senha.
+## Testes manuais recomendados
 
-```env
-PORT=3000
-JWT_SECRET=troque-por-uma-chave-longa-e-aleatoria
-DB_SERVER=database-pim-iv.database.windows.net
-DB_PORT=1433
-DB_DATABASE=banco_pim
-DB_USER=maria
-DB_PASSWORD=COLOQUE_SUA_SENHA_AQUI
-DB_ENCRYPT=true
-DB_TRUST_SERVER_CERTIFICATE=false
-DB_INSTANCE=
-```
+1. Criar conta pública e confirmar perfil ALUNO; tentar enviar ADMIN pelo cadastro público e verificar que não ganha privilégios.
+2. Fazer login como ADMIN, cadastrar professor e validar permissões.
+3. Matricular aluno, marcar aula uma vez e conferir `Progresso`, `Gamificacao` e `HistoricoXP` no SQL Server.
+4. Abrir perfil e verificar XP, nível e número de aulas; desmarcar/remarcar e conferir que XP não duplica.
+5. Conferir home e gerenciamento de cursos em ADMIN e PROFESSOR.
 
-Depois inicie a API:
+## Limitações e segurança
 
-```bash
-npm run dev
-```
+- Integração real com SQL Server/Android precisa ser validada no ambiente da equipe.
+- Recuperação de senha via e-mail não está implementada.
+- A contagem de matrículas no painel do professor é a soma das matrículas por curso, não usuários únicos.
+- Use HTTPS e segredos fortes em produção; restrinja permissões do usuário SQL.
+- Não envie `node_modules`, `.expo` ou `.env` ao Git.
 
-Para verificar a conexão, abra `http://localhost:3000/api/health` no navegador. Se a API responder com `database: "ok"`, a conexão com o banco foi estabelecida. Se houver erro, confira o nome real do banco, as credenciais e a regra de firewall do Azure.
 
-### Usar SQL Server local (alternativa)
+## Atualização visual — painéis de professor e administrador
 
-Se precisar voltar para um SQL Server local, ajuste o `api/.env`, por exemplo:
+As telas `AdminScreen.js` e `ProfessorCoursesScreen.js` utilizam agora cabeçalhos com SafeAreaView, cards de indicadores, área de destaque e ações rápidas. O administrador consulta `/admin/cursos` e o professor consulta `/professor/cursos`. Os indicadores são calculados a partir das listas retornadas por essas rotas, sem números fictícios. O total de matrículas do professor é a soma das matrículas por curso (um aluno em dois cursos conta duas vezes). Para instalar as dependências, execute `npx expo install react-native-safe-area-context @expo/vector-icons` na pasta mobile.
 
-```env
-DB_SERVER=localhost
-DB_DATABASE=CursosDB
-DB_USER=
-DB_PASSWORD=
-DB_ENCRYPT=false
-DB_TRUST_SERVER_CERTIFICATE=true
-DB_INSTANCE=MSSQLLocalDB
-```
 
-A configuração local depende da instalação e do método de autenticação disponível na máquina.
+## Cadastro de usuarios — somente ADMIN
 
-## 3. Iniciar o aplicativo mobile
-
-Entre na pasta `mobile` e instale as dependências:
-
-```bash
-npm install
-npx expo start
-```
-
-Confira `mobile/src/services/api.js` e configure o endereço da API conforme o dispositivo:
-
-- Emulador Android: `http://10.0.2.2:3000/api`
-- Celular físico: `http://IP-DA-MAQUINA:3000/api`, com o celular e o computador na mesma rede.
-
-O aplicativo conversa com a API; as credenciais do banco ficam exclusivamente no backend.
-
-## 4. Banco e estrutura esperada
-
-O arquivo `sql/CursosDB.sql` contém o script de criação do banco usado originalmente pelo projeto. Use-o apenas se precisar criar a estrutura em um banco novo e tiver autorização para executar esse script. Antes de rodá-lo no Azure, confirme o banco de destino para evitar criar objetos no lugar errado.
-
-## 5. Apresentação da etapa mobile
-
-Fluxo sugerido:
-
-`Login -> Catálogo -> Curso -> Aulas -> Concluir aula -> Progresso`
-
-Demonstre também:
-
-`Login Admin -> Administração -> Cursos/Usuários -> API -> Banco`
-
-## Observação de segurança
-
-O sistema original armazena senhas de usuários em texto simples para fins de demonstração. Em um sistema real, use hash seguro de senha, HTTPS, uma chave JWT forte e fluxo de recuperação de senha com verificação. O usuário SQL deve ter apenas as permissões necessárias para a aplicação.
+O cadastro publico foi removido. Somente usuarios autenticados com perfil `ADMIN` podem cadastrar novos usuarios (`ALUNO`, `PROFESSOR` ou `ADMIN`) pelo painel administrativo, usando `POST /api/admin/usuarios`. A rota publica `POST /api/auth/register` nao existe mais. A interface de login nao oferece `Criar conta`. Professores e alunos nao podem criar usuarios. O primeiro administrador deve ser provisionado de forma controlada diretamente no ambiente administrativo/banco de dados, nunca por endpoint publico.
