@@ -20,10 +20,21 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    restore();
+    // Por decisão do projeto, sempre exigir login ao abrir o app.
+    async function clearPreviousSession() {
+      try {
+        await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY, LEGACY_DEMO_KEY]);
+      } catch (error) {
+        console.warn('Não foi possível limpar a sessão:', error);
+      } finally {
+        setUser(null);
+        setLoading(false);
+      }
+    }
+    clearPreviousSession();
   }, []);
 
-  async function restore() {
+  /* async function restore() {
     try {
       const storedValues = await AsyncStorage.multiGet([TOKEN_KEY, USER_KEY]);
       const token = storedValues[0]?.[1];
@@ -55,6 +66,8 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
   }
+
+  */
 
   async function login(email, senha) {
     const { data } = await api.post('/auth/login', {
