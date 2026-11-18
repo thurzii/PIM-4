@@ -2202,5 +2202,82 @@ ORDER BY c.XPBonus, c.Id;";
             return afr_item;
         }
 
+
+        // -------------------------------------------------------------
+        // VERSAO 3.2 - a classificacao por XP.
+        //
+        // Devolve TODOS os usuarios ativos, nao so os de perfil ALUNO:
+        // professor e administrador tambem podem cursar, e some-los da
+        // lista faria parecer defeito quando o XP deles nao aparecesse.
+        // A coluna Perfil deixa claro quem e quem.
+        //
+        // Quem chama precisa conferir a permissao ANTES: esta consulta
+        // nao sabe quem esta pedindo. A regra de "so professor e admin
+        // veem" fica na tela e no servico.
+        // -------------------------------------------------------------
+        public List<LinhaRanking> ListarRanking(int afr_limite)
+        {
+            List<LinhaRanking> afr_lista = new List<LinhaRanking>();
+
+            try
+            {
+                string afr_sql = @"
+SELECT TOP (@limite)
+    u.Id                          AS id,
+    u.Nome                        AS nome,
+    u.Email                       AS email,
+    u.Perfil                      AS perfil,
+    ISNULL(g.XP, 0)               AS xpTotal,
+    ISNULL(g.SequenciaAtual, 0)   AS sequenciaAtual,
+    (SELECT COUNT(*) FROM dbo.HistoricoXP h
+      WHERE h.UsuarioId = u.Id AND h.ReferenciaTipo = 'AULA')  AS aulasConcluidas,
+    (SELECT COUNT(*) FROM dbo.UsuarioConquistas uc
+      WHERE uc.UsuarioId = u.Id)                               AS conquistas
+FROM dbo.Usuarios u
+LEFT JOIN dbo.Gamificacao g ON g.UsuarioId = u.Id
+WHERE u.Ativo = 1
+ORDER BY ISNULL(g.XP, 0) DESC, u.Nome;";
+
+                using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
+                {
+                    afr_conexao.Open();
+
+                    using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                    {
+                        afr_comando.Parameters.AddWithValue("@limite", afr_limite);
+
+                        using (SqlDataReader afr_leitor = afr_comando.ExecuteReader())
+                        {
+                            int afr_posicao = 0;
+
+                            while (afr_leitor.Read())
+                            {
+                                afr_posicao = afr_posicao + 1;
+
+                                LinhaRanking afr_linha = new LinhaRanking();
+
+                                afr_linha.afr_Posicao = afr_posicao;
+                                afr_linha.afr_UsuarioId = Convert.ToInt32(afr_leitor["id"]);
+                                afr_linha.afr_Nome = afr_leitor["nome"].ToString();
+                                afr_linha.afr_Email = afr_leitor["email"].ToString();
+                                afr_linha.afr_Perfil = afr_leitor["perfil"].ToString();
+                                afr_linha.afr_XpTotal = Convert.ToInt32(afr_leitor["xpTotal"]);
+                                afr_linha.afr_SequenciaAtual = Convert.ToInt32(afr_leitor["sequenciaAtual"]);
+                                afr_linha.afr_AulasConcluidas = Convert.ToInt32(afr_leitor["aulasConcluidas"]);
+                                afr_linha.afr_Conquistas = Convert.ToInt32(afr_leitor["conquistas"]);
+
+                                afr_lista.Add(afr_linha);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            return afr_lista;
+        }
+
     }
 }

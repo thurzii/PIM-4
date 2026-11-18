@@ -111,6 +111,69 @@
         cadastro em @Model.afr_Aluno.afr_DataCadastro.ToString("dd/MM/yyyy")
     </p>
 
+    @* ------------------------------------------------------------- *@
+    @* VERSAO 3.2 - XP, nivel e conquistas deste aluno                *@
+    @*                                                                *@
+    @* Antes o professor via so o progresso por curso. O engajamento  *@
+    @* - XP, sequencia de dias, medalhas - era invisivel para ele.    *@
+    @* ------------------------------------------------------------- *@
+    @{
+        var afr_pont = Model.afr_Pontuacao;
+        string afr_barraAluno = afr_pont.ObterPercentualDoNivel() + "%";
+    }
+
+    <div class="cartao painel-xp" style="margin-bottom:20px;">
+        <div class="xp-topo">
+            <div>
+                <div class="xp-nivel">
+                    Nivel @afr_pont.ObterNivel() &mdash; @afr_pont.ObterTituloDoNivel()
+                </div>
+                <div class="xp-detalhe">
+                    @afr_pont.afr_XpTotal XP &nbsp;|&nbsp;
+                    @afr_pont.ContarConquistadas() de
+                    @afr_pont.afr_Conquistas.Count conquista(s)
+                </div>
+
+                @if (afr_pont.afr_SequenciaAtual >= 2)
+                {
+                    <div class="xp-sequencia">
+                        @afr_pont.afr_SequenciaAtual dias seguidos
+                        <span class="xp-recorde">
+                            (recorde: @afr_pont.afr_MelhorSequencia)
+                        </span>
+                    </div>
+                }
+            </div>
+
+            <div class="xp-contagem">
+                @afr_pont.afr_AulasConcluidas aula(s) concluida(s)
+            </div>
+        </div>
+
+        <div class="xp-barra">
+            <div class="xp-barra-cheia" style="width:@afr_barraAluno"></div>
+        </div>
+
+        @if (afr_pont.afr_Conquistas.Count > 0)
+        {
+            <div class="xp-conquistas">
+                @foreach (var afr_medalha in afr_pont.afr_Conquistas)
+                {
+                    string afr_classe = afr_medalha.afr_Conquistada
+                        ? "medalha medalha-ganha"
+                        : "medalha medalha-falta";
+
+                    string afr_dica = afr_medalha.afr_Descricao +
+                                      " (+" + afr_medalha.afr_XpBonus + " XP)";
+
+                    <span class="@afr_classe" title="@afr_dica">
+                        @afr_medalha.afr_Icone @afr_medalha.afr_Nome
+                    </span>
+                }
+            </div>
+        }
+    </div>
+
     @if (Model.afr_Progresso.Count == 0)
     {
         <div class="cartao vazio">
@@ -187,4 +250,78 @@
             </table>
         </div>
     }
+}
+
+@* ----------------------------------------------------------------- *@
+@* VERSAO 3.2 - CLASSIFICACAO POR XP                                  *@
+@*                                                                    *@
+@* A lista chega ja filtrada: o GamificacaoService devolve vazio para  *@
+@* quem nao pode ver. Por isso aqui basta checar se tem conteudo -     *@
+@* nao ha regra de perfil repetida na pagina, que e onde esse tipo de  *@
+@* checagem costuma ficar desatualizada.                               *@
+@* ----------------------------------------------------------------- *@
+@if (Model.afr_Ranking.Count > 0)
+{
+    <h2 style="margin-top:28px;">Classificacao por XP</h2>
+    <p class="subtitulo">
+        Todas as pessoas ativas, ordenadas por experiencia acumulada.
+        Professor e administrador aparecem junto com os alunos, porque
+        tambem podem cursar.
+    </p>
+
+    <div class="cartao">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Perfil</th>
+                    <th>XP</th>
+                    <th>Nivel</th>
+                    <th>Aulas</th>
+                    <th>Conquistas</th>
+                    <th>Sequencia</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var afr_linha in Model.afr_Ranking)
+            {
+                @* Quem ainda nao pontuou fica apagado; os tres          *@
+                @* primeiros ganham destaque. Montado antes do HTML      *@
+                @* porque expressao de varias linhas dentro de atributo  *@
+                @* Razor da problema.                                     *@
+                string afr_classeLinha = "";
+
+                if (afr_linha.afr_XpTotal <= 0)
+                {
+                    afr_classeLinha = "ranking-zerado";
+                }
+                else if (afr_linha.afr_Posicao <= 3)
+                {
+                    afr_classeLinha = "ranking-podio";
+                }
+
+                <tr class="@afr_classeLinha">
+                    <td>@afr_linha.ObterMedalha()</td>
+                    <td>@afr_linha.afr_Nome</td>
+                    <td>@afr_linha.afr_Perfil</td>
+                    <td>@afr_linha.afr_XpTotal</td>
+                    <td>@afr_linha.ObterNivel()</td>
+                    <td>@afr_linha.afr_AulasConcluidas</td>
+                    <td>@afr_linha.afr_Conquistas</td>
+                    <td>
+                        @if (afr_linha.afr_SequenciaAtual >= 2)
+                        {
+                            @(afr_linha.afr_SequenciaAtual + " dias")
+                        }
+                        else
+                        {
+                            <span>&mdash;</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 }

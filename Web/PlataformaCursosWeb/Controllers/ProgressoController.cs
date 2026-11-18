@@ -40,11 +40,16 @@ namespace PlataformaCursosWeb.Controllers
         private readonly UsuarioService afr_usuarioService;
         private readonly ProgressoService afr_progressoService;
 
+        // VERSAO 3.2 - XP, nivel, conquistas e classificacao
+        private readonly GamificacaoService afr_gamificacaoService;
+
         public ProgressoController(UsuarioService afr_usuario,
-                                   ProgressoService afr_progresso)
+                                   ProgressoService afr_progresso,
+                                   GamificacaoService afr_gamificacao)
         {
             afr_usuarioService = afr_usuario;
             afr_progressoService = afr_progresso;
+            afr_gamificacaoService = afr_gamificacao;
         }
 
         // =============================================================
@@ -62,6 +67,11 @@ namespace PlataformaCursosWeb.Controllers
 
             // A lista de alunos que o professor pode acompanhar
             afr_dados.afr_Alunos = afr_usuarioService.ListarAlunos(afr_dados.afr_Termo);
+
+            // VERSAO 3.2 - a classificacao por XP.
+            // Carregada sempre: quem nao pode ver recebe lista vazia do
+            // proprio servico, entao nao ha checagem de perfil aqui.
+            afr_dados.afr_Ranking = afr_gamificacaoService.ListarRanking(50);
 
             ViewBag.Perfil = ObterPerfil();
 
@@ -102,6 +112,9 @@ namespace PlataformaCursosWeb.Controllers
             // DS07 - buscarProgresso(aluno) -> progresso(dados)
             //        -> exibirProgresso(dados)
             afr_dados.afr_Progresso = afr_progressoService.BuscarProgresso(alunoId);
+
+            // VERSAO 3.2 - XP, nivel e conquistas deste aluno
+            afr_dados.afr_Pontuacao = afr_gamificacaoService.ObterPontuacao(alunoId);
 
             if (afr_dados.afr_Progresso.Count == 0)
             {

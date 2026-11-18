@@ -35,6 +35,9 @@ namespace PlataformaCursos
         private UsuarioService afr_usuarioService = new UsuarioService();
         private ProgressoService afr_progressoService = new ProgressoService();
 
+        // VERSAO 3.2 - para a classificacao por XP
+        private GamificacaoService afr_gamificacaoService = new GamificacaoService();
+
         // Lista de alunos que esta no combo.
         // Guardo a lista separada para pegar o Id pelo indice do combo,
         // sem depender do texto que aparece na tela.
@@ -78,6 +81,71 @@ namespace PlataformaCursos
                                   + ". Escolha um aluno para acompanhar o andamento dele em cada curso.";
 
             CarregarAlunos("");
+
+            // VERSAO 3.2 - a classificacao por XP
+            CarregarRanking();
+        }
+
+        // -------------------------------------------------------------
+        // VERSAO 3.2 - CLASSIFICACAO POR XP
+        //
+        // Mostra todo mundo ordenado por XP. O servico ja recusa quem
+        // nao pode ver (devolve lista vazia), entao nao ha como abrir
+        // esta lista sendo aluno nem chamando por fora.
+        //
+        // Entram tambem professor e administrador, nao so os alunos:
+        // eles tambem podem cursar, e some-los faria parecer defeito
+        // quando o XP deles nao aparecesse. A coluna Perfil distingue.
+        // -------------------------------------------------------------
+        private void CarregarRanking()
+        {
+            afr_lstRanking.Items.Clear();
+
+            List<LinhaRanking> afr_ranking = afr_gamificacaoService.ListarRanking(50);
+
+            if (afr_ranking.Count == 0)
+            {
+                afr_lblRanking.Text = "CLASSIFICACAO POR XP  -  ainda sem dados";
+                return;
+            }
+
+            foreach (LinhaRanking afr_linha in afr_ranking)
+            {
+                ListViewItem afr_item = new ListViewItem(afr_linha.ObterMedalha());
+
+                afr_item.SubItems.Add(afr_linha.afr_Nome);
+                afr_item.SubItems.Add(afr_linha.afr_Perfil);
+                afr_item.SubItems.Add(afr_linha.afr_XpTotal.ToString());
+                afr_item.SubItems.Add(afr_linha.ObterNivel().ToString());
+                afr_item.SubItems.Add(afr_linha.afr_AulasConcluidas.ToString());
+                afr_item.SubItems.Add(afr_linha.afr_Conquistas.ToString());
+
+                // Sequencia de 1 dia nao e sequencia; mostra traco
+                if (afr_linha.afr_SequenciaAtual >= 2)
+                {
+                    afr_item.SubItems.Add(afr_linha.afr_SequenciaAtual + " dias");
+                }
+                else
+                {
+                    afr_item.SubItems.Add("-");
+                }
+
+                // Quem ainda nao pontuou fica em cinza, para a lista
+                // deixar claro de relance quem nao comecou.
+                if (afr_linha.afr_XpTotal <= 0)
+                {
+                    afr_item.ForeColor = System.Drawing.Color.Silver;
+                }
+                else if (afr_linha.afr_Posicao <= 3)
+                {
+                    afr_item.ForeColor = System.Drawing.Color.DarkViolet;
+                }
+
+                afr_lstRanking.Items.Add(afr_item);
+            }
+
+            afr_lblRanking.Text = "CLASSIFICACAO POR XP  -  " +
+                                  afr_ranking.Count + " pessoa(s)";
         }
 
         // -------------------------------------------------------------
@@ -168,6 +236,27 @@ namespace PlataformaCursos
                               + "   |   Email: " + afr_aluno.afr_Email
                               + "   |   Cadastro: "
                               + afr_aluno.afr_DataCadastro.ToString("dd/MM/yyyy");
+
+            // VERSAO 3.2 - XP, nivel e conquistas deste aluno, na
+            // segunda linha. O professor so tinha o progresso por
+            // curso; o engajamento estava invisivel para ele.
+            Pontuacao afr_pontuacao =
+                afr_gamificacaoService.ObterPontuacao(afr_aluno.afr_Id);
+
+            string afr_linhaXp = "Nivel " + afr_pontuacao.ObterNivel()
+                               + " (" + afr_pontuacao.ObterTituloDoNivel() + ")"
+                               + "   |   " + afr_pontuacao.afr_XpTotal + " XP"
+                               + "   |   " + afr_pontuacao.ContarConquistadas()
+                               + " de " + afr_pontuacao.afr_Conquistas.Count
+                               + " conquista(s)";
+
+            if (afr_pontuacao.afr_SequenciaAtual >= 2)
+            {
+                afr_linhaXp = afr_linhaXp + "   |   "
+                            + afr_pontuacao.afr_SequenciaAtual + " dias seguidos";
+            }
+
+            afr_lblDados.Text = afr_lblDados.Text + "\r\n" + afr_linhaXp;
 
             afr_lstProgresso.Items.Clear();
 

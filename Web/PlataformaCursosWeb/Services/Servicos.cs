@@ -1319,9 +1319,16 @@ namespace PlataformaCursosWeb.Services
     {
         private readonly BancoService afr_bancoService;
 
-        public GamificacaoService(BancoService afr_banco)
+        // VERSAO 3.2 - precisa da sessao para conferir quem pode ver o
+        // ranking. No desktop a classe Sessao e estatica; aqui ela
+        // chega pelo construtor, porque o servidor atende varias
+        // pessoas ao mesmo tempo e cada requisicao tem a sua.
+        private readonly SessaoAtual afr_sessao;
+
+        public GamificacaoService(BancoService afr_banco, SessaoAtual afr_sessaoAtual)
         {
             this.afr_bancoService = afr_banco;
+            this.afr_sessao = afr_sessaoAtual;
         }
 
         // -------------------------------------------------------------
@@ -1358,6 +1365,27 @@ namespace PlataformaCursosWeb.Services
         public Pontuacao ObterPontuacao(int afr_usuarioId)
         {
             return afr_bancoService.ObterPontuacao(afr_usuarioId);
+        }
+
+
+        // -------------------------------------------------------------
+        // VERSAO 3.2 - a classificacao por XP.
+        //
+        // A PERMISSAO E CONFERIDA AQUI, nao na tela. Se ficasse so na
+        // tela, bastaria alguem chamar este metodo de outro lugar para
+        // contornar. Aluno recebe lista vazia.
+        //
+        // Quem pode: professor e administrador - os mesmos que ja podem
+        // ver o progresso de outras pessoas (PodeVerProgressoDeOutros).
+        // -------------------------------------------------------------
+        public List<LinhaRanking> ListarRanking(int afr_limite)
+        {
+            if (!afr_sessao.PodeVerProgressoDeOutros())
+            {
+                return new List<LinhaRanking>();
+            }
+
+            return afr_bancoService.ListarRanking(afr_limite);
         }
 
         // -------------------------------------------------------------

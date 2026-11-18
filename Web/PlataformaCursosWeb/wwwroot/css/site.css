@@ -731,3 +731,16 @@ tbody tr:hover { background: #fafbfc; }
     font-weight: 400;
     color: var(--cor-texto-suave);
 }
+
+/* VERSAO 3.2 - classificacao por XP */
+.ranking-podio td {
+    color: var(--cor-ganho);
+    font-weight: 600;
+}
+
+/* Quem ainda nao pontuou: apagado, mas visivel. Esconder faria
+   parecer que a pessoa nao esta cadastrada. */
+.ranking-zerado td {
+    color: var(--cor-texto-suave);
+    opacity: .65;
+}

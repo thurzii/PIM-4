@@ -487,6 +487,14 @@ namespace PlataformaCursosWeb.Models
         // DS07 - progresso(dados)
         public List<ProgressoCurso> afr_Progresso { get; set; } = new List<ProgressoCurso>();
 
+        // VERSAO 3.2 - XP, nivel e conquistas do aluno consultado.
+        // Comeca com objeto vazio para a pagina nunca quebrar com null.
+        public Pontuacao afr_Pontuacao { get; set; } = new Pontuacao();
+
+        // VERSAO 3.2 - a classificacao por XP, ja filtrada pelo
+        // servico: quem nao pode ver recebe lista vazia.
+        public List<LinhaRanking> afr_Ranking { get; set; } = new List<LinhaRanking>();
+
         public bool TemResultado()
         {
             return afr_Aluno != null;

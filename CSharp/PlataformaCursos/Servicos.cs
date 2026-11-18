@@ -1247,6 +1247,27 @@ namespace PlataformaCursos
             return afr_bancoService.ObterPontuacao(afr_usuarioId);
         }
 
+
+        // -------------------------------------------------------------
+        // VERSAO 3.2 - a classificacao por XP.
+        //
+        // A PERMISSAO E CONFERIDA AQUI, nao na tela. Se ficasse so na
+        // tela, bastaria alguem chamar este metodo de outro lugar para
+        // contornar. Aluno recebe lista vazia.
+        //
+        // Quem pode: professor e administrador - os mesmos que ja podem
+        // ver o progresso de outras pessoas (PodeVerProgressoDeOutros).
+        // -------------------------------------------------------------
+        public List<LinhaRanking> ListarRanking(int afr_limite)
+        {
+            if (!Sessao.PodeVerProgressoDeOutros())
+            {
+                return new List<LinhaRanking>();
+            }
+
+            return afr_bancoService.ListarRanking(afr_limite);
+        }
+
         // -------------------------------------------------------------
         // O extrato: de onde veio cada ponto.
         // -------------------------------------------------------------

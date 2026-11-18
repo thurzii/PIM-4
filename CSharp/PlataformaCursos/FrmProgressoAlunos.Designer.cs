@@ -38,6 +38,16 @@ namespace PlataformaCursos
             this.afr_colPercentual = new System.Windows.Forms.ColumnHeader();
             this.afr_colMinimo = new System.Windows.Forms.ColumnHeader();
             this.afr_colStatus = new System.Windows.Forms.ColumnHeader();
+            this.afr_lblRanking = new System.Windows.Forms.Label();
+            this.afr_lstRanking = new System.Windows.Forms.ListView();
+            this.afr_colPos = new System.Windows.Forms.ColumnHeader();
+            this.afr_colNomeR = new System.Windows.Forms.ColumnHeader();
+            this.afr_colPerfilR = new System.Windows.Forms.ColumnHeader();
+            this.afr_colXp = new System.Windows.Forms.ColumnHeader();
+            this.afr_colNivel = new System.Windows.Forms.ColumnHeader();
+            this.afr_colAulasR = new System.Windows.Forms.ColumnHeader();
+            this.afr_colConquistasR = new System.Windows.Forms.ColumnHeader();
+            this.afr_colSequencia = new System.Windows.Forms.ColumnHeader();
             this.afr_lblResumo = new System.Windows.Forms.Label();
             this.afr_btnFechar = new System.Windows.Forms.Button();
             this.SuspendLayout();
@@ -177,7 +187,7 @@ namespace PlataformaCursos
             //
             // afr_btnFechar
             //
-            this.afr_btnFechar.Location = new System.Drawing.Point(540, 516);
+            this.afr_btnFechar.Location = new System.Drawing.Point(540, 752);
             this.afr_btnFechar.Name = "afr_btnFechar";
             this.afr_btnFechar.Size = new System.Drawing.Size(180, 40);
             this.afr_btnFechar.TabIndex = 11;
@@ -185,12 +195,69 @@ namespace PlataformaCursos
             this.afr_btnFechar.UseVisualStyleBackColor = true;
             this.afr_btnFechar.Click += new System.EventHandler(this.afr_btnFechar_Click);
             //
+            // VERSAO 3.2 - RANKING POR XP
+            //
+            // Entra abaixo do resumo, em area nova: a janela cresceu
+            // 232 pixels para abrir espaco. Nenhum controle que ja
+            // existia mudou de lugar, so o botao Fechar desceu.
+            //
+            // afr_lblRanking
+            //
+            this.afr_lblRanking.Font = new System.Drawing.Font("Segoe UI", 10F,
+                System.Drawing.FontStyle.Bold);
+            this.afr_lblRanking.ForeColor = System.Drawing.Color.DarkViolet;
+            this.afr_lblRanking.Location = new System.Drawing.Point(20, 516);
+            this.afr_lblRanking.Name = "afr_lblRanking";
+            this.afr_lblRanking.Size = new System.Drawing.Size(700, 20);
+            this.afr_lblRanking.TabIndex = 11;
+            this.afr_lblRanking.Text = "CLASSIFICACAO POR XP";
+            //
+            // colunas do ranking
+            //
+            this.afr_colPos.Text = "#";
+            this.afr_colPos.Width = 50;
+            this.afr_colNomeR.Text = "Aluno";
+            this.afr_colNomeR.Width = 200;
+            this.afr_colPerfilR.Text = "Perfil";
+            this.afr_colPerfilR.Width = 90;
+            this.afr_colXp.Text = "XP";
+            this.afr_colXp.Width = 60;
+            this.afr_colNivel.Text = "Nivel";
+            this.afr_colNivel.Width = 60;
+            this.afr_colAulasR.Text = "Aulas";
+            this.afr_colAulasR.Width = 60;
+            this.afr_colConquistasR.Text = "Conquistas";
+            this.afr_colConquistasR.Width = 80;
+            this.afr_colSequencia.Text = "Sequencia";
+            this.afr_colSequencia.Width = 80;
+            //
+            // afr_lstRanking
+            //
+            this.afr_lstRanking.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.afr_colPos,
+            this.afr_colNomeR,
+            this.afr_colPerfilR,
+            this.afr_colXp,
+            this.afr_colNivel,
+            this.afr_colAulasR,
+            this.afr_colConquistasR,
+            this.afr_colSequencia});
+            this.afr_lstRanking.FullRowSelect = true;
+            this.afr_lstRanking.GridLines = true;
+            this.afr_lstRanking.Location = new System.Drawing.Point(20, 540);
+            this.afr_lstRanking.MultiSelect = false;
+            this.afr_lstRanking.Name = "afr_lstRanking";
+            this.afr_lstRanking.Size = new System.Drawing.Size(700, 200);
+            this.afr_lstRanking.TabIndex = 12;
+            this.afr_lstRanking.UseCompatibleStateImageBehavior = false;
+            this.afr_lstRanking.View = System.Windows.Forms.View.Details;
+            //
             // FrmProgressoAlunos
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.afr_btnFechar;
-            this.ClientSize = new System.Drawing.Size(740, 572);
+            this.ClientSize = new System.Drawing.Size(740, 804);
             this.Controls.Add(this.afr_lblTitulo);
             this.Controls.Add(this.afr_lblInstrucao);
             this.Controls.Add(this.afr_lblBusca);
@@ -201,6 +268,8 @@ namespace PlataformaCursos
             this.Controls.Add(this.afr_btnVer);
             this.Controls.Add(this.afr_lblDados);
             this.Controls.Add(this.afr_lstProgresso);
+            this.Controls.Add(this.afr_lblRanking);
+            this.Controls.Add(this.afr_lstRanking);
             this.Controls.Add(this.afr_lblResumo);
             this.Controls.Add(this.afr_btnFechar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -227,6 +296,16 @@ namespace PlataformaCursos
         private System.Windows.Forms.Button afr_btnVer;
         private System.Windows.Forms.Label afr_lblDados;
         private System.Windows.Forms.ListView afr_lstProgresso;
+        private System.Windows.Forms.Label afr_lblRanking;
+        private System.Windows.Forms.ListView afr_lstRanking;
+        private System.Windows.Forms.ColumnHeader afr_colPos;
+        private System.Windows.Forms.ColumnHeader afr_colNomeR;
+        private System.Windows.Forms.ColumnHeader afr_colPerfilR;
+        private System.Windows.Forms.ColumnHeader afr_colXp;
+        private System.Windows.Forms.ColumnHeader afr_colNivel;
+        private System.Windows.Forms.ColumnHeader afr_colAulasR;
+        private System.Windows.Forms.ColumnHeader afr_colConquistasR;
+        private System.Windows.Forms.ColumnHeader afr_colSequencia;
         private System.Windows.Forms.ColumnHeader afr_colCurso;
         private System.Windows.Forms.ColumnHeader afr_colAulas;
         private System.Windows.Forms.ColumnHeader afr_colPercentual;

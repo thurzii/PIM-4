@@ -725,6 +725,66 @@ namespace PlataformaCursosWeb.Models
     }
 
     // =================================================================
+    // CLASSE 16 - LinhaRanking   (VERSAO 3.2)
+    //
+    // Uma linha da classificacao por XP. Nao tem tabela propria: e o
+    // resultado de uma consulta que junta Usuarios, Gamificacao,
+    // HistoricoXP e UsuarioConquistas.
+    //
+    // Quem ve isto e professor ou administrador. O aluno ve so o
+    // proprio painel, na tela principal - ranking visivel para a turma
+    // inteira e uma decisao do grupo, nao um detalhe tecnico.
+    // =================================================================
+    public class LinhaRanking
+    {
+        public int afr_Posicao { get; set; }
+        public int afr_UsuarioId { get; set; }
+        public string afr_Nome { get; set; } = "";
+        public string afr_Email { get; set; } = "";
+        public string afr_Perfil { get; set; } = "";
+
+        public int afr_XpTotal { get; set; }
+        public int afr_SequenciaAtual { get; set; }
+        public int afr_AulasConcluidas { get; set; }
+        public int afr_Conquistas { get; set; }
+
+        // Mesma conta da API: XP / 100 + 1
+        public int ObterNivel()
+        {
+            return 1 + (afr_XpTotal / Pontuacao.PONTOS_POR_NIVEL);
+        }
+
+        public string ObterNivelTexto()
+        {
+            return "Nivel " + ObterNivel();
+        }
+
+        // Uma medalha para os tres primeiros, e so quando ja ha XP:
+        // liderar com zero ponto nao e lideranca.
+        public string ObterMedalha()
+        {
+            if (afr_XpTotal <= 0)
+            {
+                return "";
+            }
+
+            if (afr_Posicao == 1) { return "1o"; }
+            if (afr_Posicao == 2) { return "2o"; }
+            if (afr_Posicao == 3) { return "3o"; }
+
+            return afr_Posicao + "o";
+        }
+
+        public string ObterResumo()
+        {
+            return afr_Posicao + "o  " + afr_Nome + "  -  " +
+                   afr_XpTotal + " XP (nivel " + ObterNivel() + "), " +
+                   afr_AulasConcluidas + " aula(s), " +
+                   afr_Conquistas + " conquista(s)";
+        }
+    }
+
+    // =================================================================
     // E A CLASSE Sessao, QUE EXISTIA AQUI NO DESKTOP?
     // -----------------------------------------------------------------
     // No desktop, Sessao era uma classe ESTATICA: um unico usuario
