@@ -86,6 +86,11 @@ namespace PlataformaCursos
             // Area de administracao: somente admin
             afr_grpAdmin.Visible = Sessao.PodeGerenciarUsuarios();
 
+            // VERSAO 3.1 - as caixas visiveis ficam centralizadas.
+            // Precisa vir DEPOIS de definir o Visible de todas, senao
+            // a conta sai errada.
+            CentralizarAreas();
+
             afr_lblStatus.ForeColor = Color.DimGray;
 
             if (Sessao.EhAdministrador())
@@ -106,6 +111,88 @@ namespace PlataformaCursos
 
             // VERSAO 3 - painel de XP, nivel e conquistas
             MostrarPontuacao(afr_usuario.afr_Id);
+        }
+
+        // =============================================================
+        // VERSAO 3.1 - centraliza as areas visiveis
+        //
+        // As tres caixas nasceram em posicao fixa no Designer, lado a
+        // lado, ocupando a largura inteira. Isso fica bom para o admin,
+        // que ve as tres - mas o aluno via uma caixa sozinha encostada
+        // na esquerda, com um vazio enorme do lado direito.
+        //
+        // Aqui a posicao e recalculada conforme QUANTAS estao visiveis:
+        //   1 caixa  (aluno)      -> centralizada
+        //   2 caixas (professor)  -> as duas centralizadas como um par
+        //   3 caixas (admin)      -> como antes, preenchendo a largura
+        //
+        // So o X muda; a altura e o tamanho das caixas ficam como estao.
+        // =============================================================
+        private void CentralizarAreas()
+        {
+            List<GroupBox> afr_visiveis = new List<GroupBox>();
+
+            if (afr_grpAluno.Visible) { afr_visiveis.Add(afr_grpAluno); }
+            if (afr_grpProfessor.Visible) { afr_visiveis.Add(afr_grpProfessor); }
+            if (afr_grpAdmin.Visible) { afr_visiveis.Add(afr_grpAdmin); }
+
+            if (afr_visiveis.Count == 0)
+            {
+                return;
+            }
+
+            // Com tres caixas a largura e justa e o espaco precisa ser
+            // pequeno. Com uma ou duas sobra folga, entao da para
+            // afastar um pouco e nao ficarem coladas.
+            int afr_espaco = 10;
+
+            if (afr_visiveis.Count < 3)
+            {
+                afr_espaco = 28;
+            }
+
+            // Largura que o conjunto vai ocupar: as caixas mais os
+            // espacos ENTRE elas (uma a menos que o numero de caixas).
+            int afr_larguraTotal = 0;
+
+            foreach (GroupBox afr_caixa in afr_visiveis)
+            {
+                afr_larguraTotal = afr_larguraTotal + afr_caixa.Width;
+            }
+
+            afr_larguraTotal = afr_larguraTotal + afr_espaco * (afr_visiveis.Count - 1);
+
+            // Sobra dos dois lados, dividida ao meio
+            int afr_x = (this.ClientSize.Width - afr_larguraTotal) / 2;
+
+            // Se por algum motivo nao couber, encosta na margem em vez
+            // de empurrar a primeira caixa para fora da janela.
+            if (afr_x < 10)
+            {
+                afr_x = 10;
+            }
+
+            foreach (GroupBox afr_caixa in afr_visiveis)
+            {
+                afr_caixa.Location = new Point(afr_x, afr_caixa.Top);
+                afr_x = afr_x + afr_caixa.Width + afr_espaco;
+            }
+        }
+
+        // =============================================================
+        // VERSAO 3.1 - rele o painel de XP do banco.
+        //
+        // Chamado sempre que uma tela filha fecha. O Sessao guarda o
+        // usuario logado, entao nao e preciso passar nada.
+        // =============================================================
+        private void AtualizarPainel()
+        {
+            Usuario afr_usuario = Sessao.ObterUsuario();
+
+            if (afr_usuario != null)
+            {
+                MostrarPontuacao(afr_usuario.afr_Id);
+            }
         }
 
         // =============================================================
@@ -177,6 +264,11 @@ namespace PlataformaCursos
         {
             FrmCatalogo afr_tela = new FrmCatalogo();
             afr_tela.ShowDialog();
+
+            // VERSAO 3.1 - o painel de XP precisa reler o banco.
+            // Sem isto ele mostra o que leu quando a tela principal
+            // abriu, e o aluno conclui aulas sem ver o XP mudar.
+            AtualizarPainel();
         }
 
         // =============================================================
@@ -186,6 +278,7 @@ namespace PlataformaCursos
         {
             FrmCursos afr_tela = new FrmCursos();
             afr_tela.ShowDialog();
+            AtualizarPainel();
         }
 
         // =============================================================
@@ -196,6 +289,7 @@ namespace PlataformaCursos
         {
             FrmProgressoAlunos afr_tela = new FrmProgressoAlunos();
             afr_tela.ShowDialog();
+            AtualizarPainel();
         }
 
         // =============================================================
@@ -205,6 +299,7 @@ namespace PlataformaCursos
         {
             FrmUsuarios afr_tela = new FrmUsuarios();
             afr_tela.ShowDialog();
+            AtualizarPainel();
         }
 
         // =============================================================
