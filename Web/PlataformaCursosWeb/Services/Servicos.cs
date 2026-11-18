@@ -690,7 +690,7 @@ namespace PlataformaCursosWeb.Services
         // -------------------------------------------------------------
         private string GarantirHash(string afr_senha)
         {
-            if (SenhaHash.EhHash(afr_senha))
+            if (SenhaHash.EhQualquerHash(afr_senha))
             {
                 return afr_senha;
             }
@@ -805,7 +805,7 @@ namespace PlataformaCursosWeb.Services
             // A regra dos 8 caracteres vale para a senha DIGITADA. Numa
             // edicao em que a senha nao foi trocada, o que chega aqui ja e
             // o hash - comprido por natureza e sem nada para medir.
-            if (!SenhaHash.EhHash(afr_usuario.afr_Senha) && afr_usuario.afr_Senha.Length < 8)
+            if (!SenhaHash.EhQualquerHash(afr_usuario.afr_Senha) && afr_usuario.afr_Senha.Length < 8)
             {
                 afr_mensagem = "A senha precisa ter pelo menos 8 caracteres.";
                 return false;

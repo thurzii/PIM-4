@@ -72,6 +72,26 @@ namespace PlataformaCursos
         // O prefixo que marca o formato, igual ao da API
         private const string PREFIXO = "scrypt:";
 
+        // -----------------------------------------------------------------
+        // O FORMATO DA VERSAO 3.0, que existiu por um dia
+        //
+        // A 3.0 usava PBKDF2, antes de o codigo da API estar disponivel.
+        // Quem rodou aquela versao e fez login teve a senha convertida
+        // para pbkdf2$sha256$... no banco.
+        //
+        // Sem o tratamento abaixo, esse valor cairia no caminho da senha
+        // em texto puro, seria comparado como se FOSSE a senha digitada,
+        // e nunca bateria: a pessoa ficaria trancada para fora sem
+        // nenhuma mensagem que explicasse o motivo. Foi o que aconteceu
+        // de verdade com a conta do administrador.
+        //
+        // Entao a 3.1 ainda SABE LER o formato antigo - so para conferir
+        // a senha uma ultima vez e regravar em scrypt no mesmo login.
+        // Depois que todas as contas tiverem convertido, este trecho pode
+        // ser apagado sem falta nenhuma.
+        // -----------------------------------------------------------------
+        private const string PREFIXO_ANTIGO = "pbkdf2$sha256$";
+
         // Parametros do scrypt - os padroes do Node, que a API usa
         private const int CUSTO = 16384;        // N
         private const int BLOCO = 8;            // r
@@ -130,7 +150,25 @@ namespace PlataformaCursos
             }
 
             // -------------------------------------------------------------
-            // CAMINHO 1 - senha antiga, gravada como texto puro
+            // CAMINHO 1 - hash da versao 3.0 (PBKDF2)
+            //
+            // Confere pelo formato antigo e avisa que precisa regravar.
+            // Quem chama aproveita este login certo para converter em
+            // scrypt, e a conta nunca mais passa por aqui.
+            // -------------------------------------------------------------
+            if (EhHashAntigo(afr_valorGravado))
+            {
+                if (ConferirFormatoAntigo(afr_senhaDigitada, afr_valorGravado))
+                {
+                    afr_precisaAtualizar = true;
+                    return true;
+                }
+
+                return false;
+            }
+
+            // -------------------------------------------------------------
+            // CAMINHO 2 - senha antiga, gravada como texto puro
             // (a API faz o mesmo: "compatibilidade com contas antigas")
             // -------------------------------------------------------------
             if (!EhHash(afr_valorGravado))
@@ -145,7 +183,7 @@ namespace PlataformaCursos
             }
 
             // -------------------------------------------------------------
-            // CAMINHO 2 - senha ja convertida em hash
+            // CAMINHO 3 - senha ja no formato atual (scrypt)
             // -------------------------------------------------------------
             string[] afr_partes = afr_valorGravado.Split(':');
 
@@ -201,7 +239,7 @@ namespace PlataformaCursos
         }
 
         // -----------------------------------------------------------------
-        // Diz se o texto gravado ja esta no formato de hash
+        // Diz se o texto gravado esta no formato ATUAL (scrypt)
         // -----------------------------------------------------------------
         public static bool EhHash(string afr_valor)
         {
@@ -211,6 +249,89 @@ namespace PlataformaCursos
             }
 
             return afr_valor.StartsWith(PREFIXO);
+        }
+
+        // -----------------------------------------------------------------
+        // Diz se o texto gravado esta no formato da versao 3.0 (PBKDF2)
+        // -----------------------------------------------------------------
+        public static bool EhHashAntigo(string afr_valor)
+        {
+            if (string.IsNullOrEmpty(afr_valor))
+            {
+                return false;
+            }
+
+            return afr_valor.StartsWith(PREFIXO_ANTIGO);
+        }
+
+        // -----------------------------------------------------------------
+        // Diz se o texto gravado e hash de QUALQUER formato conhecido.
+        //
+        // E esta que deve ser usada para decidir "isto ja e hash, nao
+        // aplique hash de novo". Usar EhHash sozinha aqui faria o
+        // programa tratar um hash da versao 3.0 como se fosse senha
+        // digitada e aplicar scrypt em cima dele - a senha do usuario
+        // viraria, para sempre, uma string que ele nunca digitou.
+        // -----------------------------------------------------------------
+        public static bool EhQualquerHash(string afr_valor)
+        {
+            return EhHash(afr_valor) || EhHashAntigo(afr_valor);
+        }
+
+        // -----------------------------------------------------------------
+        // Confere a senha contra o formato da versao 3.0.
+        //
+        //     pbkdf2$sha256$<iteracoes>$<salt base64>$<hash base64>
+        //
+        // Existe so para a conversao. Nenhuma senha nova e gravada
+        // assim - Gerar() produz sempre scrypt.
+        // -----------------------------------------------------------------
+        private static bool ConferirFormatoAntigo(string afr_senha, string afr_valorGravado)
+        {
+            string[] afr_partes = afr_valorGravado.Split('$');
+
+            // Esperado: pbkdf2 / sha256 / iteracoes / salt / hash
+            if (afr_partes.Length != 5)
+            {
+                return false;
+            }
+
+            int afr_iteracoes;
+
+            if (!int.TryParse(afr_partes[2], out afr_iteracoes) || afr_iteracoes <= 0)
+            {
+                return false;
+            }
+
+            byte[] afr_salt;
+            byte[] afr_hashGravado;
+
+            try
+            {
+                afr_salt = Convert.FromBase64String(afr_partes[3]);
+                afr_hashGravado = Convert.FromBase64String(afr_partes[4]);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+
+            // Mesma guarda do formato novo: hash de tamanho zero
+            // produziria comparacao de dois vetores vazios, que da
+            // VERDADEIRO - qualquer senha entraria.
+            if (afr_salt.Length == 0 || afr_hashGravado.Length == 0)
+            {
+                return false;
+            }
+
+            byte[] afr_hashCalculado = Rfc2898DeriveBytes.Pbkdf2(
+                Encoding.UTF8.GetBytes(afr_senha),
+                afr_salt,
+                afr_iteracoes,
+                HashAlgorithmName.SHA256,
+                afr_hashGravado.Length);
+
+            return CryptographicOperations.FixedTimeEquals(afr_hashCalculado, afr_hashGravado);
         }
 
         // -----------------------------------------------------------------
