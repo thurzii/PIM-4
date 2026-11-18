@@ -20,7 +20,7 @@
 
        EstaAberta()                 ObterUsuario()
        ObterUsuarioId()             ObterPerfil()
-       EhAdministrador()            EhTutor()
+       EhAdministrador()            EhProfessor()
        PodeGerenciarCursos()        PodeGerenciarUsuarios()
        PodeVerProgressoDeOutros()
 
@@ -184,14 +184,14 @@ namespace PlataformaCursosWeb.Services
             return MontarDoCookie().EhAdministrador();
         }
 
-        public bool EhTutor()
+        public bool EhProfessor()
         {
             if (!EstaAberta())
             {
                 return false;
             }
 
-            return MontarDoCookie().EhTutor();
+            return MontarDoCookie().EhProfessor();
         }
 
         public bool EhAluno()

@@ -22,6 +22,10 @@
     --cor-sucesso-fundo: #e4f4ed;
     --cor-alerta: #9a6300;
     --cor-alerta-fundo: #fdf3e2;
+
+    /* VERSAO 3 - a cor da gamificacao (XP, niveis, conquistas) */
+    --cor-ganho: #5b3b8c;
+    --cor-ganho-fundo: #f1ebfa;
     --cor-erro: #a62020;
     --cor-erro-fundo: #fbeaea;
 
@@ -133,6 +137,11 @@ h3 { font-size: 15px; margin: 0 0 8px; font-weight: 600; }
 .aviso-sucesso { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso); border-color: #b9e0ce; }
 .aviso-erro    { background: var(--cor-erro-fundo);    color: var(--cor-erro);    border-color: #eec4c4; }
 .aviso-info    { background: var(--cor-primaria-clara); color: var(--cor-primaria); border-color: #c6d5ea; }
+
+/* VERSAO 3 - faixa do XP e das conquistas. Roxo de proposito: nao e
+   "deu certo" (verde) nem "deu errado" (vermelho), e uma terceira
+   coisa, e o aluno precisa distinguir de relance. */
+.aviso-ganho   { background: var(--cor-ganho-fundo);   color: var(--cor-ganho);   border-color: #d6c8ec; font-weight: 600; }
 
 /* ---------------------------------------------------------------- */
 /* FORMULARIOS                                                       */
@@ -617,4 +626,108 @@ tbody tr:hover { background: #fafbfc; }
 @media (max-width: 640px) {
     .filtros .campo-estreito { width: 100%; }
     .passos { font-size: 11px; }
+}
+
+/* ---------------------------------------------------------------- */
+/* VERSAO 3 - PAINEL DE GAMIFICACAO                                  */
+/*                                                                   */
+/* XP, nivel e conquistas. Usa a cor roxa (--cor-ganho) em todo       */
+/* lugar, para o aluno associar "roxo = pontuacao" tanto no painel    */
+/* quanto na faixa de aviso que aparece ao concluir uma aula.         */
+/* ---------------------------------------------------------------- */
+.painel-xp {
+    border-left: 4px solid var(--cor-ganho);
+}
+
+.xp-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.xp-nivel {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cor-ganho);
+}
+
+.xp-detalhe {
+    font-size: 13px;
+    color: var(--cor-texto-suave);
+    margin-top: 2px;
+}
+
+.xp-contagem {
+    font-size: 13px;
+    color: var(--cor-texto-suave);
+    text-align: right;
+}
+
+/* A barra e so um retangulo cinza com outro roxo por cima; a largura
+   do de cima e o percentual do nivel, calculado no servidor. */
+.xp-barra {
+    height: 10px;
+    background: var(--cor-borda);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.xp-barra-cheia {
+    height: 100%;
+    background: var(--cor-ganho);
+    border-radius: 999px;
+    transition: width .3s ease;
+}
+
+.xp-conquistas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.medalha {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.medalha-ganha {
+    background: var(--cor-ganho-fundo);
+    color: var(--cor-ganho);
+    border-color: #d6c8ec;
+    font-weight: 600;
+}
+
+/* As que faltam ficam apagadas, nao escondidas: o aluno precisa ver
+   o que ainda da para conquistar. */
+.medalha-falta {
+    background: transparent;
+    color: var(--cor-texto-suave);
+    border-color: var(--cor-borda);
+    opacity: .7;
+}
+
+/* Em tela estreita a contagem desce para baixo do nivel em vez de
+   espremer as duas colunas. */
+@media (max-width: 600px) {
+    .xp-contagem { text-align: left; }
+}
+
+/* VERSAO 3.1 - sequencia de dias seguidos (a "streak" da API) */
+.xp-sequencia {
+    font-size: 13px;
+    color: var(--cor-ganho);
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.xp-recorde {
+    font-weight: 400;
+    color: var(--cor-texto-suave);
 }

@@ -28,7 +28,7 @@ permite apontar, para cada mensagem do diagrama, um método com o mesmo papel.
 | Ator no Astah | Perfil no programa | Constante |
 |---|---|---|
 | Aluno | ALUNO | `Usuario.PERFIL_ALUNO` |
-| Tutor | TUTOR | `Usuario.PERFIL_TUTOR` |
+| Professor | PROFESSOR | `Usuario.PERFIL_PROFESSOR` |
 | Admin | ADMIN | `Usuario.PERFIL_ADMIN` |
 
 Quem decide o que cada perfil pode fazer são os métodos `PodeGerenciarCursos`,
@@ -118,7 +118,7 @@ somente ativos e somente os cursos que o aluno ainda não concluiu. O SQL que us
 esses campos está em `BancoService.ListarCursos`, tudo por parâmetro `@`.
 
 A diferença entre `BuscarCurso` e `LocalizarCurso` é o público: o aluno vê só os
-cursos ativos, o tutor vê ativos e inativos.
+cursos ativos, o professor vê ativos e inativos.
 
 ---
 
@@ -170,10 +170,10 @@ Depois do logout, qualquer tela que ainda esteja aberta é barrada por
 
 > **Observação para a apresentação:** no Astah este diagrama está salvo com o
 > nome **"Criar Curso"**, mas as mensagens dentro dele são todas de progresso e
-> a linha de vida do Tutor aparece nele. Vale corrigir o nome no arquivo antes
+> a linha de vida do Professor aparece nele. Vale corrigir o nome no arquivo antes
 > de entregar.
 
-Linhas de vida: Aluno, **Tutor**, TelaProgresso, Sistema, Aula, Progresso, Curso.
+Linhas de vida: Aluno, **Professor**, TelaProgresso, Sistema, Aula, Progresso, Curso.
 
 | Mensagem no diagrama | Onde está no programa |
 |---|---|
@@ -189,7 +189,7 @@ A permissão é conferida duas vezes: a tela só aparece no menu para quem tem
 `PodeVerProgressoDeOutros`, e o serviço confere de novo em
 `ProgressoService.ElegivelParaVisualizacao` — que é o `elegivelParaVisualizacao`
 do diagrama. Qualquer pessoa pode ver o próprio progresso; o de outro aluno é só
-tutor e admin.
+professor e admin.
 
 ---
 
@@ -198,7 +198,7 @@ tutor e admin.
 > No Astah este diagrama está salvo como **"Visualizar Curso"**, mas o conteúdo é
 > a verificação de conclusão. É o segundo nome a corrigir no arquivo.
 
-Linhas de vida: Aluno, **Tutor**, TelaCurso, Sistema, Curso, Progresso.
+Linhas de vida: Aluno, **Professor**, TelaCurso, Sistema, Curso, Progresso.
 
 | Mensagem no diagrama | Onde está no programa |
 |---|---|
@@ -220,7 +220,7 @@ em "status", não em "concluiu tudo ou não". Um curso com `PercentualMinimo = 7
 
 ## DS09 — Editar Curso
 
-Linhas de vida: **Tutor**, TelaGerenciamento, Sistema, Curso.
+Linhas de vida: **Professor**, TelaGerenciamento, Sistema, Curso.
 
 | Mensagem no diagrama | Onde está no programa |
 |---|---|
@@ -243,7 +243,7 @@ velho se outra pessoa do grupo mexeu no mesmo registro.
 
 ## DS10 — Excluir Curso
 
-Linhas de vida: **Tutor**, TelaGerenciamentoCurso, Sistema, Curso.
+Linhas de vida: **Professor**, TelaGerenciamentoCurso, Sistema, Curso.
 
 Este é o diagrama mais detalhado do modelo: onze mensagens, e nenhuma delas é
 "apagar e pronto".
@@ -255,7 +255,7 @@ Este é o diagrama mais detalhado do modelo: onze mensagens, e nenhuma delas é
 | `elegivelParaExclusao(true, dadosDetalhados)` | classe `ElegibilidadeExclusao` |
 | `solicitarConfirmacaoExclusao(dadosDetalhados)` | `FrmConfirmarExclusao.CarregarInterface` |
 | `confirmarExclusaoFinal(curso)` | `FrmConfirmarExclusao.afr_btnConfirmar_Click` |
-| `confirmarIdentidadeEAcao(tutor, curso)` | `AutenticacaoService.ConfirmarIdentidade` |
+| `confirmarIdentidadeEAcao(professor, curso)` | `AutenticacaoService.ConfirmarIdentidade` |
 | `realizarExclusaoDefinitiva(curso)` | `CursoService.RemoverDefinitivamente` |
 | `removerDefinitivamente(curso)` | `BancoService.ExcluirCurso` |
 | `remocaoSucesso()` | retorno `bool` + `out afr_mensagem` |
@@ -374,7 +374,7 @@ como aviso, sem campo de senha:
 | `FrmCatalogo` | DS03, DS04, DS05, DS08 | filtros da busca e botão de abrir a aula |
 | `FrmAula` | DS05, DS08 | **tela nova** |
 | `FrmCursos` | DS09, DS10 | percentual mínimo, conteúdo da aula, exclusão em 2 etapas |
-| `FrmUsuarios` | DS11, DS12, DS13, DS14 | perfil TUTOR, exclusão em 2 etapas, botão de perfil |
+| `FrmUsuarios` | DS11, DS12, DS13, DS14 | perfil PROFESSOR, exclusão em 2 etapas, botão de perfil |
 | `FrmProgressoAlunos` | DS07 | **tela nova** |
 | `FrmPerfilUsuario` | DS12 | **tela nova** |
 | `FrmConfirmarExclusao` | DS10, DS14 | **tela nova** |
@@ -412,7 +412,7 @@ vale ajustar no `.asta`:
    onze classes já implementadas em `Modelo.cs` podem ser desenhadas nele, com a
    herança `Usuario -> Pessoa`.
 3. **Atores no diagrama de casos de uso** — os casos de uso estão lá, mas sem os
-   bonequinhos de Aluno, Tutor e Admin ligados a eles.
+   bonequinhos de Aluno, Professor e Admin ligados a eles.
 4. **Nomes do DS07 e do DS08** — hoje estão como "Criar Curso" e
    "Visualizar Curso", que não combinam com o conteúdo.
 

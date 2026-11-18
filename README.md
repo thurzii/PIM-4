@@ -4,6 +4,45 @@ Repositório central do grupo. Cada matéria ou etapa do trabalho tem a sua past
 
 ---
 
+## Versão 3.1 — sincronizada com a API (18/11/2026)
+
+> **O código da API está no branch `main` deste mesmo repositório.** O `master`,
+> onde você está, tem só a parte C#. No GitHub, troque de branch no seletor acima
+> da lista de arquivos para ver `api/`, `mobile/` e `sql/`.
+
+O desktop e o site foram alinhados ao **código** da API, não à suposição.
+**Leia [Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md](Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md)**
+— ele explica o que mudou, o que foi testado e o que ainda precisa de decisão.
+
+| Mudança | Onde |
+|---|---|
+| Terceiro perfil renomeado de `TUTOR` para `PROFESSOR` | tudo, com migração automática do banco |
+| Senha virou hash **scrypt**, no formato exato da API (`scrypt:salt:hash`) | `SenhaHash.cs` |
+| Esquema de gamificação passou a ser **o da API** | `Gamificacao`, `Conquistas`, `UsuarioConquistas`, `HistoricoXP`, `Matriculas` |
+| Regra de XP portada do T-SQL da API | `BancoService.ConcederXpPorAula` |
+| Idempotência (não paga XP duas vezes) | restrição `UNIQUE` em `HistoricoXP` |
+| Cliente HTTP conferido rota a rota contra o `server.js` | `ClienteApi.cs`, **desligado** |
+| Senha mínima de 8 caracteres e e-mail em minúsculas | para casar com a validação da API |
+
+**Uma colisão grave foi evitada:** a versão anterior criava uma tabela
+`dbo.Conquistas` própria, com significado diferente da que a API cria. No mesmo
+banco, um dos dois programas quebraria. Agora há um esquema só.
+
+**Um bug na API foi encontrado:** três dos cinco arquivos de rota não estão
+montados no `server.js`, e por isso a conquista `PRIMEIRO_CURSO` nunca é
+concedida a ninguém. Detalhes e solução provisória no documento.
+
+Para conferir o cliente contra a API depois de qualquer mudança nela:
+
+```
+python3 Ferramentas/conferir_api.py ../caminho/para/api/src
+```
+
+> **Não rode `CSharp/Banco_CursosDB.sql` no banco do Azure.** Ele monta o esquema
+> local; o da nuvem é o do mobile. O motivo está no cabeçalho do próprio script.
+
+---
+
 ## O que tem em cada pasta
 
 | Pasta | Conteúdo |

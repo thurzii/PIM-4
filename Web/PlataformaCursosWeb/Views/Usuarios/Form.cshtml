@@ -63,11 +63,26 @@
             </div>
         </div>
 
+        @*
+            VERSAO 3 - na edicao o campo vem vazio de proposito.
+            A senha e gravada como hash e nao ha como voltar dela para o
+            texto digitado, entao a tela nao tem o que mostrar. Vazio
+            significa "manter a senha atual".
+            O texto de ajuda e montado antes do HTML porque expressao de
+            varias linhas dentro de atributo Razor da problema.
+        *@
+        @{
+            string afr_ajudaSenha = Model.EhEdicao()
+                ? "Deixe em branco para manter a senha atual. Para trocar, digite a nova (pelo menos 8 caracteres)."
+                : "Pelo menos 8 caracteres.";
+        }
+
         <div class="campo">
             <label asp-for="afr_Senha">Senha</label>
-            <input asp-for="afr_Senha" type="text" maxlength="100" />
+            <input asp-for="afr_Senha" type="text" maxlength="100"
+                   autocomplete="new-password" />
             <span asp-validation-for="afr_Senha" class="erro-validacao"></span>
-            <div class="ajuda">Pelo menos 6 caracteres.</div>
+            <div class="ajuda">@afr_ajudaSenha</div>
         </div>
 
         <div class="campo" style="max-width:280px;">

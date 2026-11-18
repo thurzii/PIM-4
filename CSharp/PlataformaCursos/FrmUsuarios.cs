@@ -22,7 +22,7 @@
       verificarElegibilidadeExclusao -> dadosDetalhados ->
       confirmarIdentidadeEAcao -> removerDefinitivamente.
 
-   4) Existem TRES perfis agora: ALUNO, TUTOR e ADMIN.
+   4) Existem TRES perfis agora: ALUNO, PROFESSOR e ADMIN.
    ===================================================================== */
 
 using System;
@@ -313,7 +313,7 @@ namespace PlataformaCursos
             afr_listaAtual = afr_usuarioService.ListarUsuarios(afr_termo.Trim());
 
             int afr_admins = 0;
-            int afr_tutores = 0;
+            int afr_professores = 0;
             int afr_alunos = 0;
 
             foreach (Usuario afr_usuario in afr_listaAtual)
@@ -344,7 +344,7 @@ namespace PlataformaCursos
                     {
                         afr_item.ForeColor = Color.DarkBlue;
                     }
-                    else if (afr_usuario.EhTutor())
+                    else if (afr_usuario.EhProfessor())
                     {
                         afr_item.ForeColor = Color.DarkMagenta;
                     }
@@ -355,9 +355,9 @@ namespace PlataformaCursos
                 {
                     afr_admins = afr_admins + 1;
                 }
-                else if (afr_usuario.EhTutor())
+                else if (afr_usuario.EhProfessor())
                 {
-                    afr_tutores = afr_tutores + 1;
+                    afr_professores = afr_professores + 1;
                 }
                 else
                 {
@@ -368,7 +368,7 @@ namespace PlataformaCursos
             }
 
             afr_lblStatus.Text = afr_listaAtual.Count + " usuario(s) em dbo.Usuarios  |  "
-                               + afr_admins + " admin, " + afr_tutores + " tutor, "
+                               + afr_admins + " admin, " + afr_professores + " professor, "
                                + afr_alunos + " aluno  |  "
                                + afr_bancoService.ObterDescricao();
 
@@ -385,7 +385,14 @@ namespace PlataformaCursos
 
             afr_txtNome.Text = afr_usuario.afr_Nome;
             afr_txtEmail.Text = afr_usuario.afr_Email;
-            afr_txtSenha.Text = afr_usuario.afr_Senha;
+
+            // VERSAO 3 - o campo de senha fica VAZIO na edicao.
+            // A senha nao esta mais gravada como texto e sim como hash, e de
+            // um hash nao se volta para a senha. Campo vazio significa
+            // "manter a senha atual"; so o que for digitado aqui troca.
+            afr_txtSenha.Clear();
+            afr_lblSenha.Text = "Senha (vazio = manter)";
+
             afr_chkAtivo.Checked = afr_usuario.afr_Ativo;
 
             int afr_posicao = afr_cmbPerfil.FindStringExact(afr_usuario.afr_Perfil);
@@ -422,6 +429,12 @@ namespace PlataformaCursos
             afr_txtNome.Clear();
             afr_txtEmail.Clear();
             afr_txtSenha.Clear();
+
+            // VERSAO 3 - volta o rotulo ao normal. Em modo NOVO USUARIO a
+            // senha e obrigatoria; so no modo EDICAO o campo vazio quer
+            // dizer "manter a atual".
+            afr_lblSenha.Text = "Senha";
+
             afr_cmbPerfil.SelectedIndex = 0;
             afr_chkAtivo.Checked = true;
 

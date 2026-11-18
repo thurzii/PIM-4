@@ -16,7 +16,7 @@
 
    TRES NOVIDADES DESTA VERSAO:
 
-   1) Existem tres perfis: ALUNO, TUTOR e ADMIN.
+   1) Existem tres perfis: ALUNO, PROFESSOR e ADMIN.
 
    2) DS12 nao e so a lista. Pede o perfil completo com o historico de
       acoes em TRES listas separadas (loginLog, acoesCrud,
@@ -67,7 +67,7 @@ namespace PlataformaCursosWeb.Controllers
 
             // Conta quantos tem de cada perfil, para a faixa de resumo
             int afr_admins = 0;
-            int afr_tutores = 0;
+            int afr_professores = 0;
             int afr_alunos = 0;
 
             foreach (Usuario afr_usuario in afr_usuarios)
@@ -76,9 +76,9 @@ namespace PlataformaCursosWeb.Controllers
                 {
                     afr_admins = afr_admins + 1;
                 }
-                else if (afr_usuario.EhTutor())
+                else if (afr_usuario.EhProfessor())
                 {
-                    afr_tutores = afr_tutores + 1;
+                    afr_professores = afr_professores + 1;
                 }
                 else
                 {
@@ -88,7 +88,7 @@ namespace PlataformaCursosWeb.Controllers
 
             ViewBag.Resumo = afr_usuarios.Count + " usuario(s): "
                            + afr_admins + " admin, "
-                           + afr_tutores + " tutor, "
+                           + afr_professores + " professor, "
                            + afr_alunos + " aluno.";
 
             return View(afr_usuarios);
@@ -127,7 +127,13 @@ namespace PlataformaCursosWeb.Controllers
             afr_dados.afr_Id = afr_usuario.afr_Id;
             afr_dados.afr_Nome = afr_usuario.afr_Nome;
             afr_dados.afr_Email = afr_usuario.afr_Email;
-            afr_dados.afr_Senha = afr_usuario.afr_Senha;
+
+            // VERSAO 3 - a senha NAO volta para a tela.
+            // O que esta no banco e um hash, e de um hash nao se volta para a
+            // senha. Campo vazio significa "manter a senha atual"; so o que
+            // for digitado no formulario troca a senha.
+            afr_dados.afr_Senha = "";
+
             afr_dados.afr_Perfil = afr_usuario.afr_Perfil;
             afr_dados.afr_Ativo = afr_usuario.afr_Ativo;
             afr_dados.afr_DataCadastro = afr_usuario.afr_DataCadastro;

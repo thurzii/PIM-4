@@ -32,6 +32,7 @@ namespace PlataformaCursos
             this.afr_btnConcluir = new System.Windows.Forms.Button();
             this.afr_btnFechar = new System.Windows.Forms.Button();
             this.afr_lblStatus = new System.Windows.Forms.Label();
+            this.afr_lblGanho = new System.Windows.Forms.Label();
             this.SuspendLayout();
             //
             // afr_lblCurso
@@ -125,12 +126,29 @@ namespace PlataformaCursos
             this.afr_lblStatus.TabIndex = 8;
             this.afr_lblStatus.Text = "";
             //
+            // afr_lblGanho
+            //
+            // VERSAO 3 - a linha do XP e das conquistas. Fica logo abaixo
+            // da mensagem de status, em roxo, para o aluno nao confundir
+            // uma coisa com a outra.
+            //
+            this.afr_lblGanho.Font = new System.Drawing.Font("Segoe UI", 9F,
+                System.Drawing.FontStyle.Bold);
+            this.afr_lblGanho.ForeColor = System.Drawing.Color.DarkViolet;
+            this.afr_lblGanho.Location = new System.Drawing.Point(20, 478);
+            this.afr_lblGanho.Name = "afr_lblGanho";
+            this.afr_lblGanho.Size = new System.Drawing.Size(560, 20);
+            this.afr_lblGanho.TabIndex = 9;
+            this.afr_lblGanho.Text = "";
+            //
             // FrmAula
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.afr_btnFechar;
-            this.ClientSize = new System.Drawing.Size(600, 486);
+            // VERSAO 3 - 26 pixels a mais de altura, para caber a linha
+            // do XP sem espremer o que ja existia.
+            this.ClientSize = new System.Drawing.Size(600, 512);
             this.Controls.Add(this.afr_lblCurso);
             this.Controls.Add(this.afr_lblTituloAula);
             this.Controls.Add(this.afr_lblInfo);
@@ -140,6 +158,7 @@ namespace PlataformaCursos
             this.Controls.Add(this.afr_btnConcluir);
             this.Controls.Add(this.afr_btnFechar);
             this.Controls.Add(this.afr_lblStatus);
+            this.Controls.Add(this.afr_lblGanho);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -163,5 +182,6 @@ namespace PlataformaCursos
         private System.Windows.Forms.Button afr_btnConcluir;
         private System.Windows.Forms.Button afr_btnFechar;
         private System.Windows.Forms.Label afr_lblStatus;
+        private System.Windows.Forms.Label afr_lblGanho;
     }
 }

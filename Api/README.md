@@ -5,6 +5,51 @@
 
 ---
 
+## ATENÇÃO — esta pasta está obsoleta (18/11/2026)
+
+**A API existe e está no branch `main` deste repositório**, em `api/`. Esta pasta
+`Api/` foi criada quando ainda não havia código para olhar, e o briefing abaixo
+foi escrito por suposição.
+
+**O envelope `{ ok, mensagem, dados }` proposto adiante NÃO é o que a API faz.**
+Ela responde `{ token, user }` no login, `{ message }` nos erros (em inglês) e
+array puro nas listas. Quem diz se deu certo é o código HTTP.
+
+O que vale hoje:
+
+- **`Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md`** — o relato real, a partir do
+  código: o que foi sincronizado, o que foi testado e o que falta decidir
+- **`CSharp/PlataformaCursos/ClienteApi.cs`** — o cliente HTTP, com as 16 rotas
+  conferidas uma a uma contra o `server.js`
+- **`Ferramentas/conferir_api.py`** — confere o cliente contra a API quando ela mudar
+
+O texto abaixo fica só como registro de como o grupo pensava a integração antes
+de os dois lados se encontrarem.
+
+---
+
+## Registro: o briefing original de 17/11/2026
+
+Depois da análise de integração do grupo (`Analise_Integracao_PIM4_Mobile_Desktop.docx`),
+o desktop e o site ganharam a camada de troca. Leia primeiro:
+
+- **`Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md`** — resposta item a item àquele
+  documento: o que foi resolvido, o que ficou pendente e por quê.
+- **`CSharp/PlataformaCursos/ClienteApi.cs`** — o cliente HTTP, já escrito, com os
+  oito endpoints da tabela da análise. Há uma cópia equivalente em
+  `Web/PlataformaCursosWeb/Services/ClienteApi.cs`.
+
+**Está desligado** (`Api:Ativa = false`). Os dois programas continuam falando com o
+SQL Server. Para ligar faltam oito respostas, listadas no fim da
+`RESPOSTA_ANALISE_INTEGRACAO.md` e repetidas como comentário no próprio
+`ClienteApi.cs` — essencialmente: os nomes dos campos do JSON, o formato do token
+e quais rotas estão de fato montadas no `server.js`.
+
+O envelope combinado abaixo (seção sobre o problema do `out`) **continua valendo** e
+já está implementado do lado C#.
+
+---
+
 ## 1. Como está hoje
 
 Os dois sistemas falam **direto** com o SQL Server:

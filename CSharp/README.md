@@ -1,9 +1,17 @@
 # Plataforma de Cursos Online
 
+> **Versão 3.1 (18/11/2026):** este projeto foi sincronizado com o código da API,
+> que está no branch `main` deste repositório. Perfil `TUTOR` virou `PROFESSOR`, a
+> senha virou hash scrypt no formato da API, o esquema de gamificação passou a ser
+> o dela (`Gamificacao`, `Conquistas`, `UsuarioConquistas`, `HistoricoXP`,
+> `Matriculas`), e há um cliente HTTP pronto e desligado. O relato completo está em
+> [../Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md](../Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md).
+
+
 > Esta é a pasta do sistema em C#. Para a visão geral do repositório do grupo,
 > volte ao [README principal](../README.md).
 
-Sistema desenvolvido a partir da modelagem UML do grupo ([`Modelagem/Projeto_UML.asta`](../Modelagem/)): uma plataforma de cursos com **três perfis de acesso** (aluno, tutor e administrador), catálogo com filtros de busca, conteúdo de aula, requisito de conclusão por curso, recuperação de senha por código, histórico de ações e exclusão em duas etapas.
+Sistema desenvolvido a partir da modelagem UML do grupo ([`Modelagem/Projeto_UML.asta`](../Modelagem/)): uma plataforma de cursos com **três perfis de acesso** (aluno, professor e administrador), catálogo com filtros de busca, conteúdo de aula, requisito de conclusão por curso, recuperação de senha por código, histórico de ações e exclusão em duas etapas.
 
 **Windows Forms (.NET 8) + SQL Server.** O banco de dados é criado automaticamente na primeira execução — ninguém precisa rodar script nem configurar conexão.
 
@@ -51,7 +59,7 @@ O sistema já vem com usuários cadastrados:
 | Perfil | Email | Senha | O que pode fazer |
 |---|---|---|---|
 | Administrador | `admin@escola.com` | `admin123` | tudo |
-| Tutor | `carla@escola.com` | `tutor123` | cursos, aulas e progresso dos alunos |
+| Professor | `carla@escola.com` | `professor123` | cursos, aulas e progresso dos alunos |
 | Aluno | `maria@escola.com` | `aluno123` | catálogo e as próprias aulas |
 | Aluno | `joao@escola.com` | `aluno123` | catálogo e as próprias aulas |
 
@@ -60,7 +68,7 @@ O menu principal tem três áreas e mostra só as que o perfil alcança:
 | | Catálogo | Cursos e Aulas | Progresso dos Alunos | Usuários |
 |---|---|---|---|---|
 | **Aluno** | ✓ | | | |
-| **Tutor** | ✓ | ✓ | ✓ | |
+| **Professor** | ✓ | ✓ | ✓ | |
 | **Admin** | ✓ | ✓ | ✓ | ✓ |
 
 Quem decide isso são os métodos `PodeGerenciarCursos`, `PodeVerProgressoDeOutros` e `PodeGerenciarUsuarios`, da classe `Usuario`. As telas consultam esses métodos pela classe `Sessao` — nenhuma tela compara texto de perfil na mão. Além de esconder o botão, cada tela confere a permissão de novo no evento `Load`.
@@ -112,9 +120,9 @@ O arquivo `Banco_CursosDB.sql` traz o script completo do banco e as consultas us
 | `FrmPrincipal` | Menu com as três áreas de perfil |
 | `FrmCatalogo` | Visão do aluno: cursos, busca com filtros, aulas e progresso |
 | `FrmAula` | **Nova** — conteúdo da aula e botão de concluir |
-| `FrmCursos` | CRUD de cursos e de aulas (tutor e admin) |
+| `FrmCursos` | CRUD de cursos e de aulas (professor e admin) |
 | `FrmUsuarios` | CRUD de usuários (admin) |
-| `FrmProgressoAlunos` | **Nova** — tutor acompanha o progresso dos alunos |
+| `FrmProgressoAlunos` | **Nova** — professor acompanha o progresso dos alunos |
 | `FrmPerfilUsuario` | **Nova** — perfil do usuário com histórico de ações |
 | `FrmConfirmarExclusao` | **Nova** — confirmação de exclusão com senha |
 

@@ -26,6 +26,7 @@
      ConfirmarExclusaoViewModel exclusao em 2 etapas (DS10 e DS14)
    ===================================================================== */
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlataformaCursosWeb.Models
@@ -110,14 +111,17 @@ namespace PlataformaCursosWeb.Models
                      + afr_MinutosValidade + " minutos e serve uma vez so.";
             }
 
-            return "Codigo confirmado. Escolha uma nova senha de pelo menos 6 caracteres.";
+            return "Codigo confirmado. Escolha uma nova senha de pelo menos 8 caracteres.";
         }
     }
 
     // =================================================================
     // USUARIO (DS11 e DS13)
     // =================================================================
-    public class UsuarioViewModel
+    // IValidatableObject permite uma regra que olha o objeto INTEIRO, e nao
+    // um campo isolado. E o que a senha precisa: se e obrigatoria ou nao
+    // depende de ser cadastro ou edicao, e nenhum atributo sozinho sabe isso.
+    public class UsuarioViewModel : IValidatableObject
     {
         public int afr_Id { get; set; }
 
@@ -132,9 +136,12 @@ namespace PlataformaCursosWeb.Models
         [Display(Name = "Email")]
         public string afr_Email { get; set; } = "";
 
-        [Required(ErrorMessage = "Informe a senha.")]
-        [StringLength(100, MinimumLength = 6,
-            ErrorMessage = "A senha precisa ter pelo menos 6 caracteres.")]
+        // VERSAO 3 - a senha deixou de ser obrigatoria POR ATRIBUTO.
+        // Na edicao o campo chega vazio quando o administrador nao quis
+        // troca-la (a tela nao mostra mais a senha gravada, que agora e
+        // hash). A regra passou para Validate(), mais abaixo, que sabe
+        // distinguir cadastro de edicao.
+        [StringLength(100, ErrorMessage = "A senha pode ter no maximo 100 caracteres.")]
         [Display(Name = "Senha")]
         public string afr_Senha { get; set; } = "";
 
@@ -153,6 +160,31 @@ namespace PlataformaCursosWeb.Models
             return afr_Id > 0;
         }
 
+        // -------------------------------------------------------------
+        // VERSAO 3 - a regra da senha, que depende do objeto inteiro
+        //
+        // CADASTRO: a senha e obrigatoria e precisa de 8 caracteres.
+        // EDICAO..: campo vazio quer dizer "manter a senha atual", entao
+        //           so vale a regra dos 8 caracteres se algo foi digitado.
+        // -------------------------------------------------------------
+        public IEnumerable<ValidationResult> Validate(ValidationContext afr_contexto)
+        {
+            bool afr_informouSenha = !string.IsNullOrWhiteSpace(afr_Senha);
+
+            if (!EhEdicao() && !afr_informouSenha)
+            {
+                yield return new ValidationResult(
+                    "Informe a senha.",
+                    new string[] { nameof(afr_Senha) });
+            }
+            else if (afr_informouSenha && afr_Senha.Trim().Length < 8)
+            {
+                yield return new ValidationResult(
+                    "A senha precisa ter pelo menos 8 caracteres.",
+                    new string[] { nameof(afr_Senha) });
+            }
+        }
+
         // Os tres perfis do modelo, para montar o <select> da pagina
         public string[] ObterPerfis()
         {
@@ -167,7 +199,7 @@ namespace PlataformaCursosWeb.Models
                 return "Acessa tudo, inclusive o cadastro de usuarios.";
             }
 
-            if (afr_perfil == Usuario.PERFIL_TUTOR)
+            if (afr_perfil == Usuario.PERFIL_PROFESSOR)
             {
                 return "Cadastra cursos e aulas e acompanha o progresso dos alunos.";
             }
@@ -212,7 +244,7 @@ namespace PlataformaCursosWeb.Models
     }
 
     // =================================================================
-    // AULAS DO CURSO - visao do tutor (DS05)
+    // AULAS DO CURSO - visao do professor (DS05)
     // O conteudo da aula entra aqui.
     // =================================================================
     public class AulasAdminViewModel
@@ -249,7 +281,7 @@ namespace PlataformaCursosWeb.Models
     }
 
     // =================================================================
-    // EDITAR UMA AULA - visao do tutor
+    // EDITAR UMA AULA - visao do professor
     // =================================================================
     public class AulaFormViewModel
     {
@@ -438,7 +470,7 @@ namespace PlataformaCursosWeb.Models
     }
 
     // =================================================================
-    // PROGRESSO DOS ALUNOS - visao do tutor (DS07)
+    // PROGRESSO DOS ALUNOS - visao do professor (DS07)
     // =================================================================
     public class ProgressoAlunosViewModel
     {
@@ -576,7 +608,7 @@ namespace PlataformaCursosWeb.Models
         public DateTime afr_DataCadastro { get; set; }
 
         public bool afr_EhAdmin { get; set; }
-        public bool afr_EhTutor { get; set; }
+        public bool afr_EhProfessor { get; set; }
         public bool afr_PodeGerenciarCursos { get; set; }
         public bool afr_PodeGerenciarUsuarios { get; set; }
         public bool afr_PodeVerProgresso { get; set; }
@@ -590,6 +622,12 @@ namespace PlataformaCursosWeb.Models
         public int afr_MeusCursos { get; set; }
         public int afr_MeusConcluidos { get; set; }
 
+        // VERSAO 3 - XP, nivel e conquistas de quem esta logado.
+        // Comeca com um objeto vazio (nivel 1, zero XP) para a pagina
+        // nunca quebrar com null, mesmo se o painel for aberto antes de
+        // o controller preencher.
+        public Pontuacao afr_Pontuacao { get; set; } = new Pontuacao();
+
         public string DescreverPerfil()
         {
             if (afr_EhAdmin)
@@ -597,9 +635,9 @@ namespace PlataformaCursosWeb.Models
                 return "Perfil ADMIN: catalogo, cursos, progresso dos alunos e usuarios.";
             }
 
-            if (afr_EhTutor)
+            if (afr_EhProfessor)
             {
-                return "Perfil TUTOR: catalogo, cursos e aulas, e progresso dos alunos.";
+                return "Perfil PROFESSOR: catalogo, cursos e aulas, e progresso dos alunos.";
             }
 
             return "Perfil ALUNO: catalogo de cursos e as suas aulas.";

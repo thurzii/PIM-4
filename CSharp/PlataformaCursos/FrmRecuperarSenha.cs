@@ -101,7 +101,7 @@ namespace PlataformaCursos
 
                 afr_lblEtapa.Text = "Etapa 3 de 3 - escolher a nova senha";
                 afr_lblInfo.Text = "Codigo confirmado. "
-                                 + "Escolha uma nova senha de pelo menos 6 caracteres.";
+                                 + "Escolha uma nova senha de pelo menos 8 caracteres.";
                 afr_txtNova.Focus();
             }
         }

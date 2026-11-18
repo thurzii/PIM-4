@@ -8,7 +8,7 @@
 
    TRES AREAS, uma por ator dos diagramas de sequencia:
      ALUNO -> Catalogo
-     TUTOR -> Catalogo + Cursos e Aulas + Progresso dos Alunos
+     PROFESSOR -> Catalogo + Cursos e Aulas + Progresso dos Alunos
      ADMIN -> as tres acima + Usuarios
 
    Quem decide o que aparece sao os metodos PodeGerenciarCursos,
@@ -30,15 +30,20 @@ namespace PlataformaCursosWeb.Controllers
         private readonly UsuarioService afr_usuarioService;
         private readonly ProgressoService afr_progressoService;
 
+        // VERSAO 3 - para montar o painel de XP e conquistas
+        private readonly GamificacaoService afr_gamificacaoService;
+
         public HomeController(BancoService afr_banco,
                               CursoService afr_curso,
                               UsuarioService afr_usuario,
-                              ProgressoService afr_progresso)
+                              ProgressoService afr_progresso,
+                              GamificacaoService afr_gamificacao)
         {
             afr_bancoService = afr_banco;
             afr_cursoService = afr_curso;
             afr_usuarioService = afr_usuario;
             afr_progressoService = afr_progresso;
+            afr_gamificacaoService = afr_gamificacao;
         }
 
         // =============================================================
@@ -53,7 +58,7 @@ namespace PlataformaCursosWeb.Controllers
             afr_dados.afr_Perfil = ObterPerfil();
 
             afr_dados.afr_EhAdmin = EhAdministrador();
-            afr_dados.afr_EhTutor = EhTutor();
+            afr_dados.afr_EhProfessor = EhProfessor();
             afr_dados.afr_PodeGerenciarCursos = PodeGerenciarCursos();
             afr_dados.afr_PodeGerenciarUsuarios = PodeGerenciarUsuarios();
             afr_dados.afr_PodeVerProgresso = PodeVerProgressoDeOutros();
@@ -73,6 +78,11 @@ namespace PlataformaCursosWeb.Controllers
                 afr_progressoService.BuscarProgresso(ObterUsuarioId());
 
             afr_dados.afr_MeusCursos = afr_meuProgresso.Count;
+
+            // VERSAO 3 - XP, nivel e conquistas de quem esta logado.
+            // Vale para todo perfil: professor e admin tambem cursam.
+            afr_dados.afr_Pontuacao =
+                afr_gamificacaoService.ObterPontuacao(ObterUsuarioId());
 
             foreach (ProgressoCurso afr_linha in afr_meuProgresso)
             {

@@ -36,10 +36,10 @@ banco.
 | Ator no Astah | Perfil | Como a web barra quem não pode |
 |---|---|---|
 | Aluno | `ALUNO` | — |
-| Tutor | `TUTOR` | `[Authorize(Roles = "TUTOR,ADMIN")]` |
+| Professor | `PROFESSOR` | `[Authorize(Roles = "PROFESSOR,ADMIN")]` |
 | Admin | `ADMIN` | `[Authorize(Roles = "ADMIN")]` |
 
-Além do `[Authorize]`, os serviços conferem de novo (`VerificarPermissaoTutor`,
+Além do `[Authorize]`, os serviços conferem de novo (`VerificarPermissaoProfessor`,
 `VerificarPermissaoAdmin`, `ElegivelParaVisualizacao`). São as mesmas duas camadas
 do desktop: esconder o botão no menu **e** checar no evento `Load`.
 
@@ -124,7 +124,7 @@ o programa estava mais atrás do modelo.
 somente ativos e somente os cursos que o aluno ainda não concluiu. O SQL está em
 `BancoService.ListarCursos`, todo por parâmetro `@`.
 
-`BuscarCurso` serve o aluno (só cursos ativos); `LocalizarCurso` serve o tutor
+`BuscarCurso` serve o aluno (só cursos ativos); `LocalizarCurso` serve o professor
 (ativos e inativos).
 
 **Detalhe de web:** o formulário usa `method="get"`, então os filtros ficam no
@@ -151,7 +151,7 @@ endereço. A pessoa pode salvar o link da busca ou usar o botão voltar do naveg
 **Por que a aula tem página própria:** o modelo pede `exibirConteudo()`, e uma caixa
 de seleção na lista não exibe conteúdo. Por isso a aula ganhou a coluna `Conteudo`
 na tabela `dbo.Aulas` e a página `Catalogo/Aula`. Quem escreve esse conteúdo é o
-tutor, em `Cursos/AulaForm`. A caixa de seleção da lista continua funcionando como
+professor, em `Cursos/AulaForm`. A caixa de seleção da lista continua funcionando como
 atalho.
 
 ---
@@ -177,7 +177,7 @@ mais como saber quem era.
 ## DS07 — Progresso do aluno
 
 > No Astah este diagrama está salvo com o nome **"Criar Curso"**, mas as mensagens
-> dentro dele são todas de progresso e a linha de vida do Tutor aparece nele. Vale
+> dentro dele são todas de progresso e a linha de vida do Professor aparece nele. Vale
 > corrigir o nome no arquivo antes de entregar.
 
 | Mensagem no diagrama | Onde está |
@@ -190,10 +190,10 @@ mais como saber quem era.
 | `exibirProgresso(dados)` | `Views/Progresso/Index.cshtml` |
 | `mostrarProgresso()` | os três cartões de resumo da mesma página |
 
-A permissão é conferida duas vezes: `[Authorize(Roles = "TUTOR,ADMIN")]` no
+A permissão é conferida duas vezes: `[Authorize(Roles = "PROFESSOR,ADMIN")]` no
 controller, e `ProgressoService.ElegivelParaVisualizacao` no serviço — que é o
 `elegivelParaVisualizacao` do diagrama. Qualquer pessoa pode ver o próprio
-progresso; o de outro aluno é só tutor e admin.
+progresso; o de outro aluno é só professor e admin.
 
 ---
 
@@ -253,7 +253,7 @@ Onze mensagens, e nenhuma delas é "apagar e pronto".
 | `elegivelParaExclusao(true, dadosDetalhados)` | classe `ElegibilidadeExclusao` |
 | `solicitarConfirmacaoExclusao(dadosDetalhados)` | `Views/Shared/ConfirmarExclusao.cshtml` |
 | `confirmarExclusaoFinal(curso)` | `CursosController.Excluir` (POST) |
-| `confirmarIdentidadeEAcao(tutor, curso)` | `AutenticacaoService.ConfirmarIdentidade` |
+| `confirmarIdentidadeEAcao(professor, curso)` | `AutenticacaoService.ConfirmarIdentidade` |
 | `realizarExclusaoDefinitiva(curso)` | `CursoService.RemoverDefinitivamente` |
 | `removerDefinitivamente(curso)` | `BancoService.ExcluirCurso` |
 | `remocaoSucesso()` | retorno `bool` + `out afr_mensagem` |
@@ -402,7 +402,7 @@ vale ajustar no `.asta`:
    classes já implementadas podem ser desenhadas nele, com a herança
    `Usuario → Pessoa`.
 3. **Atores no diagrama de casos de uso** — os casos de uso estão lá, mas sem os
-   bonequinhos de Aluno, Tutor e Admin ligados a eles.
+   bonequinhos de Aluno, Professor e Admin ligados a eles.
 4. **Nomes do DS07 e do DS08** — hoje estão como "Criar Curso" e "Visualizar Curso",
    que não combinam com o conteúdo.
 

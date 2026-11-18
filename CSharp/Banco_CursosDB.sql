@@ -13,8 +13,8 @@
 
    VERSAO 2 - alinhada ao modelo do Astah. O que mudou em relacao a
    versao 1:
-     - Usuarios.Perfil passou a aceitar TUTOR (os diagramas DS07 a DS10
-       tem a linha de vida Tutor, nao Admin);
+     - Usuarios.Perfil passou a aceitar PROFESSOR (os diagramas DS07 a DS10
+       tem a linha de vida Professor, nao Admin);
      - Cursos.PercentualMinimo guarda o requisito de conclusao do curso
        (DS08 - obterRequisitosCurso / resultadoConclusao);
      - Aulas.Conteudo guarda o texto que o aluno le (DS05 - abrirAula /
@@ -23,6 +23,39 @@
        recuperacao de senha (DS02 - enviarCodigo / codigoEnviado);
      - tabela LogAcoes, para o historico de acoes do usuario
        (DS12 - buscarHistoricoAcoes / historicoAcoes).
+
+   VERSAO 3.1 - SINCRONIZADA COM O BANCO DA API (branch main)
+     - o terceiro perfil passou a se chamar PROFESSOR (era TUTOR), para
+       usar o mesmo vocabulario da API. Quem ja estava gravado como
+       TUTOR e convertido na secao 3;
+     - as tabelas de gamificacao sao agora as DELA, nao as minhas:
+       Gamificacao, Conquistas, UsuarioConquistas e HistoricoXP, mais
+       Matriculas e a coluna Cursos.ProfessorId. A versao 3.0 criava
+       uma dbo.Conquistas propria, com outro significado, que colidia
+       com a dela - os dois programas no mesmo banco se quebrariam;
+     - a coluna Senha passou a guardar HASH no formato scrypt da API
+       (scrypt:salt:hash), nao mais texto puro. A conversao e
+       automatica: no primeiro login certo de cada usuario o programa
+       regrava a senha ja em formato de hash. Por isso os INSERT da
+       secao 4 continuam com senha legivel - eles sao o ponto de
+       partida, nao o estado final. A API faz o mesmo com as contas
+       antigas, entao os dois lados convergem para o mesmo formato.
+
+   ---------------------------------------------------------------------
+   ATENCAO - NAO RODE ESTE SCRIPT NO BANCO DO AZURE
+   ---------------------------------------------------------------------
+   Este script monta o banco LOCAL do programa desktop e do site. O
+   banco em nuvem do grupo ja tem o esquema do aplicativo mobile, com
+   tabelas de mesmo proposito e estrutura diferente.
+
+   O item 3.3 da analise de integracao marca isso como critico: "nao
+   executar scripts de criacao independentes sobre o mesmo banco sem
+   comparacao de esquema e plano de migracao".
+
+   Os IF OBJECT_ID ... IS NULL evitam recriar o que ja existe, mas NAO
+   protegem contra os ALTER TABLE e o UPDATE da secao 3, que mexem em
+   tabela existente. Antes de apontar qualquer coisa para o Azure, o
+   grupo precisa comparar os dois esquemas e decidir qual vale.
 
    COMO RODAR NA MAO:
      SQL Server Management Studio -> conectar em (localdb)\MSSQLLocalDB
@@ -45,7 +78,7 @@ GO
 
 -- ---------------------------------------------------------------------
 -- Usuarios: quem entra no sistema.
--- Perfil define o que a pessoa ve: ALUNO, TUTOR ou ADMIN.
+-- Perfil define o que a pessoa ve: ALUNO, PROFESSOR ou ADMIN.
 -- O Email e UNIQUE: e isso que sustenta o verificarDuplicidade(email)
 -- do DS11. Mesmo que alguem burle a tela, o banco recusa o repetido.
 -- ---------------------------------------------------------------------
@@ -55,7 +88,7 @@ CREATE TABLE dbo.Usuarios (
     Nome         VARCHAR(100) NOT NULL,
     Email        VARCHAR(100) NOT NULL UNIQUE,   -- nao pode repetir
     Senha        VARCHAR(100) NOT NULL,
-    Perfil       VARCHAR(10)  NOT NULL,          -- ALUNO, TUTOR ou ADMIN
+    Perfil       VARCHAR(10)  NOT NULL,          -- ALUNO, PROFESSOR ou ADMIN
     Ativo        BIT          NOT NULL DEFAULT 1,
     DataCadastro DATETIME     NOT NULL DEFAULT GETDATE()
 );
@@ -153,6 +186,137 @@ CREATE TABLE dbo.LogAcoes (
 );
 GO
 
+-- ---------------------------------------------------------------------
+-- VERSAO 3.1 - GAMIFICACAO E MATRICULAS (esquema da API do grupo)
+-- ---------------------------------------------------------------------
+-- As tabelas abaixo sao copia fiel dos scripts da API, no branch main:
+--     sql/Etapa1_Professor.sql    -> Matriculas, Cursos.ProfessorId
+--     sql/Etapa4_Gamificacao.sql  -> as quatro de gamificacao
+--
+-- POR QUE ESTAO AQUI, SE JA EXISTEM LA
+-- Para o desktop e o site funcionarem sozinhos, sem depender de alguem
+-- ter rodado os scripts da API antes. Os IF OBJECT_ID garantem que, se
+-- a API ja criou, aqui nao se recria nada.
+--
+-- A VERSAO 3.0 TINHA UM PROBLEMA GRAVE AQUI
+-- Ela criava uma dbo.Conquistas propria, com (Id, UsuarioId, Codigo,
+-- DataHora) - "a medalha que um aluno ganhou". A da API tem o mesmo
+-- nome e outro significado: (Id, Codigo, Nome, Descricao, Icone,
+-- XPBonus), o CATALOGO das medalhas que existem. No mesmo banco, quem
+-- criasse primeiro quebraria o outro. Agora ha um esquema so, o da API.
+-- ---------------------------------------------------------------------
+
+-- Matriculas: em quais cursos o aluno esta inscrito
+IF OBJECT_ID('dbo.Matriculas','U') IS NULL
+CREATE TABLE dbo.Matriculas (
+    Id            INT IDENTITY(1,1) PRIMARY KEY,
+    UsuarioId     INT      NOT NULL,
+    CursoId       INT      NOT NULL,
+    DataMatricula DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT UQ_Matriculas_Usuario_Curso UNIQUE (UsuarioId, CursoId)
+);
+GO
+
+-- Qual professor responde pelo curso
+IF COL_LENGTH('dbo.Cursos','ProfessorId') IS NULL
+    ALTER TABLE dbo.Cursos ADD ProfessorId INT NULL;
+GO
+
+-- Gamificacao: XP e sequencia de dias, uma linha por usuario.
+-- O NIVEL nao fica aqui: e calculado a partir do XP (XP / 100 + 1),
+-- a mesma conta que a API faz, para nunca divergirem.
+IF OBJECT_ID('dbo.Gamificacao','U') IS NULL
+CREATE TABLE dbo.Gamificacao (
+    UsuarioId       INT  NOT NULL PRIMARY KEY,
+    XP              INT  NOT NULL CONSTRAINT DF_Gamificacao_XP DEFAULT 0,
+    SequenciaAtual  INT  NOT NULL CONSTRAINT DF_Gamificacao_Sequencia DEFAULT 0,
+    MelhorSequencia INT  NOT NULL CONSTRAINT DF_Gamificacao_MelhorSequencia DEFAULT 0,
+    UltimaAtividade DATE NULL,
+    CONSTRAINT FK_Gamificacao_Usuarios FOREIGN KEY (UsuarioId)
+        REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE
+);
+GO
+
+-- Conquistas: o CATALOGO das medalhas que existem
+IF OBJECT_ID('dbo.Conquistas','U') IS NULL
+CREATE TABLE dbo.Conquistas (
+    Id        INT IDENTITY(1,1) PRIMARY KEY,
+    Codigo    NVARCHAR(50)  NOT NULL UNIQUE,
+    Nome      NVARCHAR(100) NOT NULL,
+    Descricao NVARCHAR(300) NOT NULL,
+    Icone     NVARCHAR(20)  NOT NULL,
+    XPBonus   INT           NOT NULL CONSTRAINT DF_Conquistas_XPBonus DEFAULT 0
+);
+GO
+
+-- UsuarioConquistas: quais medalhas cada aluno ganhou
+IF OBJECT_ID('dbo.UsuarioConquistas','U') IS NULL
+CREATE TABLE dbo.UsuarioConquistas (
+    Id            INT IDENTITY(1,1) PRIMARY KEY,
+    UsuarioId     INT      NOT NULL,
+    ConquistaId   INT      NOT NULL,
+    DataConquista DATETIME NOT NULL CONSTRAINT DF_UsuarioConquistas_Data DEFAULT GETDATE(),
+    CONSTRAINT UQ_UsuarioConquistas UNIQUE (UsuarioId, ConquistaId),
+    CONSTRAINT FK_UsuarioConquistas_Usuarios FOREIGN KEY (UsuarioId)
+        REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_UsuarioConquistas_Conquistas FOREIGN KEY (ConquistaId)
+        REFERENCES dbo.Conquistas(Id) ON DELETE CASCADE
+);
+GO
+
+-- HistoricoXP: uma linha por ganho de XP.
+--
+-- UQ_HistoricoXP_Evento e a peca central da idempotencia pedida no
+-- item 3.4 da analise de integracao: ela impede, NO BANCO, que a mesma
+-- aula pague XP duas vezes. Como a regra mora aqui e nao no programa,
+-- vale igual para o desktop, para o site e para o celular.
+IF OBJECT_ID('dbo.HistoricoXP','U') IS NULL
+CREATE TABLE dbo.HistoricoXP (
+    Id             INT IDENTITY(1,1) PRIMARY KEY,
+    UsuarioId      INT           NOT NULL,
+    Quantidade     INT           NOT NULL,
+    Motivo         NVARCHAR(200) NOT NULL,
+    ReferenciaTipo NVARCHAR(30)  NOT NULL,
+    ReferenciaId   INT           NOT NULL,
+    DataRegistro   DATETIME      NOT NULL CONSTRAINT DF_HistoricoXP_Data DEFAULT GETDATE(),
+    CONSTRAINT FK_HistoricoXP_Usuarios FOREIGN KEY (UsuarioId)
+        REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE,
+    CONSTRAINT UQ_HistoricoXP_Evento UNIQUE (UsuarioId, ReferenciaTipo, ReferenciaId)
+);
+GO
+
+-- ---------------------------------------------------------------------
+-- AS CINCO MEDALHAS DO CATALOGO
+-- ---------------------------------------------------------------------
+-- Codigos, nomes, descricoes, icones e bonus identicos aos de
+-- sql/Etapa4_Gamificacao.sql. Se divergissem, a mesma medalha valeria
+-- XP diferente no celular e no desktop.
+-- ---------------------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM dbo.Conquistas WHERE Codigo = 'PRIMEIRA_AULA')
+    INSERT dbo.Conquistas (Codigo, Nome, Descricao, Icone, XPBonus)
+    VALUES ('PRIMEIRA_AULA', 'Primeiros passos', 'Conclua sua primeira aula.', N'🎯', 20);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Conquistas WHERE Codigo = 'CINCO_AULAS')
+    INSERT dbo.Conquistas (Codigo, Nome, Descricao, Icone, XPBonus)
+    VALUES ('CINCO_AULAS', 'Ritmo de estudos', 'Conclua cinco aulas.', N'📚', 30);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Conquistas WHERE Codigo = 'DEZ_AULAS')
+    INSERT dbo.Conquistas (Codigo, Nome, Descricao, Icone, XPBonus)
+    VALUES ('DEZ_AULAS', 'Estudante dedicado', 'Conclua dez aulas.', N'🏅', 50);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Conquistas WHERE Codigo = 'PRIMEIRO_CURSO')
+    INSERT dbo.Conquistas (Codigo, Nome, Descricao, Icone, XPBonus)
+    VALUES ('PRIMEIRO_CURSO', 'Curso concluído', 'Conclua todas as aulas de um curso.', N'🎓', 100);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Conquistas WHERE Codigo = 'SEQUENCIA_7')
+    INSERT dbo.Conquistas (Codigo, Nome, Descricao, Icone, XPBonus)
+    VALUES ('SEQUENCIA_7', 'Uma semana de foco', 'Estude por sete dias consecutivos.', N'🔥', 75);
+GO
+
 -- =====================================================================
 -- 3) MIGRACAO DA VERSAO 1 PARA A VERSAO 2
 -- ---------------------------------------------------------------------
@@ -172,9 +336,16 @@ IF COL_LENGTH('dbo.Aulas','Conteudo') IS NULL
 GO
 
 -- A versao 1 tinha Perfil VARCHAR(5), que cabia ADMIN e ALUNO mas nao
--- cabe TUTOR. Este ALTER alarga a coluna.
+-- cabe PROFESSOR. Este ALTER alarga a coluna.
 IF COL_LENGTH('dbo.Usuarios','Perfil') < 10
     ALTER TABLE dbo.Usuarios ALTER COLUMN Perfil VARCHAR(10) NOT NULL;
+GO
+
+-- A versao 2 chamava o terceiro perfil de TUTOR. A versao 3 renomeou para
+-- PROFESSOR, para usar o mesmo vocabulario da API do grupo. Quem ja estava
+-- gravado como TUTOR precisa ser convertido, senao fica sem permissao
+-- nenhuma: o valor no banco nao casaria com nenhuma constante do programa.
+UPDATE dbo.Usuarios SET Perfil = 'PROFESSOR' WHERE Perfil = 'TUTOR';
 GO
 
 -- =====================================================================
@@ -188,17 +359,17 @@ IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios)
 BEGIN
     INSERT INTO dbo.Usuarios (Nome, Email, Senha, Perfil) VALUES
         ('Administrador do Sistema','admin@escola.com','admin123','ADMIN'),
-        ('Carla Mendes',            'carla@escola.com','tutor123','TUTOR'),
+        ('Carla Mendes',            'carla@escola.com','professor123','PROFESSOR'),
         ('Maria Souza',             'maria@escola.com','aluno123','ALUNO'),
         ('Joao Lima',               'joao@escola.com', 'aluno123','ALUNO');
 END
 GO
 
--- Quem veio da versao 1 tem os usuarios, mas nao tem o tutor.
-IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE Perfil = 'TUTOR')
+-- Quem veio da versao 1 tem os usuarios, mas nao tem o professor.
+IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE Perfil = 'PROFESSOR')
 BEGIN
     INSERT INTO dbo.Usuarios (Nome, Email, Senha, Perfil) VALUES
-        ('Carla Mendes','carla@escola.com','tutor123','TUTOR');
+        ('Carla Mendes','carla@escola.com','professor123','PROFESSOR');
 END
 GO
 

@@ -110,7 +110,7 @@ namespace PlataformaCursos
             if (afr_aula.afr_Conteudo.Trim() == "")
             {
                 afr_txtConteudo.Text = "Esta aula ainda nao tem conteudo cadastrado. "
-                                     + "O tutor pode escrever o conteudo na tela de cursos.";
+                                     + "O professor pode escrever o conteudo na tela de cursos.";
             }
             else
             {
@@ -165,12 +165,18 @@ namespace PlataformaCursos
             bool afr_novoEstado = !afr_aula.afr_Concluida;
 
             // atualizarProgresso(aluno, aula) -> salvarProgresso(progresso)
+            //
+            // VERSAO 3 - a sobrecarga com afr_ganho devolve TAMBEM o XP e
+            // as conquistas que a acao rendeu, para avisar o aluno na hora.
             string afr_mensagem;
+            GanhoGamificacao afr_ganho;
+
             bool afr_ok = afr_progressoService.AtualizarProgresso(
                               Sessao.ObterUsuarioId(),
                               afr_aula.afr_Id,
                               afr_novoEstado,
-                              out afr_mensagem);
+                              out afr_mensagem,
+                              out afr_ganho);
 
             if (!afr_ok)
             {
@@ -186,6 +192,22 @@ namespace PlataformaCursos
 
             afr_lblStatus.ForeColor = System.Drawing.Color.SeaGreen;
             afr_lblStatus.Text = afr_mensagem;
+
+            // VERSAO 3 - o aviso do que foi ganho.
+            // ObterMensagem() devolve "" quando nao houve nada de novo
+            // (aula ja concluida antes, ou desmarcacao), e ai a linha
+            // fica vazia em vez de mostrar "+0 XP".
+            string afr_avisoGanho = afr_ganho.ObterMensagem();
+
+            if (afr_avisoGanho != "")
+            {
+                afr_lblGanho.ForeColor = System.Drawing.Color.DarkViolet;
+                afr_lblGanho.Text = afr_avisoGanho;
+            }
+            else
+            {
+                afr_lblGanho.Text = "";
+            }
 
             // exibirConclusao(): depois de mexer no progresso o sistema
             // conta como esta o curso inteiro. Se bateu o minimo exigido,

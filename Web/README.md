@@ -1,5 +1,13 @@
 # Plataforma de Cursos Online — versão web
 
+> **Versão 3.1 (18/11/2026):** este projeto foi sincronizado com o código da API,
+> que está no branch `main` deste repositório. Perfil `TUTOR` virou `PROFESSOR`, a
+> senha virou hash scrypt no formato da API, o esquema de gamificação passou a ser
+> o dela (`Gamificacao`, `Conquistas`, `UsuarioConquistas`, `HistoricoXP`,
+> `Matriculas`), e há um cliente HTTP pronto e desligado. O relato completo está em
+> [../Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md](../Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md).
+
+
 > Faz parte do [repositório do grupo](../README.md). O mesmo sistema em Windows Forms está em [`../CSharp/`](../CSharp/).
 
 Mesmo sistema do projeto desktop, feito em **ASP.NET Core MVC 8**. Nasceu da mesma modelagem UML do grupo (`Projeto_UML.asta`) e atende os mesmos 14 diagramas de sequência.
@@ -53,7 +61,7 @@ ao lado e escolha `http`.
 | Perfil | Email | Senha | O que pode fazer |
 |---|---|---|---|
 | Administrador | `admin@escola.com` | `admin123` | tudo |
-| Tutor | `carla@escola.com` | `tutor123` | cursos, aulas e progresso dos alunos |
+| Professor | `carla@escola.com` | `professor123` | cursos, aulas e progresso dos alunos |
 | Aluno | `maria@escola.com` | `aluno123` | catálogo e as próprias aulas |
 | Aluno | `joao@escola.com` | `aluno123` | catálogo e as próprias aulas |
 
@@ -62,7 +70,7 @@ O menu do topo mostra só as áreas que o perfil alcança:
 | | Catálogo | Cursos e Aulas | Progresso | Usuários |
 |---|---|---|---|---|
 | **Aluno** | ✓ | | | |
-| **Tutor** | ✓ | ✓ | ✓ | |
+| **Professor** | ✓ | ✓ | ✓ | |
 | **Admin** | ✓ | ✓ | ✓ | ✓ |
 
 > Abra **duas janelas do navegador** (uma delas anônima) e entre com dois usuários diferentes ao mesmo tempo. Cada janela mantém o seu próprio login. Isso não funcionaria no desktop — e é o assunto da seção seguinte.
@@ -135,7 +143,7 @@ PlataformaCursosWeb/
 
 | Página | Diagramas | Novidade na versão 2 |
 |---|---|---|
-| `Conta/Login` | DS01 | credencial do tutor |
+| `Conta/Login` | DS01 | credencial do professor |
 | `Conta/RecuperarSenha` | DS02 | **três etapas, com código de 6 dígitos** |
 | `Conta/CaixaDeEntrada` | DS02 | **nova** — a caixa de entrada simulada |
 | `Conta/AcessoNegado` | — | tabela dos três perfis |
@@ -146,9 +154,9 @@ PlataformaCursosWeb/
 | `Cursos/Index` | — | coluna do percentual mínimo |
 | `Cursos/Form` | DS09 | campo do percentual mínimo |
 | `Cursos/Aulas` | DS05 | conteúdo da aula, e destaque das que faltam |
-| `Cursos/AulaForm` | DS05 | **nova** — o tutor escreve o conteúdo |
-| `Progresso/Index` | DS07 | **nova** — o tutor acompanha os alunos |
-| `Usuarios/Index` | — | perfil TUTOR e botão de perfil |
+| `Cursos/AulaForm` | DS05 | **nova** — o professor escreve o conteúdo |
+| `Progresso/Index` | DS07 | **nova** — o professor acompanha os alunos |
+| `Usuarios/Index` | — | perfil PROFESSOR e botão de perfil |
 | `Usuarios/Form` | DS11, DS13 | três perfis no `<select>` |
 | `Usuarios/Perfil` | DS12 | **nova** — histórico em três listas |
 | `Shared/ConfirmarExclusao` | DS10, DS14 | **nova** — exclusão em duas etapas |

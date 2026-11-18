@@ -35,9 +35,9 @@ programa acrescenta sozinho o que faltava, sem perder nenhum dado:
 
   - a coluna PercentualMinimo na tabela Cursos;
   - a coluna Conteudo na tabela Aulas;
-  - o alargamento da coluna Perfil, que antes nao cabia TUTOR;
+  - o alargamento da coluna Perfil, que antes nao cabia PROFESSOR;
   - as tabelas CodigosRecuperacao e LogAcoes;
-  - o usuario tutor (carla@escola.com).
+  - o usuario professor (carla@escola.com).
 
 Isso fica no metodo MigrarEstrutura, do BancoService.cs. Rodar duas
 vezes nao faz diferenca: cada ALTER so acontece uma vez.
@@ -67,8 +67,8 @@ USUARIOS JA CADASTRADOS (criados automaticamente)
     Perfil ADMIN  - pode tudo
       email: admin@escola.com      senha: admin123
 
-    Perfil TUTOR  - cursos, aulas e progresso dos alunos
-      email: carla@escola.com      senha: tutor123
+    Perfil PROFESSOR  - cursos, aulas e progresso dos alunos
+      email: carla@escola.com      senha: professor123
 
     Perfil ALUNO  - catalogo e as proprias aulas
       email: maria@escola.com      senha: aluno123
@@ -82,7 +82,7 @@ O QUE CADA PERFIL VE NO MENU
 ---------------------------------------------------------------------
                       Catalogo   Cursos e Aulas   Progresso   Usuarios
     ALUNO                sim           -              -           -
-    TUTOR                sim          sim            sim          -
+    PROFESSOR                sim          sim            sim          -
     ADMIN                sim          sim            sim         sim
 
 Quem decide isso sao os metodos PodeGerenciarCursos,
@@ -99,9 +99,9 @@ AS DEZ TELAS
  FrmPrincipal ......... menu com as tres areas de perfil
  FrmCatalogo .......... cursos, busca com filtros, aulas, progresso
  FrmAula .............. NOVA: conteudo da aula e botao de concluir
- FrmCursos ............ CRUD de cursos e de aulas (tutor e admin)
+ FrmCursos ............ CRUD de cursos e de aulas (professor e admin)
  FrmUsuarios .......... CRUD de usuarios (admin)
- FrmProgressoAlunos ... NOVA: tutor acompanha o progresso dos alunos
+ FrmProgressoAlunos ... NOVA: professor acompanha o progresso dos alunos
  FrmPerfilUsuario ..... NOVA: perfil do usuario com historico de acoes
  FrmConfirmarExclusao . NOVA: confirmacao de exclusao com senha
 

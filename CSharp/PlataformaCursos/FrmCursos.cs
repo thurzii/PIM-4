@@ -11,9 +11,9 @@
 
    O QUE MUDOU POR CAUSA DO MODELO:
 
-   1) Quem entra aqui agora e o TUTOR (e o admin, que pode tudo). Os
-      diagramas DS09 e DS10 tem a linha de vida "Tutor", nao "Admin".
-      A tela confere isso com VerificarPermissaoTutor.
+   1) Quem entra aqui agora e o PROFESSOR (e o admin, que pode tudo). Os
+      diagramas DS09 e DS10 tem a linha de vida "Professor", nao "Admin".
+      A tela confere isso com VerificarPermissaoProfessor.
 
    2) DS10 nao exclui com um clique. A ordem do modelo e:
       solicitarExclusao -> verificarElegibilidadeExclusao ->
@@ -69,10 +69,10 @@ namespace PlataformaCursos
         // =============================================================
         private void FrmCursos_Load(object sender, EventArgs e)
         {
-            // DS09 e DS10 - quem gerencia curso e o tutor (ou o admin)
+            // DS09 e DS10 - quem gerencia curso e o professor (ou o admin)
             string afr_mensagem;
 
-            if (!afr_cursoService.VerificarPermissaoTutor(out afr_mensagem))
+            if (!afr_cursoService.VerificarPermissaoProfessor(out afr_mensagem))
             {
                 MessageBox.Show(afr_mensagem, "Acesso",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -176,7 +176,7 @@ namespace PlataformaCursos
 
             // solicitarConfirmacaoExclusao(dadosDetalhados)
             // A tela de confirmacao mostra a lista detalhada e pede a
-            // senha do tutor (confirmarIdentidadeEAcao).
+            // senha do professor (confirmarIdentidadeEAcao).
             FrmConfirmarExclusao afr_confirmacao = new FrmConfirmarExclusao(
                 "Excluir o curso \"" + afr_txtTitulo.Text + "\" (Id " + afr_idSelecionado + ")",
                 afr_elegibilidade);
@@ -212,7 +212,7 @@ namespace PlataformaCursos
 
         // =============================================================
         // EVENTO - BOTAO BUSCAR
-        // O tutor usa LocalizarCurso, que traz tambem os inativos.
+        // O professor usa LocalizarCurso, que traz tambem os inativos.
         // =============================================================
         private void afr_btnBuscar_Click(object sender, EventArgs e)
         {
@@ -463,7 +463,7 @@ namespace PlataformaCursos
 
             afr_lstCursos.Items.Clear();
 
-            // O tutor enxerga cursos ativos E inativos. O objeto de
+            // O professor enxerga cursos ativos E inativos. O objeto de
             // filtro e o mesmo do DS04, com SomenteAtivos desligado.
             FiltroCurso afr_filtro = new FiltroCurso();
 
@@ -516,7 +516,7 @@ namespace PlataformaCursos
                 return;
             }
 
-            // Passa 0 no usuario: o tutor nao tem progresso a mostrar
+            // Passa 0 no usuario: o professor nao tem progresso a mostrar
             List<Aula> afr_aulas = afr_aulaService.ListarAulas(afr_cursoId, 0);
 
             foreach (Aula afr_aula in afr_aulas)
@@ -527,7 +527,7 @@ namespace PlataformaCursos
                 afr_item.SubItems.Add(afr_aula.afr_Titulo);
                 afr_item.SubItems.Add(afr_aula.afr_DuracaoMin + " min");
 
-                // Aula sem conteudo fica em laranja: assim o tutor ve
+                // Aula sem conteudo fica em laranja: assim o professor ve
                 // de longe o que ainda falta escrever.
                 if (afr_aula.afr_Conteudo.Trim() == "")
                 {

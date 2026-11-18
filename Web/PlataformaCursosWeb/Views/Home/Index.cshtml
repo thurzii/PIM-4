@@ -4,7 +4,7 @@
 
     TRES AREAS, uma por ator dos diagramas de sequencia:
       Aluno .. catalogo e as proprias aulas
-      Tutor .. cursos e aulas, e o progresso dos alunos
+      Professor .. cursos e aulas, e o progresso dos alunos
       Admin .. usuarios
 
     Cada area so aparece para quem tem a permissao. As propriedades
@@ -23,9 +23,9 @@
     {
         afr_classeEtiqueta = "etiqueta-admin";
     }
-    else if (Model.afr_EhTutor)
+    else if (Model.afr_EhProfessor)
     {
-        afr_classeEtiqueta = "etiqueta-tutor";
+        afr_classeEtiqueta = "etiqueta-professor";
     }
 }
 
@@ -64,6 +64,83 @@
     }
 </div>
 
+@* ---------------------------------------------------------------- *@
+@* VERSAO 3 - PAINEL DE GAMIFICACAO                                  *@
+@*                                                                   *@
+@* Aparece para todo perfil, inclusive professor e admin: eles        *@
+@* tambem podem cursar. Para quem nunca concluiu nada mostra o nivel  *@
+@* 1 com a barra zerada, em vez de esconder o painel - o aluno        *@
+@* precisa ver que existe algo a conquistar.                          *@
+@*                                                                   *@
+@* As variaveis sao montadas ANTES do HTML de proposito: expressao    *@
+@* de varias linhas dentro de atributo Razor da problema.             *@
+@* ---------------------------------------------------------------- *@
+@{
+    var afr_pontuacao = Model.afr_Pontuacao;
+    int afr_percentual = afr_pontuacao.ObterPercentualDoNivel();
+    string afr_larguraBarra = afr_percentual + "%";
+
+    // VERSAO 3.1 - a lista ja vem do banco com o CATALOGO inteiro e a
+    // marca de quais o aluno tem, entao nao ha mais o que montar aqui.
+    var afr_todasConquistas = afr_pontuacao.afr_Conquistas;
+}
+
+<div class="cartao painel-xp" style="margin-bottom:24px;">
+    <div class="xp-topo">
+        <div>
+            <div class="xp-nivel">
+                Nivel @afr_pontuacao.ObterNivel() &mdash; @afr_pontuacao.ObterTituloDoNivel()
+            </div>
+            <div class="xp-detalhe">
+                @afr_pontuacao.afr_XpTotal XP &nbsp;|&nbsp;
+                faltam @afr_pontuacao.ObterXpParaProximoNivel()
+                para o nivel @(afr_pontuacao.ObterNivel() + 1)
+            </div>
+
+            @* VERSAO 3.1 - sequencia de dias seguidos, vinda da API.
+               So a partir de 2 dias: "1 dia seguido" nao e sequencia. *@
+            @if (afr_pontuacao.afr_SequenciaAtual >= 2)
+            {
+                <div class="xp-sequencia">
+                    @afr_pontuacao.afr_SequenciaAtual dias seguidos
+                    <span class="xp-recorde">
+                        (recorde: @afr_pontuacao.afr_MelhorSequencia)
+                    </span>
+                </div>
+            }
+        </div>
+
+        <div class="xp-contagem">
+            @afr_pontuacao.afr_AulasConcluidas aula(s) &middot;
+            @afr_pontuacao.afr_CursosConcluidos curso(s)
+        </div>
+    </div>
+
+    <div class="xp-barra">
+        <div class="xp-barra-cheia" style="width:@afr_larguraBarra"></div>
+    </div>
+
+    @* As conquistas que faltam aparecem apagadas, nao escondidas:   *@
+    @* saber o que da para ganhar e metade da graca.                 *@
+    <div class="xp-conquistas">
+        @foreach (var afr_medalha in afr_todasConquistas)
+        {
+            @* O titulo mostra a descricao e quanto XP a medalha vale,
+               tanto nas ganhas quanto nas que faltam. *@
+            string afr_classe = afr_medalha.afr_Conquistada
+                ? "medalha medalha-ganha"
+                : "medalha medalha-falta";
+
+            string afr_dica = afr_medalha.afr_Descricao +
+                              " (+" + afr_medalha.afr_XpBonus + " XP)";
+
+            <span class="@afr_classe" title="@afr_dica">
+                @afr_medalha.afr_Icone @afr_medalha.afr_Nome
+            </span>
+        }
+    </div>
+</div>
+
 <div class="grade grade-2">
 
     @* ------------------------------------------------------------ *@
@@ -82,13 +159,13 @@
     </div>
 
     @* ------------------------------------------------------------ *@
-    @* AREA DO TUTOR - tutor e admin                                 *@
-    @* DS07 a DS10: a linha de vida desses diagramas e o Tutor        *@
+    @* AREA DO PROFESSOR - professor e admin                                 *@
+    @* DS07 a DS10: a linha de vida desses diagramas e o Professor        *@
     @* ------------------------------------------------------------ *@
     @if (Model.afr_PodeGerenciarCursos)
     {
         <div class="cartao">
-            <h3>Area do Tutor</h3>
+            <h3>Area do Professor</h3>
             <p class="ajuda">
                 Cadastre cursos e aulas, escreva o conteudo de cada aula
                 e acompanhe o andamento dos alunos.

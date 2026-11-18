@@ -4,11 +4,11 @@
    Autor.....: Arthur Fernandes Reis (prefixo afr_)
    ---------------------------------------------------------------------
    Esta tela mostra opcoes DIFERENTES conforme quem entrou. O modelo
-   do Astah tem tres atores nos diagramas de sequencia (Aluno, Tutor e
+   do Astah tem tres atores nos diagramas de sequencia (Aluno, Professor e
    Admin), entao o menu tem tres areas:
 
      ALUNO -> Area do Aluno
-     TUTOR -> Area do Aluno + Area do Tutor
+     PROFESSOR -> Area do Aluno + Area do Professor
      ADMIN -> as tres areas (o admin pode tudo)
 
    Quem decide o que aparece sao os metodos da classe Sessao, que por
@@ -21,6 +21,7 @@
    ===================================================================== */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -30,6 +31,9 @@ namespace PlataformaCursos
     {
         private BancoService afr_bancoService = new BancoService();
         private AutenticacaoService afr_autenticacaoService = new AutenticacaoService();
+
+        // VERSAO 3 - para montar o painel de XP e conquistas
+        private GamificacaoService afr_gamificacaoService = new GamificacaoService();
 
         // =============================================================
         // CONSTRUTOR - monta o menu conforme o perfil do usuario
@@ -72,12 +76,12 @@ namespace PlataformaCursos
                                  ".  |  Cadastro desde " +
                                  afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy") + ".";
 
-            // Area do aluno: todo mundo tem. O tutor e o admin tambem
+            // Area do aluno: todo mundo tem. O professor e o admin tambem
             // podem navegar no catalogo como qualquer pessoa.
             afr_grpAluno.Visible = true;
 
-            // Area do tutor: tutor e admin
-            afr_grpTutor.Visible = Sessao.PodeGerenciarCursos();
+            // Area do professor: professor e admin
+            afr_grpProfessor.Visible = Sessao.PodeGerenciarCursos();
 
             // Area de administracao: somente admin
             afr_grpAdmin.Visible = Sessao.PodeGerenciarUsuarios();
@@ -89,9 +93,9 @@ namespace PlataformaCursos
                 afr_lblStatus.Text = "Perfil ADMIN: catalogo, cursos, progresso dos alunos e usuarios.  "
                                    + afr_bancoService.ObterDescricao();
             }
-            else if (Sessao.EhTutor())
+            else if (Sessao.EhProfessor())
             {
-                afr_lblStatus.Text = "Perfil TUTOR: catalogo, cursos e aulas, e progresso dos alunos.  "
+                afr_lblStatus.Text = "Perfil PROFESSOR: catalogo, cursos e aulas, e progresso dos alunos.  "
                                    + afr_bancoService.ObterDescricao();
             }
             else
@@ -99,6 +103,71 @@ namespace PlataformaCursos
                 afr_lblStatus.Text = "Perfil ALUNO: catalogo de cursos e as suas aulas.  "
                                    + afr_bancoService.ObterDescricao();
             }
+
+            // VERSAO 3 - painel de XP, nivel e conquistas
+            MostrarPontuacao(afr_usuario.afr_Id);
+        }
+
+        // =============================================================
+        // VERSAO 3 - PAINEL DE GAMIFICACAO
+        //
+        // Aparece para todo mundo, inclusive professor e admin: eles
+        // tambem podem cursar. Para quem nunca concluiu nada, mostra o
+        // nivel 1 com a barra zerada, em vez de esconder o painel - o
+        // aluno precisa ver que existe algo a conquistar.
+        // =============================================================
+        private void MostrarPontuacao(int afr_usuarioId)
+        {
+            Pontuacao afr_pontuacao = afr_gamificacaoService.ObterPontuacao(afr_usuarioId);
+
+            afr_lblNivel.Text = "Nivel " + afr_pontuacao.ObterNivel() +
+                                " - " + afr_pontuacao.ObterTituloDoNivel();
+
+            string afr_textoXp = afr_pontuacao.afr_XpTotal + " XP  |  faltam " +
+                                 afr_pontuacao.ObterXpParaProximoNivel() +
+                                 " para o nivel " + (afr_pontuacao.ObterNivel() + 1);
+
+            // VERSAO 3.1 - sequencia de dias seguidos, vinda da API.
+            // So aparece a partir de 2 dias: "1 dia seguido" nao e
+            // sequencia nenhuma e so ocuparia espaco.
+            if (afr_pontuacao.afr_SequenciaAtual >= 2)
+            {
+                afr_textoXp = afr_textoXp + "  |  " +
+                              afr_pontuacao.afr_SequenciaAtual + " dias seguidos" +
+                              " (recorde: " + afr_pontuacao.afr_MelhorSequencia + ")";
+            }
+
+            afr_lblXp.Text = afr_textoXp;
+
+            // A barra do Windows Forms vai de 0 a 100, que e exatamente
+            // a escala que ObterPercentualDoNivel devolve.
+            afr_barraNivel.Value = afr_pontuacao.ObterPercentualDoNivel();
+
+            // Mostra os NOMES das medalhas, nao so a contagem: "3 de 5"
+            // sozinho nao diz ao aluno o que ele conquistou.
+            //
+            // VERSAO 3.1 - a lista agora traz o CATALOGO inteiro, com
+            // afr_Conquistada marcando quais ele tem. Por isso o filtro.
+            List<string> afr_nomes = new List<string>();
+
+            foreach (Conquista afr_item in afr_pontuacao.afr_Conquistas)
+            {
+                if (afr_item.afr_Conquistada)
+                {
+                    afr_nomes.Add(afr_item.afr_Nome);
+                }
+            }
+
+            string afr_texto = "Conquistas: " +
+                               afr_pontuacao.ContarConquistadas() + " de " +
+                               afr_pontuacao.afr_Conquistas.Count;
+
+            if (afr_nomes.Count > 0)
+            {
+                afr_texto = afr_texto + " - " + string.Join(", ", afr_nomes);
+            }
+
+            afr_lblConquistas.Text = afr_texto;
         }
 
         // =============================================================

@@ -39,12 +39,31 @@ namespace PlataformaCursos
         private const string afr_PASTA = "dados";
         private const string afr_ARQUIVO = "emails.txt";
 
-        private static readonly Random afr_sorteio = new Random();
-
-        // Gera um codigo de 6 digitos
+        // -------------------------------------------------------------
+        // Gera o codigo de 6 digitos da recuperacao de senha.
+        //
+        // VERSAO 3 - trocado Random por RandomNumberGenerator.
+        //
+        // POR QUE: Random e um gerador PREVISIVEL. Ele e semeado pelo
+        // relogio, entao quem souber mais ou menos a hora em que o
+        // codigo foi pedido consegue reproduzir a sequencia e descobrir
+        // o numero. Para sortear a ordem de um exercicio isso nao tem
+        // importancia nenhuma; para um codigo que troca a senha de
+        // alguem, tem. RandomNumberGenerator e o gerador criptografico
+        // do .NET e nao da para prever.
+        //
+        // O item 3.5 da analise de integracao do grupo pede "um unico
+        // fluxo aprovado (... ou token de recuperacao com prazo)". Este
+        // e o fluxo escolhido: codigo sorteado, valido por
+        // MINUTOS_VALIDADE_CODIGO minutos e queimado depois do uso.
+        // -------------------------------------------------------------
         public string GerarCodigo()
         {
-            return afr_sorteio.Next(100000, 999999).ToString();
+            // 100000 a 999999: sempre 6 digitos, nunca comecando com zero
+            int afr_numero = System.Security.Cryptography.RandomNumberGenerator
+                                 .GetInt32(100000, 1000000);
+
+            return afr_numero.ToString();
         }
 
         // DS02 - enviarCodigo(email)
@@ -168,7 +187,13 @@ namespace PlataformaCursos
             }
 
             // DS01 - buscarUsuario(email)
-            Usuario afr_usuario = afr_bancoService.BuscarUsuarioPorEmail(afr_email.Trim());
+            //
+            // VERSAO 3.1 - email sempre em minusculas.
+            // A API grava e procura com email.trim().toLowerCase(), entao
+            // um usuario gravado aqui como "Maria@Escola.com" nao seria
+            // encontrado pelo celular. Normalizar nos dois lados resolve.
+            Usuario afr_usuario = afr_bancoService.BuscarUsuarioPorEmail(
+                                      NormalizarEmail(afr_email));
 
             if (afr_usuario == null)
             {
@@ -177,7 +202,13 @@ namespace PlataformaCursos
                 return null;
             }
 
-            if (afr_usuario.afr_Senha != afr_senha)
+            // VERSAO 3 - a senha nao e mais comparada como texto.
+            // Conferir() refaz o calculo com a senha digitada e compara os
+            // resultados. afr_senhaEraTexto volta true quando o banco ainda
+            // guardava a senha antiga, em texto puro.
+            bool afr_senhaEraTexto;
+
+            if (!SenhaHash.Conferir(afr_senha, afr_usuario.afr_Senha, out afr_senhaEraTexto))
             {
                 afr_mensagem = "Email ou senha incorretos.";
                 return null;
@@ -187,6 +218,23 @@ namespace PlataformaCursos
             {
                 afr_mensagem = "Este usuario esta inativo. Procure o administrador.";
                 return null;
+            }
+
+            // Banco da versao 2: a senha estava certa, mas gravada em texto.
+            // Aproveita este login para converter em hash. O banco vai se
+            // convertendo sozinho, um usuario por login, sem ninguem ficar
+            // trancado para fora.
+            if (afr_senhaEraTexto)
+            {
+                string afr_hashNovo = SenhaHash.Gerar(afr_senha);
+                string afr_avisoConversao;
+
+                if (afr_bancoService.AtualizarSenha(afr_usuario.afr_Email,
+                                                    afr_hashNovo,
+                                                    out afr_avisoConversao))
+                {
+                    afr_usuario.afr_Senha = afr_hashNovo;
+                }
             }
 
             // DS01 - acessoPermitido(): abre a sessao e registra no historico
@@ -211,6 +259,23 @@ namespace PlataformaCursos
             }
 
             Sessao.Encerrar();
+        }
+
+        // -------------------------------------------------------------
+        // VERSAO 3.1 - deixa o email no mesmo formato que a API usa.
+        //
+        // A API faz email.trim().toLowerCase() ao gravar e ao procurar.
+        // Sem isto, o mesmo endereco digitado com maiuscula viraria um
+        // usuario diferente, e o login falharia sem explicacao.
+        // -------------------------------------------------------------
+        public static string NormalizarEmail(string afr_email)
+        {
+            if (afr_email == null)
+            {
+                return "";
+            }
+
+            return afr_email.Trim().ToLowerInvariant();
         }
 
         // -------------------------------------------------------------
@@ -330,9 +395,9 @@ namespace PlataformaCursos
                 return false;
             }
 
-            if (afr_novaSenha.Length < 6)
+            if (afr_novaSenha.Length < 8)
             {
-                afr_mensagem = "A nova senha precisa ter pelo menos 6 caracteres.";
+                afr_mensagem = "A nova senha precisa ter pelo menos 8 caracteres.";
                 return false;
             }
 
@@ -345,7 +410,10 @@ namespace PlataformaCursos
 
             Usuario afr_usuario = afr_bancoService.BuscarUsuarioPorEmail(afr_email.Trim());
 
-            if (!afr_bancoService.AtualizarSenha(afr_usuario.afr_Email, afr_novaSenha, out afr_mensagem))
+            // VERSAO 3 - grava o hash, nunca a senha digitada
+            if (!afr_bancoService.AtualizarSenha(afr_usuario.afr_Email,
+                                                 SenhaHash.Gerar(afr_novaSenha),
+                                                 out afr_mensagem))
             {
                 return false;
             }
@@ -381,7 +449,8 @@ namespace PlataformaCursos
 
             Usuario afr_logado = Sessao.ObterUsuario();
 
-            if (afr_senhaDigitada != afr_logado.afr_Senha)
+            // VERSAO 3 - confere pelo hash, igual ao login
+            if (!SenhaHash.Conferir(afr_senhaDigitada, afr_logado.afr_Senha))
             {
                 afr_mensagem = "Senha incorreta. A exclusao foi cancelada.";
                 return false;
@@ -431,7 +500,7 @@ namespace PlataformaCursos
             return afr_bancoService.ListarUsuarios(afr_termo);
         }
 
-        // DS07 - a lista de alunos que o tutor pode acompanhar
+        // DS07 - a lista de alunos que o professor pode acompanhar
         public List<Usuario> ListarAlunos(string afr_termo)
         {
             return afr_bancoService.ListarUsuarios(afr_termo, Usuario.PERFIL_ALUNO);
@@ -463,6 +532,12 @@ namespace PlataformaCursos
                 return false;
             }
 
+            // VERSAO 3.1 - email no mesmo formato da API (minusculas)
+            afr_usuario.afr_Email = AutenticacaoService.NormalizarEmail(afr_usuario.afr_Email);
+
+            // VERSAO 3 - a senha vai para o banco como hash, nunca como texto
+            afr_usuario.afr_Senha = GarantirHash(afr_usuario.afr_Senha);
+
             if (!afr_bancoService.InserirUsuario(afr_usuario, out afr_mensagem))
             {
                 return false;
@@ -478,6 +553,21 @@ namespace PlataformaCursos
         // DS13 - validaEAtualiza(novosDados)
         public bool EditarUsuario(Usuario afr_usuario, out string afr_mensagem)
         {
+            // VERSAO 3 - senha em branco na edicao significa "manter a atual".
+            // A tela nao mostra mais a senha gravada, porque agora o que esta
+            // no banco e um hash e nao ha como voltar dele para a senha. Entao
+            // o campo chega vazio quando o administrador nao quis troca-la, e
+            // o valor que ja estava gravado e reaproveitado aqui.
+            if (string.IsNullOrWhiteSpace(afr_usuario.afr_Senha))
+            {
+                Usuario afr_atual = afr_bancoService.BuscarUsuarioPorId(afr_usuario.afr_Id);
+
+                if (afr_atual != null)
+                {
+                    afr_usuario.afr_Senha = afr_atual.afr_Senha;
+                }
+            }
+
             if (!Validar(afr_usuario, out afr_mensagem))
             {
                 return false;
@@ -489,6 +579,14 @@ namespace PlataformaCursos
                 return false;
             }
 
+            // VERSAO 3.1 - email no mesmo formato da API (minusculas)
+            afr_usuario.afr_Email = AutenticacaoService.NormalizarEmail(afr_usuario.afr_Email);
+
+            // VERSAO 3 - idem. GarantirHash deixa passar o que ja e hash,
+            // entao editar nome ou perfil sem mexer na senha nao estraga
+            // a senha que ja estava gravada.
+            afr_usuario.afr_Senha = GarantirHash(afr_usuario.afr_Senha);
+
             if (!afr_bancoService.AtualizarUsuario(afr_usuario, out afr_mensagem))
             {
                 return false;
@@ -499,6 +597,23 @@ namespace PlataformaCursos
                 " (Id " + afr_usuario.afr_Id + ").");
 
             return true;
+        }
+
+        // -------------------------------------------------------------
+        // VERSAO 3 - converte em hash so o que ainda nao e hash.
+        //
+        // Sem esta verificacao, salvar duas vezes o mesmo usuario
+        // aplicaria o hash sobre o hash e a senha original deixaria de
+        // funcionar para sempre.
+        // -------------------------------------------------------------
+        private string GarantirHash(string afr_senha)
+        {
+            if (SenhaHash.EhHash(afr_senha))
+            {
+                return afr_senha;
+            }
+
+            return SenhaHash.Gerar(afr_senha);
         }
 
         // -------------------------------------------------------------
@@ -605,15 +720,18 @@ namespace PlataformaCursos
                 return false;
             }
 
-            if (afr_usuario.afr_Senha.Length < 6)
+            // A regra dos 8 caracteres vale para a senha DIGITADA. Numa
+            // edicao em que a senha nao foi trocada, o que chega aqui ja e
+            // o hash - comprido por natureza e sem nada para medir.
+            if (!SenhaHash.EhHash(afr_usuario.afr_Senha) && afr_usuario.afr_Senha.Length < 8)
             {
-                afr_mensagem = "A senha precisa ter pelo menos 6 caracteres.";
+                afr_mensagem = "A senha precisa ter pelo menos 8 caracteres.";
                 return false;
             }
 
             // Operador logico E (&&): o perfil precisa ser um dos tres
             if (afr_usuario.afr_Perfil != Usuario.PERFIL_ADMIN &&
-                afr_usuario.afr_Perfil != Usuario.PERFIL_TUTOR &&
+                afr_usuario.afr_Perfil != Usuario.PERFIL_PROFESSOR &&
                 afr_usuario.afr_Perfil != Usuario.PERFIL_ALUNO)
             {
                 afr_mensagem = "Escolha o perfil do usuario.";
@@ -633,8 +751,8 @@ namespace PlataformaCursos
         private BancoService afr_bancoService = new BancoService();
         private LogService afr_logService = new LogService();
 
-        // DS09 e DS10 - quem pode mexer em curso e o TUTOR (e o admin)
-        public bool VerificarPermissaoTutor(out string afr_mensagem)
+        // DS09 e DS10 - quem pode mexer em curso e o PROFESSOR (e o admin)
+        public bool VerificarPermissaoProfessor(out string afr_mensagem)
         {
             afr_mensagem = "";
 
@@ -646,7 +764,7 @@ namespace PlataformaCursos
 
             if (!Sessao.PodeGerenciarCursos())
             {
-                afr_mensagem = "Apenas tutor ou administrador pode gerenciar cursos.";
+                afr_mensagem = "Apenas professor ou administrador pode gerenciar cursos.";
                 return false;
             }
 
@@ -675,7 +793,7 @@ namespace PlataformaCursos
             return afr_bancoService.ListarCursos(afr_filtro);
         }
 
-        // DS04 - localizarCurso(termo, filtros): a busca do TUTOR,
+        // DS04 - localizarCurso(termo, filtros): a busca do PROFESSOR,
         // que enxerga tambem os cursos inativos
         public List<Curso> LocalizarCurso(FiltroCurso afr_filtro)
         {
@@ -916,10 +1034,35 @@ namespace PlataformaCursos
         private BancoService afr_bancoService = new BancoService();
         private LogService afr_logService = new LogService();
 
+        // VERSAO 3 - quem paga o XP e as conquistas
+        private GamificacaoService afr_gamificacaoService = new GamificacaoService();
+
         // DS05 - atualizarProgresso(aluno, aula) / salvarProgresso(progresso)
+        //
+        // Versao curta, para quem nao se importa com o XP.
         public bool AtualizarProgresso(int afr_usuarioId, int afr_aulaId,
                                        bool afr_concluida, out string afr_mensagem)
         {
+            GanhoGamificacao afr_ignorado;
+
+            return AtualizarProgresso(afr_usuarioId, afr_aulaId, afr_concluida,
+                                      out afr_mensagem, out afr_ignorado);
+        }
+
+        // -------------------------------------------------------------
+        // VERSAO 3 - a mesma operacao, devolvendo TAMBEM o que o aluno
+        // ganhou, para a tela conseguir avisar "+10 XP".
+        //
+        // Este e o ponto unico de conclusao de aula que o item 3.4 da
+        // analise do grupo pede: progresso e pontos sao atualizados
+        // juntos, aqui, e em lugar nenhum mais.
+        // -------------------------------------------------------------
+        public bool AtualizarProgresso(int afr_usuarioId, int afr_aulaId,
+                                       bool afr_concluida, out string afr_mensagem,
+                                       out GanhoGamificacao afr_ganho)
+        {
+            afr_ganho = new GanhoGamificacao();
+
             bool afr_ok;
 
             if (afr_concluida)
@@ -931,17 +1074,38 @@ namespace PlataformaCursos
                 afr_ok = afr_bancoService.DesmarcarAulaConcluida(afr_usuarioId, afr_aulaId, out afr_mensagem);
             }
 
-            if (afr_ok)
+            if (!afr_ok)
             {
-                string afr_texto = afr_concluida
-                    ? "Concluiu a aula Id " + afr_aulaId + "."
-                    : "Desmarcou a aula Id " + afr_aulaId + ".";
-
-                afr_logService.RegistrarCurso(afr_usuarioId, afr_texto);
+                return false;
             }
 
-            return afr_ok;
+            string afr_texto = afr_concluida
+                ? "Concluiu a aula Id " + afr_aulaId + "."
+                : "Desmarcou a aula Id " + afr_aulaId + ".";
+
+            afr_logService.RegistrarCurso(afr_usuarioId, afr_texto);
+
+            // Precisa da aula para saber de QUAL curso ela e: a
+            // matricula e por curso, nao por aula.
+            Aula afr_aula = afr_bancoService.BuscarAulaPorId(afr_aulaId, afr_usuarioId);
+
+            if (afr_concluida)
+            {
+                if (afr_aula != null)
+                {
+                    afr_ganho = afr_gamificacaoService.RegistrarAulaConcluida(
+                                    afr_usuarioId, afr_aula.afr_CursoId, afr_aulaId);
+                }
+            }
+            else
+            {
+                afr_gamificacaoService.RegistrarAulaDesmarcada(afr_usuarioId, afr_aulaId);
+            }
+
+            return true;
         }
+
+
 
         public int ObterAulasConcluidas(int afr_usuarioId, int afr_cursoId)
         {
@@ -995,7 +1159,7 @@ namespace PlataformaCursos
 
         // -------------------------------------------------------------
         // DS07 - elegivelParaVisualizacao(true)
-        // So tutor e admin consultam o progresso de OUTRA pessoa.
+        // So professor e admin consultam o progresso de OUTRA pessoa.
         // Qualquer um pode ver o proprio.
         // -------------------------------------------------------------
         public bool ElegivelParaVisualizacao(int afr_alunoId, out string afr_mensagem)
@@ -1016,7 +1180,7 @@ namespace PlataformaCursos
 
             if (!Sessao.PodeVerProgressoDeOutros())
             {
-                afr_mensagem = "Apenas tutor ou administrador pode consultar " +
+                afr_mensagem = "Apenas professor ou administrador pode consultar " +
                                "o progresso de outro aluno.";
                 return false;
             }
@@ -1024,4 +1188,72 @@ namespace PlataformaCursos
             return true;
         }
     }
+
+    // =================================================================
+    // GamificacaoService   (VERSAO 3.1 - reescrito)
+    //
+    // Na versao 3.0 este servico continha a regra de XP e conquistas.
+    // Agora a regra mora no BANCO, em um lote T-SQL que e porte quase
+    // literal de awardLessonCompletion da API (api/src/gamificationService.js).
+    //
+    // POR QUE MUDOU DE LUGAR
+    // Tres programas mexem no mesmo banco: este desktop, o site e o
+    // aplicativo. Se cada um tivesse a sua copia da regra em C# ou em
+    // JavaScript, bastava um deles mudar para os numeros divergirem.
+    // Com a regra no banco, concluir uma aula pelo celular ou pelo
+    // desktop produz exatamente o mesmo XP, as mesmas conquistas e a
+    // mesma sequencia de dias.
+    //
+    // Sobrou para esta classe o papel de porta de entrada: traduzir o
+    // que as telas pedem para as chamadas certas.
+    // =================================================================
+    public class GamificacaoService
+    {
+        private BancoService afr_bancoService = new BancoService();
+
+        // -------------------------------------------------------------
+        // O aluno concluiu uma aula.
+        //
+        // Devolve o que ele ganhou, para a tela avisar na hora.
+        // Idempotente: repetir nao paga de novo - quem garante e a
+        // restricao UQ_HistoricoXP_Evento, na tabela.
+        // -------------------------------------------------------------
+        public GanhoGamificacao RegistrarAulaConcluida(int afr_usuarioId, int afr_cursoId,
+                                                       int afr_aulaId)
+        {
+            // A conquista PRIMEIRO_CURSO conta cursos concluidos olhando
+            // dbo.Matriculas. Sem uma linha la, ela nunca sai. Ver a
+            // explicacao em BancoService.GarantirMatricula.
+            afr_bancoService.GarantirMatricula(afr_usuarioId, afr_cursoId);
+
+            return afr_bancoService.ConcederXpPorAula(afr_usuarioId, afr_aulaId);
+        }
+
+        // -------------------------------------------------------------
+        // O aluno DESMARCOU a aula: o XP daquela aula volta atras, para
+        // o numero continuar batendo com o que ele de fato concluiu.
+        // As conquistas ja ganhas permanecem.
+        // -------------------------------------------------------------
+        public void RegistrarAulaDesmarcada(int afr_usuarioId, int afr_aulaId)
+        {
+            afr_bancoService.RemoverXpDaAula(afr_usuarioId, afr_aulaId);
+        }
+
+        // -------------------------------------------------------------
+        // O painel do aluno: XP, nivel, sequencia de dias e medalhas.
+        // -------------------------------------------------------------
+        public Pontuacao ObterPontuacao(int afr_usuarioId)
+        {
+            return afr_bancoService.ObterPontuacao(afr_usuarioId);
+        }
+
+        // -------------------------------------------------------------
+        // O extrato: de onde veio cada ponto.
+        // -------------------------------------------------------------
+        public List<RegistroXP> ListarExtrato(int afr_usuarioId, int afr_limite)
+        {
+            return afr_bancoService.ListarHistoricoXp(afr_usuarioId, afr_limite);
+        }
+    }
+
 }

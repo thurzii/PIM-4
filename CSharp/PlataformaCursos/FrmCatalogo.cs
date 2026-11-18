@@ -210,8 +210,15 @@ namespace PlataformaCursos
             string afr_mensagem;
 
             // DS05 - atualizarProgresso(aluno, aula)
+            //
+            // VERSAO 3 - a sobrecarga com afr_ganho devolve tambem o XP
+            // e as conquistas, para o aluno ver o ganho sem precisar
+            // abrir a aula.
+            GanhoGamificacao afr_ganho;
+
             bool afr_ok = afr_progressoService.AtualizarProgresso(
-                              afr_alunoId, afr_aulaId, e.Item.Checked, out afr_mensagem);
+                              afr_alunoId, afr_aulaId, e.Item.Checked,
+                              out afr_mensagem, out afr_ganho);
 
             if (!afr_ok)
             {
@@ -234,6 +241,17 @@ namespace PlataformaCursos
             {
                 afr_lblStatus.Text = "DELETE em dbo.Progresso: aula " + afr_aulaId +
                                      " voltou para nao concluida.";
+            }
+
+            // VERSAO 3 - o ganho entra na MESMA linha de status, em roxo.
+            // ObterMensagem() devolve "" quando nao houve novidade, e ai
+            // a cor volta ao cinza e nada e acrescentado.
+            string afr_avisoGanho = afr_ganho.ObterMensagem();
+
+            if (afr_avisoGanho != "")
+            {
+                afr_lblStatus.ForeColor = Color.DarkViolet;
+                afr_lblStatus.Text = afr_lblStatus.Text + "   " + afr_avisoGanho;
             }
         }
 

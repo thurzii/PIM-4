@@ -51,6 +51,17 @@ builder.Services.AddScoped<CursoService>();
 builder.Services.AddScoped<AulaService>();
 builder.Services.AddScoped<ProgressoService>();
 
+// VERSAO 3 - gamificacao (XP, niveis e conquistas).
+// Precisa vir registrado aqui, senao o ProgressoService nao consegue
+// ser construido: ele recebe o GamificacaoService pelo construtor.
+builder.Services.AddScoped<GamificacaoService>();
+
+// VERSAO 3 - configuracao da integracao com a API Node.js.
+// Desligada por padrao (Api:Ativa = false no appsettings.json): o site
+// continua lendo e gravando direto no SQL Server. Fica registrada
+// mesmo assim para quem quiser consultar ConfiguracaoApi.EstaAtiva().
+builder.Services.AddScoped<ConfiguracaoApi>();
+
 // =====================================================================
 // 2) AUTENTICACAO POR COOKIE
 // =====================================================================
@@ -63,7 +74,7 @@ builder.Services
         afr_opcoes.LogoutPath = "/Conta/Logout";
 
         // Quem esta logado mas nao tem permissao ve esta pagina.
-        // E o equivalente ao MessageBox "somente tutor ou admin" que o
+        // E o equivalente ao MessageBox "somente professor ou admin" que o
         // desktop mostrava no evento Load de cada formulario.
         afr_opcoes.AccessDeniedPath = "/Conta/AcessoNegado";
 

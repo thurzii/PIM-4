@@ -28,7 +28,7 @@
      1) [Authorize(Roles = ...)] na classe do controller barra a
         requisicao antes de qualquer codigo rodar - e o equivalente a
         esconder o botao no menu;
-     2) os servicos conferem de novo (VerificarPermissaoTutor,
+     2) os servicos conferem de novo (VerificarPermissaoProfessor,
         VerificarPermissaoAdmin) - e o equivalente a checagem no Load
         de cada formulario.
    ===================================================================== */
@@ -103,14 +103,14 @@ namespace PlataformaCursosWeb.Controllers
             return ObterPerfil() == Usuario.PERFIL_ADMIN;
         }
 
-        protected bool EhTutor()
+        protected bool EhProfessor()
         {
-            return ObterPerfil() == Usuario.PERFIL_TUTOR;
+            return ObterPerfil() == Usuario.PERFIL_PROFESSOR;
         }
 
         protected bool PodeGerenciarCursos()
         {
-            return EhTutor() || EhAdministrador();
+            return EhProfessor() || EhAdministrador();
         }
 
         protected bool PodeGerenciarUsuarios()
@@ -120,7 +120,7 @@ namespace PlataformaCursosWeb.Controllers
 
         protected bool PodeVerProgressoDeOutros()
         {
-            return EhTutor() || EhAdministrador();
+            return EhProfessor() || EhAdministrador();
         }
 
         // -------------------------------------------------------------

@@ -7,7 +7,7 @@
 
    DIAGRAMA DS07. No Astah esse diagrama esta salvo com o nome
    "Criar Curso", mas as mensagens dentro dele sao todas de progresso e
-   a linha de vida do Tutor aparece nele. A sequencia e:
+   a linha de vida do Professor aparece nele. A sequencia e:
 
        acessarProgresso()
        solicitarProgresso(aluno)
@@ -17,7 +17,7 @@
        exibirProgresso(dados)
        mostrarProgresso()
 
-   QUEM ENTRA: tutor e admin. E o PodeVerProgressoDeOutros() da classe
+   QUEM ENTRA: professor e admin. E o PodeVerProgressoDeOutros() da classe
    Usuario. O aluno comum nao entra aqui - ele ve o proprio progresso
    no catalogo.
 
@@ -34,7 +34,7 @@ using PlataformaCursosWeb.Services;
 
 namespace PlataformaCursosWeb.Controllers
 {
-    [Authorize(Roles = Usuario.PERFIL_TUTOR + "," + Usuario.PERFIL_ADMIN)]
+    [Authorize(Roles = Usuario.PERFIL_PROFESSOR + "," + Usuario.PERFIL_ADMIN)]
     public class ProgressoController : ControllerPadrao
     {
         private readonly UsuarioService afr_usuarioService;
@@ -60,7 +60,7 @@ namespace PlataformaCursosWeb.Controllers
             afr_dados.afr_Termo = (termo ?? "").Trim();
             afr_dados.afr_AlunoId = alunoId;
 
-            // A lista de alunos que o tutor pode acompanhar
+            // A lista de alunos que o professor pode acompanhar
             afr_dados.afr_Alunos = afr_usuarioService.ListarAlunos(afr_dados.afr_Termo);
 
             ViewBag.Perfil = ObterPerfil();

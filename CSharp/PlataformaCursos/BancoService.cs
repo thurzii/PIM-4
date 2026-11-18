@@ -249,6 +249,148 @@ namespace PlataformaCursos
                 "  DataHora DATETIME NOT NULL DEFAULT GETDATE()," +
                 "  CONSTRAINT FK_Log_Usuarios FOREIGN KEY (UsuarioId) " +
                 "    REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE);");
+
+            // -------------------------------------------------------------
+            // VERSAO 3.1 - GAMIFICACAO, no esquema da API do grupo
+            //
+            // Estas cinco tabelas sao copia fiel dos scripts dela:
+            //   sql/Etapa1_Professor.sql    -> Matriculas, Cursos.ProfessorId
+            //   sql/Etapa4_Gamificacao.sql  -> as quatro de gamificacao
+            //
+            // A versao 3.0 tinha tabelas proprias e COLIDIA com as dela:
+            // as duas criavam dbo.Conquistas com significados diferentes
+            // (aqui era "medalha que um aluno ganhou", la e o CATALOGO
+            // de medalhas que existem). No mesmo banco, quem criasse
+            // primeiro quebraria o outro. Agora ha um esquema so.
+            //
+            // Os IF OBJECT_ID fazem o programa conviver com o banco ja
+            // montado pela API: se ela criou, aqui so se encontra pronto.
+            // -------------------------------------------------------------
+
+            // Matriculas - em quais cursos o aluno esta inscrito
+            ExecutarComando(afr_conexao,
+                "IF OBJECT_ID('dbo.Matriculas','U') IS NULL " +
+                "CREATE TABLE dbo.Matriculas (" +
+                "  Id INT IDENTITY(1,1) PRIMARY KEY," +
+                "  UsuarioId INT NOT NULL," +
+                "  CursoId INT NOT NULL," +
+                "  DataMatricula DATETIME NOT NULL DEFAULT GETDATE()," +
+                "  CONSTRAINT UQ_Matriculas_Usuario_Curso UNIQUE (UsuarioId, CursoId));");
+
+            // Cursos.ProfessorId - qual professor responde pelo curso
+            ExecutarComando(afr_conexao,
+                "IF COL_LENGTH('dbo.Cursos','ProfessorId') IS NULL " +
+                "ALTER TABLE dbo.Cursos ADD ProfessorId INT NULL;");
+
+            // Gamificacao - XP e sequencia de dias, uma linha por usuario
+            ExecutarComando(afr_conexao,
+                "IF OBJECT_ID('dbo.Gamificacao','U') IS NULL " +
+                "CREATE TABLE dbo.Gamificacao (" +
+                "  UsuarioId INT NOT NULL PRIMARY KEY," +
+                "  XP INT NOT NULL CONSTRAINT DF_Gamificacao_XP DEFAULT 0," +
+                "  SequenciaAtual INT NOT NULL CONSTRAINT DF_Gamificacao_Sequencia DEFAULT 0," +
+                "  MelhorSequencia INT NOT NULL CONSTRAINT DF_Gamificacao_MelhorSequencia DEFAULT 0," +
+                "  UltimaAtividade DATE NULL," +
+                "  CONSTRAINT FK_Gamificacao_Usuarios FOREIGN KEY (UsuarioId) " +
+                "    REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE);");
+
+            // Conquistas - o CATALOGO das medalhas que existem
+            ExecutarComando(afr_conexao,
+                "IF OBJECT_ID('dbo.Conquistas','U') IS NULL " +
+                "CREATE TABLE dbo.Conquistas (" +
+                "  Id INT IDENTITY(1,1) PRIMARY KEY," +
+                "  Codigo NVARCHAR(50) NOT NULL UNIQUE," +
+                "  Nome NVARCHAR(100) NOT NULL," +
+                "  Descricao NVARCHAR(300) NOT NULL," +
+                "  Icone NVARCHAR(20) NOT NULL," +
+                "  XPBonus INT NOT NULL CONSTRAINT DF_Conquistas_XPBonus DEFAULT 0);");
+
+            // UsuarioConquistas - quais medalhas cada aluno ganhou
+            ExecutarComando(afr_conexao,
+                "IF OBJECT_ID('dbo.UsuarioConquistas','U') IS NULL " +
+                "CREATE TABLE dbo.UsuarioConquistas (" +
+                "  Id INT IDENTITY(1,1) PRIMARY KEY," +
+                "  UsuarioId INT NOT NULL," +
+                "  ConquistaId INT NOT NULL," +
+                "  DataConquista DATETIME NOT NULL CONSTRAINT DF_UsuarioConquistas_Data DEFAULT GETDATE()," +
+                "  CONSTRAINT UQ_UsuarioConquistas UNIQUE (UsuarioId, ConquistaId)," +
+                "  CONSTRAINT FK_UsuarioConquistas_Usuarios FOREIGN KEY (UsuarioId) " +
+                "    REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE," +
+                "  CONSTRAINT FK_UsuarioConquistas_Conquistas FOREIGN KEY (ConquistaId) " +
+                "    REFERENCES dbo.Conquistas(Id) ON DELETE CASCADE);");
+
+            // HistoricoXP - uma linha por ganho de XP.
+            // UQ_HistoricoXP_Evento e o que impede a mesma aula de pagar
+            // duas vezes: a idempotencia mora aqui, no banco, e por isso
+            // vale igual para o desktop, para o site e para o celular.
+            ExecutarComando(afr_conexao,
+                "IF OBJECT_ID('dbo.HistoricoXP','U') IS NULL " +
+                "CREATE TABLE dbo.HistoricoXP (" +
+                "  Id INT IDENTITY(1,1) PRIMARY KEY," +
+                "  UsuarioId INT NOT NULL," +
+                "  Quantidade INT NOT NULL," +
+                "  Motivo NVARCHAR(200) NOT NULL," +
+                "  ReferenciaTipo NVARCHAR(30) NOT NULL," +
+                "  ReferenciaId INT NOT NULL," +
+                "  DataRegistro DATETIME NOT NULL CONSTRAINT DF_HistoricoXP_Data DEFAULT GETDATE()," +
+                "  CONSTRAINT FK_HistoricoXP_Usuarios FOREIGN KEY (UsuarioId) " +
+                "    REFERENCES dbo.Usuarios(Id) ON DELETE CASCADE," +
+                "  CONSTRAINT UQ_HistoricoXP_Evento UNIQUE (UsuarioId, ReferenciaTipo, ReferenciaId));");
+
+            SemearConquistas(afr_conexao);
+        }
+
+        // -------------------------------------------------------------
+        // VERSAO 3.1 - as cinco medalhas do catalogo.
+        //
+        // Os codigos, nomes, descricoes, icones e bonus sao exatamente
+        // os de sql/Etapa4_Gamificacao.sql. Se divergissem, a mesma
+        // medalha valeria XP diferente no celular e no desktop.
+        //
+        // O IF NOT EXISTS por codigo deixa rodar de novo sem duplicar.
+        // -------------------------------------------------------------
+        private void SemearConquistas(SqlConnection afr_conexao)
+        {
+            InserirConquista(afr_conexao, "PRIMEIRA_AULA", "Primeiros passos",
+                "Conclua sua primeira aula.", "\U0001F3AF", 20);
+
+            InserirConquista(afr_conexao, "CINCO_AULAS", "Ritmo de estudos",
+                "Conclua cinco aulas.", "\U0001F4DA", 30);
+
+            InserirConquista(afr_conexao, "DEZ_AULAS", "Estudante dedicado",
+                "Conclua dez aulas.", "\U0001F3C5", 50);
+
+            InserirConquista(afr_conexao, "PRIMEIRO_CURSO", "Curso concluido",
+                "Conclua todas as aulas de um curso.", "\U0001F393", 100);
+
+            InserirConquista(afr_conexao, "SEQUENCIA_7", "Uma semana de foco",
+                "Estude por sete dias consecutivos.", "\U0001F525", 75);
+        }
+
+        private void InserirConquista(SqlConnection afr_conexao, string afr_codigo,
+                                      string afr_nome, string afr_descricao,
+                                      string afr_icone, int afr_xpBonus)
+        {
+            try
+            {
+                string afr_sql =
+                    "IF NOT EXISTS (SELECT 1 FROM dbo.Conquistas WHERE Codigo = @codigo) " +
+                    "INSERT INTO dbo.Conquistas (Codigo, Nome, Descricao, Icone, XPBonus) " +
+                    "VALUES (@codigo, @nome, @descricao, @icone, @xpBonus);";
+
+                using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                {
+                    afr_comando.Parameters.AddWithValue("@codigo", afr_codigo);
+                    afr_comando.Parameters.AddWithValue("@nome", afr_nome);
+                    afr_comando.Parameters.AddWithValue("@descricao", afr_descricao);
+                    afr_comando.Parameters.AddWithValue("@icone", afr_icone);
+                    afr_comando.Parameters.AddWithValue("@xpBonus", afr_xpBonus);
+                    afr_comando.ExecuteNonQuery();
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
 
         // -------------------------------------------------------------
@@ -266,10 +408,17 @@ namespace PlataformaCursos
                 "IF COL_LENGTH('dbo.Aulas','Conteudo') IS NULL " +
                 "ALTER TABLE dbo.Aulas ADD Conteudo VARCHAR(MAX) NULL;");
 
-            // O perfil passou de 2 para 3 opcoes; a coluna precisa caber TUTOR
+            // O perfil passou de 2 para 3 opcoes; a coluna precisa caber PROFESSOR
             ExecutarComando(afr_conexao,
                 "IF COL_LENGTH('dbo.Usuarios','Perfil') < 10 " +
                 "ALTER TABLE dbo.Usuarios ALTER COLUMN Perfil VARCHAR(10) NOT NULL;");
+
+            // VERSAO 3: o perfil chamava-se TUTOR e passou a PROFESSOR, para
+            // bater com o contrato da API do grupo. Sem este UPDATE, quem ja
+            // estava cadastrado como tutor ficaria sem nenhuma permissao,
+            // porque o perfil gravado no banco nao casa com nenhuma constante.
+            ExecutarComando(afr_conexao,
+                "UPDATE dbo.Usuarios SET Perfil = 'PROFESSOR' WHERE Perfil = 'TUTOR';");
         }
 
         // -------------------------------------------------------------
@@ -282,11 +431,11 @@ namespace PlataformaCursos
             {
                 if (Convert.ToInt32(afr_conta.ExecuteScalar()) > 0)
                 {
-                    // Banco da versao 1: garante que exista um tutor
+                    // Banco da versao 1: garante que exista um professor
                     ExecutarComando(afr_conexao,
-                        "IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE Perfil = 'TUTOR') " +
+                        "IF NOT EXISTS (SELECT 1 FROM dbo.Usuarios WHERE Perfil = 'PROFESSOR') " +
                         "INSERT INTO dbo.Usuarios (Nome, Email, Senha, Perfil) VALUES " +
-                        "('Carla Mendes','carla@escola.com','tutor123','TUTOR');");
+                        "('Carla Mendes','carla@escola.com','professor123','PROFESSOR');");
 
                     return;
                 }
@@ -295,7 +444,7 @@ namespace PlataformaCursos
             ExecutarComando(afr_conexao,
                 "INSERT INTO dbo.Usuarios (Nome, Email, Senha, Perfil) VALUES " +
                 "('Administrador do Sistema','admin@escola.com','admin123','ADMIN')," +
-                "('Carla Mendes','carla@escola.com','tutor123','TUTOR')," +
+                "('Carla Mendes','carla@escola.com','professor123','PROFESSOR')," +
                 "('Maria Souza','maria@escola.com','aluno123','ALUNO')," +
                 "('Joao Lima','joao@escola.com','aluno123','ALUNO');");
 
@@ -1559,5 +1708,499 @@ namespace PlataformaCursos
 
             return afr_lista;
         }
+
+
+        // =============================================================
+        // VERSAO 3.1 - GAMIFICACAO (esquema da API do grupo)
+        //
+        // A versao 3.0 tinha tabelas proprias (PontosHistorico e uma
+        // Conquistas com UsuarioId). Ao ler o codigo da API, no branch
+        // main, descobriu-se uma COLISAO: ela tambem cria dbo.Conquistas,
+        // com outro significado - la e o CATALOGO de medalhas que
+        // existem (Codigo, Nome, Descricao, Icone, XPBonus), nao as que
+        // um aluno ganhou. Mesmo nome, estruturas incompativeis: no
+        // mesmo banco, quem criasse primeiro quebraria o outro.
+        //
+        // A solucao foi adotar o esquema DELA por inteiro:
+        //
+        //   dbo.Gamificacao       XP, sequencia de dias, por usuario
+        //   dbo.Conquistas        catalogo das medalhas que existem
+        //   dbo.UsuarioConquistas quais medalhas cada aluno ganhou
+        //   dbo.HistoricoXP       uma linha por ganho de XP
+        //   dbo.Matriculas        em quais cursos o aluno esta inscrito
+        //
+        // O SQL abaixo e um porte quase literal de awardLessonCompletion
+        // (api/src/gamificationService.js). Manter a MESMA regra, no
+        // mesmo lugar - o banco - e o que garante que concluir uma aula
+        // pelo desktop, pelo site ou pelo celular de o mesmo resultado.
+        // =============================================================
+
+        // -------------------------------------------------------------
+        // Concede o XP de uma aula concluida e avalia as conquistas.
+        //
+        // Idempotente: a restricao UQ_HistoricoXP_Evento, na tabela
+        // dela, impede a mesma aula de pagar duas vezes. O IF NOT EXISTS
+        // com UPDLOCK/HOLDLOCK evita a corrida entre duas chamadas
+        // simultaneas, exatamente como no codigo dela.
+        // -------------------------------------------------------------
+        public GanhoGamificacao ConcederXpPorAula(int afr_usuarioId, int afr_aulaId)
+        {
+            GanhoGamificacao afr_ganho = new GanhoGamificacao();
+
+            try
+            {
+                string afr_sql = @"
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+
+DECLARE @NovasConquistas TABLE (ConquistaId INT);
+DECLARE @XPConquistas INT = 0;
+DECLARE @XPConcedido INT = 0;
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM dbo.Gamificacao WITH (UPDLOCK, HOLDLOCK)
+        WHERE UsuarioId = @usuarioId
+    )
+    BEGIN
+        INSERT INTO dbo.Gamificacao (UsuarioId, XP) VALUES (@usuarioId, 0);
+    END;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM dbo.HistoricoXP WITH (UPDLOCK, HOLDLOCK)
+        WHERE UsuarioId = @usuarioId
+          AND ReferenciaTipo = 'AULA'
+          AND ReferenciaId = @aulaId
+    )
+    BEGIN
+        INSERT INTO dbo.HistoricoXP
+            (UsuarioId, Quantidade, Motivo, ReferenciaTipo, ReferenciaId)
+        VALUES
+            (@usuarioId, 10, N'Conclusao de aula', 'AULA', @aulaId);
+
+        DECLARE @Hoje DATE = CAST(GETDATE() AS DATE);
+
+        UPDATE dbo.Gamificacao
+        SET
+            XP = XP + 10,
+            SequenciaAtual = CASE
+                WHEN UltimaAtividade = @Hoje THEN SequenciaAtual
+                WHEN UltimaAtividade = DATEADD(DAY, -1, @Hoje) THEN SequenciaAtual + 1
+                ELSE 1
+            END,
+            MelhorSequencia = CASE
+                WHEN UltimaAtividade = @Hoje THEN MelhorSequencia
+                WHEN UltimaAtividade = DATEADD(DAY, -1, @Hoje)
+                    THEN CASE WHEN SequenciaAtual + 1 > MelhorSequencia
+                              THEN SequenciaAtual + 1 ELSE MelhorSequencia END
+                WHEN MelhorSequencia < 1 THEN 1
+                ELSE MelhorSequencia
+            END,
+            UltimaAtividade = @Hoje
+        WHERE UsuarioId = @usuarioId;
+
+        SET @XPConcedido = 10;
+    END;
+
+    DECLARE @AulasConcluidas INT = (
+        SELECT COUNT(*) FROM dbo.HistoricoXP
+        WHERE UsuarioId = @usuarioId AND ReferenciaTipo = 'AULA'
+    );
+
+    DECLARE @CursosConcluidos INT = (
+        SELECT COUNT(*)
+        FROM dbo.Matriculas m
+        WHERE m.UsuarioId = @usuarioId
+          AND EXISTS (SELECT 1 FROM dbo.Aulas a WHERE a.CursoId = m.CursoId)
+          AND NOT EXISTS (
+              SELECT 1 FROM dbo.Aulas a
+              WHERE a.CursoId = m.CursoId
+                AND NOT EXISTS (
+                    SELECT 1 FROM dbo.Progresso p
+                    WHERE p.UsuarioId = @usuarioId AND p.AulaId = a.Id
+                )
+          )
+    );
+
+    INSERT INTO dbo.UsuarioConquistas (UsuarioId, ConquistaId)
+    OUTPUT INSERTED.ConquistaId INTO @NovasConquistas (ConquistaId)
+    SELECT @usuarioId, c.Id
+    FROM dbo.Conquistas c
+    WHERE NOT EXISTS (
+        SELECT 1 FROM dbo.UsuarioConquistas uc
+        WHERE uc.UsuarioId = @usuarioId AND uc.ConquistaId = c.Id
+    )
+    AND (
+        (c.Codigo = 'PRIMEIRA_AULA'  AND @AulasConcluidas >= 1)
+     OR (c.Codigo = 'CINCO_AULAS'    AND @AulasConcluidas >= 5)
+     OR (c.Codigo = 'DEZ_AULAS'      AND @AulasConcluidas >= 10)
+     OR (c.Codigo = 'PRIMEIRO_CURSO' AND @CursosConcluidos >= 1)
+     OR (c.Codigo = 'SEQUENCIA_7'    AND EXISTS (
+            SELECT 1 FROM dbo.Gamificacao
+            WHERE UsuarioId = @usuarioId AND SequenciaAtual >= 7
+        ))
+    );
+
+    SELECT @XPConquistas = ISNULL(SUM(c.XPBonus), 0)
+    FROM dbo.Conquistas c
+    INNER JOIN @NovasConquistas n ON n.ConquistaId = c.Id;
+
+    IF @XPConquistas > 0
+    BEGIN
+        UPDATE dbo.Gamificacao SET XP = XP + @XPConquistas
+        WHERE UsuarioId = @usuarioId;
+
+        INSERT INTO dbo.HistoricoXP
+            (UsuarioId, Quantidade, Motivo, ReferenciaTipo, ReferenciaId)
+        SELECT @usuarioId, c.XPBonus, CONCAT(N'Conquista: ', c.Nome), 'CONQUISTA', c.Id
+        FROM dbo.Conquistas c
+        INNER JOIN @NovasConquistas n ON n.ConquistaId = c.Id;
+    END;
+
+    COMMIT TRANSACTION;
+
+    SELECT @XPConcedido AS xpAula, @XPConquistas AS xpConquistas,
+           g.XP AS xpTotal, g.SequenciaAtual AS sequenciaAtual,
+           g.MelhorSequencia AS melhorSequencia
+    FROM dbo.Gamificacao g WHERE g.UsuarioId = @usuarioId;
+
+    SELECT c.Id AS id, c.Codigo AS codigo, c.Nome AS nome,
+           c.Descricao AS descricao, c.Icone AS icone, c.XPBonus AS xpBonus
+    FROM dbo.Conquistas c
+    INNER JOIN @NovasConquistas n ON n.ConquistaId = c.Id;
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+    THROW;
+END CATCH;";
+
+                using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
+                {
+                    afr_conexao.Open();
+
+                    using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                    {
+                        afr_comando.Parameters.AddWithValue("@usuarioId", afr_usuarioId);
+                        afr_comando.Parameters.AddWithValue("@aulaId", afr_aulaId);
+
+                        using (SqlDataReader afr_leitor = afr_comando.ExecuteReader())
+                        {
+                            // Primeiro resultado: o resumo
+                            if (afr_leitor.Read())
+                            {
+                                afr_ganho.afr_XpAula = Convert.ToInt32(afr_leitor["xpAula"]);
+                                afr_ganho.afr_XpConquistas = Convert.ToInt32(afr_leitor["xpConquistas"]);
+                                afr_ganho.afr_XpTotal = Convert.ToInt32(afr_leitor["xpTotal"]);
+                                afr_ganho.afr_SequenciaAtual = Convert.ToInt32(afr_leitor["sequenciaAtual"]);
+                                afr_ganho.afr_MelhorSequencia = Convert.ToInt32(afr_leitor["melhorSequencia"]);
+                            }
+
+                            // Segundo resultado: as medalhas ganhas agora
+                            if (afr_leitor.NextResult())
+                            {
+                                while (afr_leitor.Read())
+                                {
+                                    afr_ganho.afr_NovasConquistas.Add(LerConquista(afr_leitor));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Falha na gamificacao nao pode derrubar a conclusao da
+                // aula: a aula ja foi gravada antes desta chamada.
+            }
+
+            return afr_ganho;
+        }
+
+        // -------------------------------------------------------------
+        // O aluno DESMARCOU a aula: devolve o XP daquela aula.
+        //
+        // A API dela nao faz isso (ela so chama awardLessonCompletion
+        // quando concluida=true e ignora o caso contrario), entao aqui
+        // ha uma diferenca consciente: sem devolver, o XP ficaria maior
+        // do que as aulas realmente concluidas. O XP das CONQUISTAS nao
+        // volta - medalha conquistada nao se perde.
+        // -------------------------------------------------------------
+        public bool RemoverXpDaAula(int afr_usuarioId, int afr_aulaId)
+        {
+            try
+            {
+                string afr_sql = @"
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+
+DECLARE @Quantidade INT;
+
+BEGIN TRANSACTION;
+
+    SELECT @Quantidade = Quantidade FROM dbo.HistoricoXP
+    WHERE UsuarioId = @usuarioId AND ReferenciaTipo = 'AULA' AND ReferenciaId = @aulaId;
+
+    IF @Quantidade IS NOT NULL
+    BEGIN
+        DELETE FROM dbo.HistoricoXP
+        WHERE UsuarioId = @usuarioId AND ReferenciaTipo = 'AULA' AND ReferenciaId = @aulaId;
+
+        UPDATE dbo.Gamificacao
+        SET XP = CASE WHEN XP - @Quantidade < 0 THEN 0 ELSE XP - @Quantidade END
+        WHERE UsuarioId = @usuarioId;
+    END;
+
+COMMIT TRANSACTION;";
+
+                using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
+                {
+                    afr_conexao.Open();
+
+                    using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                    {
+                        afr_comando.Parameters.AddWithValue("@usuarioId", afr_usuarioId);
+                        afr_comando.Parameters.AddWithValue("@aulaId", afr_aulaId);
+                        afr_comando.ExecuteNonQuery();
+                        return true;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        // -------------------------------------------------------------
+        // Garante que existe matricula do aluno no curso.
+        //
+        // POR QUE ISTO EXISTE: a conquista PRIMEIRO_CURSO conta cursos
+        // concluidos olhando dbo.Matriculas. Quem cria matricula na API
+        // e courseRoutes.js - que NAO esta montado no server.js. Ou
+        // seja, hoje nada cria matricula e essa conquista nunca e dada
+        // a ninguem, nem pelo celular.
+        //
+        // Matricular aqui, ao concluir a primeira aula do curso, faz a
+        // conquista funcionar sem mudar a regra: continua sendo "todas
+        // as aulas de um curso em que estou matriculado". E como a
+        // tabela e a mesma, isso conserta o problema para o celular
+        // tambem. Vale conversar com o grupo se e assim que deve ficar.
+        // -------------------------------------------------------------
+        public bool GarantirMatricula(int afr_usuarioId, int afr_cursoId)
+        {
+            try
+            {
+                string afr_sql =
+                    "IF NOT EXISTS (SELECT 1 FROM dbo.Matriculas " +
+                    "               WHERE UsuarioId = @usuarioId AND CursoId = @cursoId) " +
+                    "INSERT INTO dbo.Matriculas (UsuarioId, CursoId, DataMatricula) " +
+                    "VALUES (@usuarioId, @cursoId, GETDATE());";
+
+                using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
+                {
+                    afr_conexao.Open();
+
+                    using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                    {
+                        afr_comando.Parameters.AddWithValue("@usuarioId", afr_usuarioId);
+                        afr_comando.Parameters.AddWithValue("@cursoId", afr_cursoId);
+                        return afr_comando.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        // -------------------------------------------------------------
+        // O painel do aluno: XP, sequencia e contagens.
+        // -------------------------------------------------------------
+        public Pontuacao ObterPontuacao(int afr_usuarioId)
+        {
+            Pontuacao afr_pontuacao = new Pontuacao();
+            afr_pontuacao.afr_UsuarioId = afr_usuarioId;
+
+            try
+            {
+                string afr_sql = @"
+SELECT
+    ISNULL(g.XP, 0)              AS xpTotal,
+    ISNULL(g.SequenciaAtual, 0)  AS sequenciaAtual,
+    ISNULL(g.MelhorSequencia, 0) AS melhorSequencia,
+    (SELECT COUNT(*) FROM dbo.HistoricoXP h
+      WHERE h.UsuarioId = @usuarioId AND h.ReferenciaTipo = 'AULA') AS aulasConcluidas,
+    (SELECT COUNT(*) FROM dbo.Matriculas m
+      WHERE m.UsuarioId = @usuarioId
+        AND EXISTS (SELECT 1 FROM dbo.Aulas a WHERE a.CursoId = m.CursoId)
+        AND NOT EXISTS (
+            SELECT 1 FROM dbo.Aulas a
+            WHERE a.CursoId = m.CursoId
+              AND NOT EXISTS (
+                  SELECT 1 FROM dbo.Progresso p
+                  WHERE p.UsuarioId = @usuarioId AND p.AulaId = a.Id
+              )
+        )) AS cursosConcluidos
+FROM (SELECT 1 AS x) AS dummy
+LEFT JOIN dbo.Gamificacao g ON g.UsuarioId = @usuarioId;";
+
+                using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
+                {
+                    afr_conexao.Open();
+
+                    using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                    {
+                        afr_comando.Parameters.AddWithValue("@usuarioId", afr_usuarioId);
+
+                        using (SqlDataReader afr_leitor = afr_comando.ExecuteReader())
+                        {
+                            if (afr_leitor.Read())
+                            {
+                                afr_pontuacao.afr_XpTotal = Convert.ToInt32(afr_leitor["xpTotal"]);
+                                afr_pontuacao.afr_SequenciaAtual = Convert.ToInt32(afr_leitor["sequenciaAtual"]);
+                                afr_pontuacao.afr_MelhorSequencia = Convert.ToInt32(afr_leitor["melhorSequencia"]);
+                                afr_pontuacao.afr_AulasConcluidas = Convert.ToInt32(afr_leitor["aulasConcluidas"]);
+                                afr_pontuacao.afr_CursosConcluidos = Convert.ToInt32(afr_leitor["cursosConcluidos"]);
+                            }
+                        }
+                    }
+                }
+
+                afr_pontuacao.afr_Conquistas = ListarConquistas(afr_usuarioId);
+            }
+            catch (Exception)
+            {
+            }
+
+            return afr_pontuacao;
+        }
+
+        // -------------------------------------------------------------
+        // TODAS as medalhas do catalogo, marcando quais o aluno ja tem.
+        //
+        // A tela mostra tambem as que faltam, apagadas: saber o que da
+        // para conquistar e metade da graca.
+        // -------------------------------------------------------------
+        public List<Conquista> ListarConquistas(int afr_usuarioId)
+        {
+            List<Conquista> afr_lista = new List<Conquista>();
+
+            try
+            {
+                string afr_sql = @"
+SELECT c.Id AS id, c.Codigo AS codigo, c.Nome AS nome, c.Descricao AS descricao,
+       c.Icone AS icone, c.XPBonus AS xpBonus, uc.DataConquista AS dataConquista
+FROM dbo.Conquistas c
+LEFT JOIN dbo.UsuarioConquistas uc
+       ON uc.ConquistaId = c.Id AND uc.UsuarioId = @usuarioId
+ORDER BY c.XPBonus, c.Id;";
+
+                using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
+                {
+                    afr_conexao.Open();
+
+                    using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                    {
+                        afr_comando.Parameters.AddWithValue("@usuarioId", afr_usuarioId);
+
+                        using (SqlDataReader afr_leitor = afr_comando.ExecuteReader())
+                        {
+                            while (afr_leitor.Read())
+                            {
+                                Conquista afr_item = LerConquista(afr_leitor);
+
+                                // DataConquista nula = o aluno ainda nao tem
+                                if (afr_leitor["dataConquista"] != DBNull.Value)
+                                {
+                                    afr_item.afr_Conquistada = true;
+                                    afr_item.afr_DataConquista =
+                                        Convert.ToDateTime(afr_leitor["dataConquista"]);
+                                }
+
+                                afr_lista.Add(afr_item);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            return afr_lista;
+        }
+
+        // -------------------------------------------------------------
+        // O extrato: de onde veio cada ponto.
+        // -------------------------------------------------------------
+        public List<RegistroXP> ListarHistoricoXp(int afr_usuarioId, int afr_limite)
+        {
+            List<RegistroXP> afr_lista = new List<RegistroXP>();
+
+            try
+            {
+                string afr_sql =
+                    "SELECT TOP (@limite) Id, UsuarioId, Quantidade, Motivo, " +
+                    "       ReferenciaTipo, ReferenciaId, DataRegistro " +
+                    "FROM dbo.HistoricoXP WHERE UsuarioId = @usuarioId " +
+                    "ORDER BY DataRegistro DESC, Id DESC;";
+
+                using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
+                {
+                    afr_conexao.Open();
+
+                    using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                    {
+                        afr_comando.Parameters.AddWithValue("@usuarioId", afr_usuarioId);
+                        afr_comando.Parameters.AddWithValue("@limite", afr_limite);
+
+                        using (SqlDataReader afr_leitor = afr_comando.ExecuteReader())
+                        {
+                            while (afr_leitor.Read())
+                            {
+                                RegistroXP afr_item = new RegistroXP();
+
+                                afr_item.afr_Id = Convert.ToInt32(afr_leitor["Id"]);
+                                afr_item.afr_UsuarioId = Convert.ToInt32(afr_leitor["UsuarioId"]);
+                                afr_item.afr_Quantidade = Convert.ToInt32(afr_leitor["Quantidade"]);
+                                afr_item.afr_Motivo = afr_leitor["Motivo"].ToString();
+                                afr_item.afr_ReferenciaTipo = afr_leitor["ReferenciaTipo"].ToString();
+                                afr_item.afr_ReferenciaId = Convert.ToInt32(afr_leitor["ReferenciaId"]);
+                                afr_item.afr_DataRegistro = Convert.ToDateTime(afr_leitor["DataRegistro"]);
+
+                                afr_lista.Add(afr_item);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            return afr_lista;
+        }
+
+        // -------------------------------------------------------------
+        // Le uma medalha do catalogo. Usado em dois lugares, por isso
+        // esta separado.
+        // -------------------------------------------------------------
+        private Conquista LerConquista(SqlDataReader afr_leitor)
+        {
+            Conquista afr_item = new Conquista();
+
+            afr_item.afr_Id = Convert.ToInt32(afr_leitor["id"]);
+            afr_item.afr_Codigo = afr_leitor["codigo"].ToString();
+            afr_item.afr_Nome = afr_leitor["nome"].ToString();
+            afr_item.afr_Descricao = afr_leitor["descricao"].ToString();
+            afr_item.afr_Icone = afr_leitor["icone"].ToString();
+            afr_item.afr_XpBonus = Convert.ToInt32(afr_leitor["xpBonus"]);
+
+            return afr_item;
+        }
+
     }
 }

@@ -9,9 +9,9 @@
    FLUXO DAS TELAS:
      FrmLogin ---> FrmPrincipal ---> FrmCatalogo         (todos)
        |                               '-> FrmAula       (todos)
-       '-> FrmRecuperarSenha       ---> FrmCursos        (tutor e admin)
+       '-> FrmRecuperarSenha       ---> FrmCursos        (professor e admin)
                                          '-> FrmConfirmarExclusao
-                                   ---> FrmProgressoAlunos (tutor e admin)
+                                   ---> FrmProgressoAlunos (professor e admin)
                                    ---> FrmUsuarios      (admin)
                                          |-> FrmPerfilUsuario
                                          '-> FrmConfirmarExclusao

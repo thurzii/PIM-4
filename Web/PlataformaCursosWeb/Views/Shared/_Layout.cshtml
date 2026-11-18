@@ -13,7 +13,7 @@
     diagramas de sequencia:
 
         ALUNO  ve Painel e Catalogo
-        TUTOR  ve tambem Cursos e Progresso
+        PROFESSOR  ve tambem Cursos e Progresso
         ADMIN  ve tambem Usuarios
 
     Quem decide e a classe Usuario (PodeGerenciarCursos,
@@ -50,9 +50,9 @@
     {
         afr_classePerfil = "etiqueta-admin";
     }
-    else if (afr_eu.EhTutor())
+    else if (afr_eu.EhProfessor())
     {
-        afr_classePerfil = "etiqueta-tutor";
+        afr_classePerfil = "etiqueta-professor";
     }
 }
 <!DOCTYPE html>
@@ -109,6 +109,14 @@
     @if (TempData["Sucesso"] != null)
     {
         <div class="aviso aviso-sucesso">@TempData["Sucesso"]</div>
+    }
+
+    @* VERSAO 3 - faixa do XP e das conquistas, em roxo, separada do
+       sucesso e do erro para o aluno nao confundir "gravou no banco"
+       com "voce ganhou pontos". So aparece quando houve ganho. *@
+    @if (TempData["Ganho"] != null)
+    {
+        <div class="aviso aviso-ganho">@TempData["Ganho"]</div>
     }
 
     @if (TempData["Erro"] != null)

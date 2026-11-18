@@ -11,15 +11,15 @@
    DC09 / DS09  Editar Curso ..... Salvar em modo edicao -> UPDATE
    DC10 / DS10  Excluir Curso .... ConfirmarExclusao + Excluir -> DELETE
 
-   QUEM ENTRA AQUI E O TUTOR (e o admin, que pode tudo). Nos diagramas
-   DS09 e DS10 a linha de vida e "Tutor", nao "Admin" - por isso o
+   QUEM ENTRA AQUI E O PROFESSOR (e o admin, que pode tudo). Nos diagramas
+   DS09 e DS10 a linha de vida e "Professor", nao "Admin" - por isso o
    [Authorize] aceita os dois perfis.
 
    A EXCLUSAO TEM DUAS ETAPAS (DS10):
      1) ConfirmarExclusao (GET) .. verificarElegibilidadeExclusao e
         mostra os dadosDetalhados numa pagina
      2) Excluir (POST) ........... confirmarIdentidadeEAcao (pede a
-        senha do tutor) e removerDefinitivamente
+        senha do professor) e removerDefinitivamente
    ===================================================================== */
 
 using Microsoft.AspNetCore.Authorization;
@@ -29,9 +29,9 @@ using PlataformaCursosWeb.Services;
 
 namespace PlataformaCursosWeb.Controllers
 {
-    // Tutor e admin: e o PodeGerenciarCursos() da classe Usuario,
+    // Professor e admin: e o PodeGerenciarCursos() da classe Usuario,
     // escrito do jeito que o ASP.NET entende.
-    [Authorize(Roles = Usuario.PERFIL_TUTOR + "," + Usuario.PERFIL_ADMIN)]
+    [Authorize(Roles = Usuario.PERFIL_PROFESSOR + "," + Usuario.PERFIL_ADMIN)]
     public class CursosController : ControllerPadrao
     {
         private readonly CursoService afr_cursoService;
@@ -52,7 +52,7 @@ namespace PlataformaCursosWeb.Controllers
 
         // =============================================================
         // LISTA DE CURSOS
-        // O tutor enxerga cursos ativos E inativos, por isso usa
+        // O professor enxerga cursos ativos E inativos, por isso usa
         // LocalizarCurso em vez de BuscarCurso.
         // =============================================================
         public IActionResult Index(string termo)
@@ -205,7 +205,7 @@ namespace PlataformaCursosWeb.Controllers
         // =============================================================
         // DC10 / DS10 - ETAPA 2 DA EXCLUSAO
         // confirmarExclusaoFinal(curso)
-        // -> confirmarIdentidadeEAcao(tutor, curso)
+        // -> confirmarIdentidadeEAcao(professor, curso)
         // -> realizarExclusaoDefinitiva -> removerDefinitivamente
         // =============================================================
         [HttpPost]
@@ -224,7 +224,7 @@ namespace PlataformaCursosWeb.Controllers
                 return View("~/Views/Shared/ConfirmarExclusao.cshtml", afr_dados);
             }
 
-            // DS10 - confirmarIdentidadeEAcao(tutor, curso)
+            // DS10 - confirmarIdentidadeEAcao(professor, curso)
             string afr_mensagem;
 
             if (!afr_autenticacaoService.ConfirmarIdentidade(afr_dados.afr_Senha,
@@ -277,7 +277,7 @@ namespace PlataformaCursosWeb.Controllers
 
         // =============================================================
         // INCLUIR UMA AULA no curso
-        // A aula ja nasce com o conteudo que o tutor escreveu (DS05).
+        // A aula ja nasce com o conteudo que o professor escreveu (DS05).
         // =============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -310,7 +310,7 @@ namespace PlataformaCursosWeb.Controllers
 
         // =============================================================
         // DS05 - EDITAR UMA AULA (abrir o formulario)
-        // E aqui que o tutor escreve o conteudo que o aluno vai ler.
+        // E aqui que o professor escreve o conteudo que o aluno vai ler.
         // =============================================================
         [HttpGet]
         public IActionResult EditarAula(int id)

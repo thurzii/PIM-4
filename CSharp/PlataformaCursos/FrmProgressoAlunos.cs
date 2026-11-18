@@ -7,18 +7,18 @@
 
    Esta tela atende o diagrama DS07. No Astah esse diagrama esta
    salvo com o nome "Criar Curso", mas as mensagens dentro dele sao
-   todas de progresso e a linha de vida do Tutor aparece nele. A
+   todas de progresso e a linha de vida do Professor aparece nele. A
    sequencia e esta:
 
-       1) acessarProgresso()              -> o tutor abre a tela
+       1) acessarProgresso()              -> o professor abre a tela
        2) solicitarProgresso(aluno)       -> escolhe o aluno
        3) buscarProgresso(aluno)          -> servico vai ao banco
        4) aulasConcluidas()               -> conta as aulas feitas
        5) progresso(dados)                -> devolve os dados
        6) exibirProgresso(dados)          -> a tela monta a lista
-       7) mostrarProgresso()              -> o tutor ve o resultado
+       7) mostrarProgresso()              -> o professor ve o resultado
 
-   Quem pode abrir: tutor e administrador (PodeVerProgressoDeOutros).
+   Quem pode abrir: professor e administrador (PodeVerProgressoDeOutros).
    O aluno comum nao entra aqui: ele ve o proprio progresso no
    catalogo de cursos.
    ===================================================================== */
@@ -66,7 +66,7 @@ namespace PlataformaCursos
 
             if (!Sessao.PodeVerProgressoDeOutros())
             {
-                MessageBox.Show("Somente tutor ou administrador acompanha o progresso de outros alunos.",
+                MessageBox.Show("Somente professor ou administrador acompanha o progresso de outros alunos.",
                                 "Progresso",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);

@@ -6,7 +6,7 @@
    VERSAO 2 - alinhada com a modelagem UML (Projeto_UML.asta)
 
    O QUE MUDOU EM RELACAO A VERSAO 1:
-   1) Perfil TUTOR, que aparece nos diagramas DS07 a DS10
+   1) Perfil PROFESSOR, que aparece nos diagramas DS07 a DS10
    2) Aula ganhou Conteudo (DS05: exibirConteudo)
    3) Curso ganhou PercentualMinimo (DS08: obterRequisitosCurso)
    4) Classes novas: FiltroCurso, CodigoRecuperacao, LogAcao,
@@ -14,9 +14,9 @@
 
    OS TRES PERFIS, conforme os diagramas de sequencia:
      ALUNO  DS01-DS06 ... catalogo, busca, aulas e proprio progresso
-     TUTOR  DS07-DS10 ... tudo do aluno + cursos, aulas e progresso
+     PROFESSOR  DS07-DS10 ... tudo do aluno + cursos, aulas e progresso
                           dos alunos
-     ADMIN  DS11-DS14 ... tudo do tutor + gerenciamento de usuarios
+     ADMIN  DS11-DS14 ... tudo do professor + gerenciamento de usuarios
    ===================================================================== */
 
 using System;
@@ -69,7 +69,7 @@ namespace PlataformaCursos
     {
         // Os tres perfis dos diagramas de sequencia
         public const string PERFIL_ADMIN = "ADMIN";
-        public const string PERFIL_TUTOR = "TUTOR";
+        public const string PERFIL_PROFESSOR = "PROFESSOR";
         public const string PERFIL_ALUNO = "ALUNO";
 
         public string afr_Senha { get; set; } = "";
@@ -98,9 +98,9 @@ namespace PlataformaCursos
             return afr_Perfil == PERFIL_ADMIN;
         }
 
-        public bool EhTutor()
+        public bool EhProfessor()
         {
-            return afr_Perfil == PERFIL_TUTOR;
+            return afr_Perfil == PERFIL_PROFESSOR;
         }
 
         public bool EhAluno()
@@ -108,18 +108,18 @@ namespace PlataformaCursos
             return afr_Perfil == PERFIL_ALUNO;
         }
 
-        // DS09 e DS10: quem edita e exclui curso e o TUTOR.
+        // DS09 e DS10: quem edita e exclui curso e o PROFESSOR.
         // O admin tambem pode, porque tem acesso a tudo.
         public bool PodeGerenciarCursos()
         {
             // Operador logico OU (||)
-            return EhTutor() || EhAdministrador();
+            return EhProfessor() || EhAdministrador();
         }
 
-        // DS07: so o tutor (e o admin) consultam o progresso de OUTRO aluno
+        // DS07: so o professor (e o admin) consultam o progresso de OUTRO aluno
         public bool PodeVerProgressoDeOutros()
         {
-            return EhTutor() || EhAdministrador();
+            return EhProfessor() || EhAdministrador();
         }
 
         // DS11 a DS14: gerenciar usuarios e exclusivo do administrador
@@ -148,7 +148,7 @@ namespace PlataformaCursos
         // Lista usada pelas caixas de selecao de perfil
         public static string[] ObterPerfis()
         {
-            return new string[] { PERFIL_ALUNO, PERFIL_TUTOR, PERFIL_ADMIN };
+            return new string[] { PERFIL_ALUNO, PERFIL_PROFESSOR, PERFIL_ADMIN };
         }
     }
 
@@ -458,6 +458,273 @@ namespace PlataformaCursos
     }
 
     // =================================================================
+    // CLASSE 12 - RegistroXP   (VERSAO 3.1)
+    //
+    // Uma linha de dbo.HistoricoXP: um ganho de XP que aconteceu.
+    //
+    // ReferenciaTipo + ReferenciaId dizem DE ONDE veio o ponto, e a
+    // restricao UNIQUE (UsuarioId, ReferenciaTipo, ReferenciaId) e o
+    // que impede a mesma aula de pagar duas vezes. A idempotencia que
+    // a analise de integracao pede (item 3.4) mora ali, no banco, e
+    // por isso vale igual para o desktop, o site e o celular.
+    // =================================================================
+    public class RegistroXP
+    {
+        public const string TIPO_AULA = "AULA";
+        public const string TIPO_CONQUISTA = "CONQUISTA";
+
+        public int afr_Id { get; set; }
+        public int afr_UsuarioId { get; set; }
+        public int afr_Quantidade { get; set; }
+        public string afr_Motivo { get; set; } = "";
+        public string afr_ReferenciaTipo { get; set; } = TIPO_AULA;
+        public int afr_ReferenciaId { get; set; }
+        public DateTime afr_DataRegistro { get; set; } = DateTime.Now;
+
+        public string ObterResumo()
+        {
+            return afr_DataRegistro.ToString("dd/MM/yyyy HH:mm") +
+                   "  +" + afr_Quantidade + " XP  " + afr_Motivo;
+        }
+    }
+
+    // =================================================================
+    // CLASSE 13 - Conquista   (VERSAO 3.1)
+    //
+    // Uma medalha do CATALOGO (dbo.Conquistas). Atencao: aqui a classe
+    // representa a medalha que EXISTE, nao a que um aluno ganhou - quem
+    // guarda isso e dbo.UsuarioConquistas.
+    //
+    // afr_Conquistada e afr_DataConquista sao preenchidos quando a
+    // consulta traz o dado do aluno junto, para a tela conseguir
+    // mostrar numa lista so o que ele tem e o que falta.
+    //
+    // O texto NAO fica no programa: vem do banco, porque a API tambem
+    // le dali. Se ficasse aqui, a mesma medalha teria nomes diferentes
+    // no celular e no desktop.
+    // =================================================================
+    public class Conquista
+    {
+        public const string PRIMEIRA_AULA = "PRIMEIRA_AULA";
+        public const string CINCO_AULAS = "CINCO_AULAS";
+        public const string DEZ_AULAS = "DEZ_AULAS";
+        public const string PRIMEIRO_CURSO = "PRIMEIRO_CURSO";
+        public const string SEQUENCIA_7 = "SEQUENCIA_7";
+
+        public int afr_Id { get; set; }
+        public string afr_Codigo { get; set; } = "";
+        public string afr_Nome { get; set; } = "";
+        public string afr_Descricao { get; set; } = "";
+        public string afr_Icone { get; set; } = "";
+        public int afr_XpBonus { get; set; }
+
+        // Preenchidos quando a consulta junta os dados do aluno
+        public bool afr_Conquistada { get; set; }
+        public DateTime? afr_DataConquista { get; set; }
+
+        public string ObterResumo()
+        {
+            string afr_texto = afr_Nome + " (+" + afr_XpBonus + " XP) - " + afr_Descricao;
+
+            if (afr_Conquistada && afr_DataConquista.HasValue)
+            {
+                afr_texto = afr_texto + "  conquistada em " +
+                            afr_DataConquista.Value.ToString("dd/MM/yyyy");
+            }
+
+            return afr_texto;
+        }
+    }
+
+    // =================================================================
+    // CLASSE 14 - Pontuacao   (VERSAO 3.1)
+    //
+    // O painel do aluno, montado a partir de dbo.Gamificacao.
+    //
+    // O nivel NAO e guardado: e calculado a partir do XP, com a mesma
+    // conta da API (Math.floor(xp / 100) + 1), entao os dois sistemas
+    // nunca mostram niveis diferentes para o mesmo aluno.
+    // =================================================================
+    public class Pontuacao
+    {
+        public const int PONTOS_POR_AULA = 10;    // igual ao da API
+        public const int PONTOS_POR_NIVEL = 100;  // igual ao da API
+
+        public int afr_UsuarioId { get; set; }
+        public int afr_XpTotal { get; set; }
+
+        // Dias seguidos estudando, e o recorde
+        public int afr_SequenciaAtual { get; set; }
+        public int afr_MelhorSequencia { get; set; }
+
+        public int afr_AulasConcluidas { get; set; }
+        public int afr_CursosConcluidos { get; set; }
+
+        // TODAS as medalhas do catalogo, com afr_Conquistada marcando
+        // quais o aluno ja tem
+        public List<Conquista> afr_Conquistas { get; set; } = new List<Conquista>();
+
+        public int ObterNivel()
+        {
+            return 1 + (afr_XpTotal / PONTOS_POR_NIVEL);
+        }
+
+        public int ObterXpNoNivel()
+        {
+            return afr_XpTotal % PONTOS_POR_NIVEL;
+        }
+
+        public int ObterXpParaProximoNivel()
+        {
+            return PONTOS_POR_NIVEL - ObterXpNoNivel();
+        }
+
+        // 0 a 100, para desenhar a barra de progresso
+        public int ObterPercentualDoNivel()
+        {
+            return (ObterXpNoNivel() * 100) / PONTOS_POR_NIVEL;
+        }
+
+        public string ObterTituloDoNivel()
+        {
+            int afr_nivel = ObterNivel();
+
+            if (afr_nivel <= 2) { return "Iniciante"; }
+            if (afr_nivel <= 4) { return "Aprendiz"; }
+            if (afr_nivel <= 7) { return "Dedicado"; }
+            if (afr_nivel <= 10) { return "Veterano"; }
+
+            return "Mestre";
+        }
+
+        public int ContarConquistadas()
+        {
+            int afr_total = 0;
+
+            foreach (Conquista afr_item in afr_Conquistas)
+            {
+                if (afr_item.afr_Conquistada)
+                {
+                    afr_total = afr_total + 1;
+                }
+            }
+
+            return afr_total;
+        }
+
+        public bool TemConquista(string afr_codigo)
+        {
+            foreach (Conquista afr_item in afr_Conquistas)
+            {
+                if (afr_item.afr_Codigo == afr_codigo && afr_item.afr_Conquistada)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public string ObterResumo()
+        {
+            return "Nivel " + ObterNivel() + " (" + ObterTituloDoNivel() + ") - " +
+                   afr_XpTotal + " XP - " +
+                   ContarConquistadas() + " de " + afr_Conquistas.Count + " conquistas";
+        }
+    }
+
+    // =================================================================
+    // CLASSE 15 - GanhoGamificacao   (VERSAO 3.1)
+    //
+    // O que o aluno acabou de ganhar. Os campos sao os mesmos que a API
+    // devolve em awardLessonCompletion, para o dia em que o programa
+    // consumir a API nada precisar ser traduzido:
+    //
+    //   { xpAula, xpConquistas, xpTotal, sequenciaAtual,
+    //     melhorSequencia, novasConquistas, nivel }
+    // =================================================================
+    public class GanhoGamificacao
+    {
+        public int afr_XpAula { get; set; }
+        public int afr_XpConquistas { get; set; }
+        public int afr_XpTotal { get; set; }
+        public int afr_SequenciaAtual { get; set; }
+        public int afr_MelhorSequencia { get; set; }
+
+        public List<Conquista> afr_NovasConquistas { get; set; } = new List<Conquista>();
+
+        public int ObterXpGanho()
+        {
+            return afr_XpAula + afr_XpConquistas;
+        }
+
+        public int ObterNivel()
+        {
+            return 1 + (afr_XpTotal / Pontuacao.PONTOS_POR_NIVEL);
+        }
+
+        // O nivel ANTES desta acao, para saber se subiu. A API nao
+        // devolve isso, entao e calculado: o XP de antes era o total
+        // menos o que acabou de entrar.
+        public int ObterNivelAnterior()
+        {
+            int afr_xpAntes = afr_XpTotal - ObterXpGanho();
+
+            if (afr_xpAntes < 0)
+            {
+                afr_xpAntes = 0;
+            }
+
+            return 1 + (afr_xpAntes / Pontuacao.PONTOS_POR_NIVEL);
+        }
+
+        public bool SubiuDeNivel()
+        {
+            return ObterNivel() > ObterNivelAnterior();
+        }
+
+        public bool TemNovidade()
+        {
+            // Operador logico OU (||)
+            return ObterXpGanho() > 0 || afr_NovasConquistas.Count > 0;
+        }
+
+        // Monta o aviso que a tela mostra. Devolve "" quando nao houve
+        // nada de novo, e ai a tela nao mostra aviso nenhum.
+        public string ObterMensagem()
+        {
+            if (!TemNovidade())
+            {
+                return "";
+            }
+
+            List<string> afr_partes = new List<string>();
+
+            if (ObterXpGanho() > 0)
+            {
+                afr_partes.Add("+" + ObterXpGanho() + " XP");
+            }
+
+            if (SubiuDeNivel())
+            {
+                afr_partes.Add("subiu para o nivel " + ObterNivel());
+            }
+
+            foreach (Conquista afr_item in afr_NovasConquistas)
+            {
+                afr_partes.Add("conquista \"" + afr_item.afr_Nome + "\"");
+            }
+
+            if (afr_SequenciaAtual >= 2)
+            {
+                afr_partes.Add(afr_SequenciaAtual + " dias seguidos");
+            }
+
+            return string.Join(", ", afr_partes) + ".";
+        }
+    }
+
+    // =================================================================
     // CLASSE 11 - Sessao
     // DS06 - encerrarSessao / finalizarSessao / sessaoEncerrada
     // =================================================================
@@ -508,14 +775,14 @@ namespace PlataformaCursos
             return afr_usuarioLogado.EhAdministrador();
         }
 
-        public static bool EhTutor()
+        public static bool EhProfessor()
         {
             if (afr_usuarioLogado == null)
             {
                 return false;
             }
 
-            return afr_usuarioLogado.EhTutor();
+            return afr_usuarioLogado.EhProfessor();
         }
 
         public static bool PodeGerenciarCursos()

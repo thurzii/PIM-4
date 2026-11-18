@@ -163,10 +163,10 @@ namespace PlataformaCursos
             // afr_cmbPerfil
             //
             this.afr_cmbPerfil.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            // Os tres perfis do modelo: Aluno, Tutor e Admin
+            // Os tres perfis do modelo: Aluno, Professor e Admin
             this.afr_cmbPerfil.Items.AddRange(new object[] {
             "ALUNO",
-            "TUTOR",
+            "PROFESSOR",
             "ADMIN"});
             this.afr_cmbPerfil.Location = new System.Drawing.Point(110, 164);
             this.afr_cmbPerfil.Name = "afr_cmbPerfil";

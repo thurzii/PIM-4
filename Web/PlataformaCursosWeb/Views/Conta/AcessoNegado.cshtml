@@ -4,7 +4,7 @@
     nao alcanca, digitando o endereco direto no navegador. Quem manda
     para ca e o AccessDeniedPath, configurado no Program.cs.
 
-    E o equivalente ao MessageBox "somente tutor ou administrador" que o
+    E o equivalente ao MessageBox "somente professor ou administrador" que o
     desktop mostrava no evento Load de cada formulario.
     =====================================================================
 *@
@@ -43,7 +43,7 @@
                 <td>&mdash;</td>
             </tr>
             <tr>
-                <td><span class="etiqueta etiqueta-tutor">TUTOR</span></td>
+                <td><span class="etiqueta etiqueta-professor">PROFESSOR</span></td>
                 <td>sim</td>
                 <td>sim</td>
                 <td>sim</td>
@@ -63,7 +63,7 @@
         Esta regra nao esta escrita dentro das paginas. Ela vem de duas
         camadas: o atributo <code>[Authorize(Roles = ...)]</code> no inicio
         dos controllers, que barra a requisicao antes de qualquer codigo
-        rodar, e os metodos <code>VerificarPermissaoTutor</code> e
+        rodar, e os metodos <code>VerificarPermissaoProfessor</code> e
         <code>VerificarPermissaoAdmin</code> dos servicos, que conferem de
         novo. E a mesma dupla protecao do desktop: esconder o botao no menu
         e checar no evento Load.

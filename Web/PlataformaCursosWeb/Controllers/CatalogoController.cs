@@ -118,7 +118,7 @@ namespace PlataformaCursosWeb.Controllers
             }
 
             // Regra: o aluno nao abre curso inativo pelo endereco direto.
-            // Tutor e admin podem, para conferir antes de publicar.
+            // Professor e admin podem, para conferir antes de publicar.
             if (!afr_curso.afr_Ativo && !PodeGerenciarCursos())
             {
                 AvisarErro("Este curso nao esta disponivel.");
@@ -216,8 +216,15 @@ namespace PlataformaCursosWeb.Controllers
 
             string afr_mensagem;
 
+            // VERSAO 3 - a sobrecarga com afr_ganho devolve TAMBEM o XP e
+            // as conquistas que a acao rendeu. O bonus de curso concluido
+            // ja vem somado aqui dentro: quem decide isso e o
+            // ProgressoService, nao o controller.
+            GanhoGamificacao afr_ganho;
+
             bool afr_ok = afr_progressoService.AtualizarProgresso(
-                              afr_alunoId, aulaId, concluida, out afr_mensagem);
+                              afr_alunoId, aulaId, concluida,
+                              out afr_mensagem, out afr_ganho);
 
             if (!afr_ok)
             {
@@ -248,6 +255,17 @@ namespace PlataformaCursosWeb.Controllers
                     {
                         AvisarSucesso("Curso concluido. " + afr_resultado.ObterResumo());
                     }
+                }
+
+                // VERSAO 3 - o aviso do XP, numa faixa propria.
+                // ObterMensagem() devolve "" quando nao houve novidade
+                // (aula ja concluida antes, ou desmarcacao), e ai nenhum
+                // aviso e mostrado - melhor do que exibir "+0 XP".
+                string afr_avisoGanho = afr_ganho.ObterMensagem();
+
+                if (afr_avisoGanho != "")
+                {
+                    TempData["Ganho"] = afr_avisoGanho;
                 }
             }
 
