@@ -43,17 +43,9 @@
     bool afr_podeProgresso = afr_logado && afr_eu.PodeVerProgressoDeOutros();
     bool afr_podeUsuarios = afr_logado && afr_eu.PodeGerenciarUsuarios();
 
-    // A cor da etiqueta do perfil na barra do topo
-    string afr_classePerfil = "etiqueta-aluno";
-
-    if (afr_eu.EhAdministrador())
-    {
-        afr_classePerfil = "etiqueta-admin";
-    }
-    else if (afr_eu.EhProfessor())
-    {
-        afr_classePerfil = "etiqueta-professor";
-    }
+    // A etiqueta do perfil na barra do topo NAO usa as classes etiqueta-*:
+    // elas sao para fundo claro, e a de aluno sumiria no azul do topo.
+    // O estilo dela e o .topo .usuario .perfil, igual para os tres perfis.
 }
 <!DOCTYPE html>
 <html lang="pt-br">
