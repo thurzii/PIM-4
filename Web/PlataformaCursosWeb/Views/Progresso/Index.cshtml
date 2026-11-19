@@ -117,10 +117,10 @@
     @* Antes o professor via so o progresso por curso. O engajamento  *@
     @* - XP, sequencia de dias, medalhas - era invisivel para ele.    *@
     @* ------------------------------------------------------------- *@
-    @{
-        var afr_pont = Model.afr_Pontuacao;
-        string afr_barraAluno = afr_pont.ObterPercentualDoNivel() + "%";
-    }
+    @* Sem @{ } aqui: dentro do @if o Razor ja esta em modo codigo, e     *@
+    @* chaves comuns criariam um escopo que esconderia afr_pont abaixo.   *@
+    var afr_pont = Model.afr_Pontuacao;
+    string afr_barraAluno = afr_pont.ObterPercentualDoNivel() + "%";
 
     <div class="cartao painel-xp" style="margin-bottom:20px;">
         <div class="xp-topo">
