@@ -137,16 +137,25 @@ O briefing antigo em `Api/README.md` propunha `{ ok, mensagem, dados }`.
 `{ message }` nos erros (em inglês) e **array puro** nas listas. Quem diz se
 deu certo é o código HTTP.
 
-### 5. Três arquivos de rota da API não estão montados
+### 5. A matrícula virou explícita na API — e automática no nosso lado
 
-`server.js` só carrega `professorRoutes` e `gamificationRoutes`.
-`courseRoutes.js`, `adminRoutes.js` e `authRoutes.js` existem e **nenhuma
-rota deles responde**.
+**Resolvido em 19/11** (commit `ae4c5b9` do branch `main`): o `courseRoutes`
+foi montado em `/api/cursos` e as cópias que estavam soltas no `server.js`
+foram removidas. `adminRoutes.js` e `authRoutes.js` continuam desmontados,
+mas as rotas deles existem no `server.js` — são arquivos mortos, não falhas.
 
-Consequência: a matrícula é criada em `courseRoutes`, então nada insere em
-`dbo.Matriculas`, e a conquista `PRIMEIRO_CURSO` (100 XP) nunca sai — nem no
-mobile. Contornado por `BancoService.GarantirMatricula`, chamada ao concluir
-aula. **É contorno, não solução** — depende de decisão do grupo.
+Três consequências para o C#:
+
+1. `GET /api/cursos` passou a ser **`studentOnly`**. Professor e admin levam
+   403. O catálogo das telas deles só funciona no modo SQL até isso mudar.
+2. `PUT /api/cursos/:c/aulas/:a/progresso` **exige matrícula** e responde
+   403 sem ela. No modo API, chame `ClienteApi.MatricularEmCurso` antes.
+3. `GET /api/cursos/:id` passou a trazer `matriculado` e `professorId`.
+
+**Divergência de comportamento, não bug:** o mobile tem um botão
+"matricular-se"; o desktop e a web matriculam sozinhos, em
+`BancoService.GarantirMatricula`, ao concluir a primeira aula. Mesmo banco,
+duas portas de entrada. **Decisão do grupo ainda em aberto.**
 
 ### 6. Sessão: estática no desktop, por requisição na web
 
@@ -202,19 +211,21 @@ usuários diferentes.
 - Desktop: constante `ConfiguracaoApi.ATIVA`
 - Web: `Api:Ativa` no `appsettings.json`
 
-As 16 rotas e os 28 nomes de campo foram conferidos um a um contra o
+As 18 rotas e os nomes de campo foram conferidos um a um contra o
 `server.js`. Ao ligar, nenhuma tela muda — o ponto de troca é um arquivo.
 
-**Falta uma rota do lado da API:** não existe como um professor ler o XP de
-outra pessoa (`/api/gamificacao/me` é `studentOnly`). A tela de ranking
-funciona no modo SQL e não tem como funcionar via API até isso existir. Já
-foi pedido ao responsável.
+**A rota de ranking já existe:** `GET /api/gamificacao/turma`, criada em
+19/11 a nosso pedido, aceita PROFESSOR e ADMIN e devolve os alunos já
+ordenados por XP, com a posição pronta. Ela **não** devolve aulas concluídas
+nem número de conquistas — essas duas colunas da tela de ranking ficam em
+zero no modo API até a rota passar a devolvê-las.
 
 ---
 
 ## Decisões pendentes do grupo
 
-1. Montar ou não o `courseRoutes` (matrícula explícita × automática)
+1. Matrícula explícita (botão, como no mobile) × automática (desktop e web)
+   — o `courseRoutes` já foi montado; falta alinhar os dois comportamentos
 2. Qual fluxo de recuperação de senha vale (a API responde 501; o desktop e
    a web têm código com prazo de 15 minutos)
 3. Comparação de esquema entre o banco local e o do Azure

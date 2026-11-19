@@ -218,6 +218,10 @@ namespace PlataformaCursosWeb.Services
 
         // -------------------------------------------------------------
         // GET /api/cursos?busca=...   ->   ARRAY de cursos (sem embrulho)
+        //
+        // Desde que o courseRoutes foi montado (19/11), esta rota e
+        // studentOnly: professor e admin levam 403. O catalogo das telas
+        // deles so funciona no modo SQL ate isso mudar do lado da API.
         // -------------------------------------------------------------
         public RespostaApi ListarCursos(string afr_busca)
         {
@@ -241,6 +245,10 @@ namespace PlataformaCursosWeb.Services
         //
         // A gamificacao so vem preenchida quando concluida = true; ao
         // desmarcar, a API manda null nesse campo.
+        //
+        // Desde 19/11 a rota exige matricula: sem linha em dbo.Matriculas
+        // ela responde 403 "Matricule-se no curso antes de registrar o
+        // progresso". Chame MatricularEmCurso antes da primeira aula.
         // -------------------------------------------------------------
         public RespostaApi MarcarProgresso(int afr_cursoId, int afr_aulaId, bool afr_concluida)
         {
@@ -264,6 +272,37 @@ namespace PlataformaCursosWeb.Services
         public RespostaApi ObterGamificacao()
         {
             return Chamar(HttpMethod.Get, "/api/gamificacao/me", null);
+        }
+
+        // -------------------------------------------------------------
+        // GET /api/gamificacao/turma  ->  ARRAY de alunos, ja ordenado
+        //      por XP e com a posicao calculada pela API
+        //
+        // Criada a nosso pedido: /me e studentOnly, entao professor e
+        // admin nao tinham como ler o XP de ninguem. Esta aceita so
+        // PROFESSOR e ADMIN; aluno leva 403.
+        //
+        // Atencao: ela NAO devolve aulas concluidas nem quantidade de
+        // conquistas. Essas duas colunas da tela de ranking ficam em
+        // zero no modo API ate a rota passar a devolve-las.
+        // -------------------------------------------------------------
+        public RespostaApi ObterRankingTurma()
+        {
+            return Chamar(HttpMethod.Get, "/api/gamificacao/turma", null);
+        }
+
+        // -------------------------------------------------------------
+        // POST /api/cursos/:id/matricula  ->  201 { message }
+        //
+        // Passou a existir quando o courseRoutes foi montado. E o
+        // equivalente, pela API, do que BancoService.GarantirMatricula
+        // faz direto no banco no modo SQL.
+        // -------------------------------------------------------------
+        public RespostaApi MatricularEmCurso(int afr_cursoId)
+        {
+            return Chamar(HttpMethod.Post,
+                          "/api/cursos/" + afr_cursoId + "/matricula",
+                          null);
         }
 
         // -------------------------------------------------------------
@@ -582,6 +621,59 @@ namespace PlataformaCursosWeb.Services
 
         [JsonPropertyName("concluidas")]
         public int afr_Concluidas { get; set; }
+
+        // Passou a vir no corpo quando a matricula virou explicita.
+        // Diz se o aluno logado ja esta matriculado neste curso.
+        [JsonPropertyName("matriculado")]
+        public bool afr_Matriculado { get; set; }
+    }
+
+    // GET /api/gamificacao/turma devolve um array destes.
+    // A API ja manda ordenado e com a posicao pronta, entao nao
+    // reordenamos aqui: duas ordens diferentes para o mesmo ranking
+    // seria exatamente o tipo de divergencia que a rota veio evitar.
+    public class RankingApi
+    {
+        [JsonPropertyName("posicao")]
+        public int afr_Posicao { get; set; }
+
+        [JsonPropertyName("id")]
+        public int afr_Id { get; set; }
+
+        [JsonPropertyName("nome")]
+        public string afr_Nome { get; set; } = "";
+
+        [JsonPropertyName("email")]
+        public string afr_Email { get; set; } = "";
+
+        [JsonPropertyName("xp")]
+        public int afr_Xp { get; set; }
+
+        [JsonPropertyName("nivel")]
+        public int afr_Nivel { get; set; }
+
+        [JsonPropertyName("sequenciaAtual")]
+        public int afr_SequenciaAtual { get; set; }
+
+        [JsonPropertyName("melhorSequencia")]
+        public int afr_MelhorSequencia { get; set; }
+
+        public LinhaRanking ParaLinhaRanking()
+        {
+            LinhaRanking afr_linha = new LinhaRanking();
+
+            afr_linha.afr_Posicao = afr_Posicao;
+            afr_linha.afr_UsuarioId = afr_Id;
+            afr_linha.afr_Nome = afr_Nome ?? "";
+            afr_linha.afr_Email = afr_Email ?? "";
+            afr_linha.afr_Perfil = "ALUNO";   // a rota so devolve alunos
+            afr_linha.afr_XpTotal = afr_Xp;
+            afr_linha.afr_SequenciaAtual = afr_SequenciaAtual;
+
+            // afr_AulasConcluidas e afr_Conquistas ficam em zero de
+            // proposito: a rota nao devolve esses dois numeros.
+            return afr_linha;
+        }
     }
 
     public class AulaApi
