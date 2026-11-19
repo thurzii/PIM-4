@@ -1,152 +1,170 @@
-# -Linguagem de Programação C#
+# Plataforma de Cursos — PIM IV
 
-Repositório central do grupo. Cada matéria ou etapa do trabalho tem a sua pasta.
+Repositório central do grupo para o **Projeto Integrado Multidisciplinar (PIM IV)**. O mesmo sistema de cursos online foi construído em três interfaces — desktop, web e mobile — sobre um único banco de dados, com acesso às funcionalidades de acordo com o perfil de cada usuário.
 
----
+## Organização do repositório
 
-## Versão 3.1 — sincronizada com a API (18/11/2026)
+Este repositório tem **dois branches**, com conteúdos diferentes. Eles não compartilham histórico: cada um nasceu separadamente.
 
-> **O código da API está no branch `main` deste mesmo repositório.** O `master`,
-> onde você está, tem só a parte C#. No GitHub, troque de branch no seletor acima
-> da lista de arquivos para ver `api/`, `mobile/` e `sql/`.
+| Branch | Conteúdo | Pastas |
+|---|---|---|
+| **`master`** | Sistema desktop e web, em C# | `CSharp/`, `Web/`, `Documentacao/`, `Modelagem/` |
+| **`main`** | Aplicativo mobile, API e scripts do banco | `api/`, `mobile/`, `sql/` |
 
-O desktop e o site foram alinhados ao **código** da API, não à suposição.
-**Leia [Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md](Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md)**
-— ele explica o que mudou, o que foi testado e o que ainda precisa de decisão.
+No GitHub, troque de branch no seletor acima da lista de arquivos. Para ver os dois lados ao mesmo tempo no Visual Studio, use **Git → Gerenciar Branches**.
 
-| Mudança | Onde |
+## Tecnologias
+
+- **Desktop:** C# e Windows Forms (.NET 8).
+- **Web:** C# e ASP.NET Core MVC (.NET 8), com autenticação por cookie.
+- **Mobile:** React Native e Expo (JavaScript).
+- **API:** Node.js e Express.
+- **Banco de dados:** Microsoft SQL Server, com suporte à conexão ao Azure SQL.
+- **Autenticação:** senhas armazenadas com `scrypt`, no mesmo formato nas três interfaces.
+
+## Funcionalidades
+
+| Perfil | Funcionalidades principais |
 |---|---|
-| Terceiro perfil renomeado de `TUTOR` para `PROFESSOR` | tudo, com migração automática do banco |
-| Senha virou hash **scrypt**, no formato exato da API (`scrypt:salt:hash`) | `SenhaHash.cs` |
-| Esquema de gamificação passou a ser **o da API** | `Gamificacao`, `Conquistas`, `UsuarioConquistas`, `HistoricoXP`, `Matriculas` |
-| Regra de XP portada do T-SQL da API | `BancoService.ConcederXpPorAula` |
-| Idempotência (não paga XP duas vezes) | restrição `UNIQUE` em `HistoricoXP` |
-| Cliente HTTP conferido rota a rota contra o `server.js` | `ClienteApi.cs`, **desligado** |
-| Senha mínima de 8 caracteres e e-mail em minúsculas | para casar com a validação da API |
+| **ADMIN** | Cadastrar e gerenciar usuários (alunos, professores e administradores) e gerenciar cursos. |
+| **PROFESSOR** | Gerenciar cursos e aulas, acompanhar o progresso dos alunos e consultar a classificação por XP. |
+| **ALUNO** | Consultar o catálogo, acessar cursos, concluir aulas e visualizar o próprio XP e conquistas. |
 
-**Uma colisão grave foi evitada:** a versão anterior criava uma tabela
-`dbo.Conquistas` própria, com significado diferente da que a API cria. No mesmo
-banco, um dos dois programas quebraria. Agora há um esquema só.
+**O cadastro de usuários é exclusivo do administrador.** Não existe cadastro público em nenhuma das interfaces.
 
-**Um bug na API foi encontrado:** três dos cinco arquivos de rota não estão
-montados no `server.js`, e por isso a conquista `PRIMEIRO_CURSO` nunca é
-concedida a ninguém. Detalhes e solução provisória no documento.
+### Progresso e gamificação
 
-Para conferir o cliente contra a API depois de qualquer mudança nela:
+A conclusão de aulas concede **10 XP por nova aula**, mais bônus por conquistas. O nível é calculado a partir do XP (`XP / 100 + 1`) e não é armazenado, para nunca divergir dos pontos.
 
-```
-python3 Ferramentas/conferir_api.py ../caminho/para/api/src
-```
+A restrição `UNIQUE (UsuarioId, ReferenciaTipo, ReferenciaId)` da tabela `HistoricoXP` impede que a mesma aula pague XP duas vezes. Como a regra está no banco, vale igual para as três interfaces, sem que nenhuma precise se lembrar de verificar.
 
-> **Não rode `CSharp/Banco_CursosDB.sql` no banco do Azure.** Ele monta o esquema
-> local; o da nuvem é o do mobile. O motivo está no cabeçalho do próprio script.
+| Conquista | Critério | Bônus |
+|---|---|---|
+| **Primeiros passos** | primeira aula concluída | 20 XP |
+| **Ritmo de estudos** | cinco aulas | 30 XP |
+| **Estudante dedicado** | dez aulas | 50 XP |
+| **Uma semana de foco** | sete dias consecutivos | 75 XP |
+| **Curso concluído** | todas as aulas de um curso | 100 XP |
 
----
+Ao desmarcar uma aula, o desktop e a web estornam o XP daquela aula, para o total continuar batendo com o que foi de fato concluído. As conquistas já obtidas permanecem.
 
-## O que tem em cada pasta
+## Arquitetura
 
-| Pasta | Conteúdo |
-|---|---|
-| **[CSharp/](CSharp/)** | O sistema em **Windows Forms** + SQL Server. Instruções em [CSharp/README.md](CSharp/README.md) |
-| **[Web/](Web/)** | O **mesmo sistema** em ASP.NET Core MVC. Instruções em [Web/README.md](Web/README.md) |
-| **[Api/](Api/)** | O serviço que vai atender os dois. Ainda não começou — o briefing está em [Api/README.md](Api/README.md) |
-| **[Modelagem/](Modelagem/)** | O arquivo do Astah e os diagramas exportados |
-| **[Documentacao/](Documentacao/)** | Relatórios, textos e documentos das demais matérias |
-| **[Apresentacao/](Apresentacao/)** | Slides e roteiros. Vídeos ficam fora, só o link |
-
-### Os três projetos, e como se encaixam
-
-```
-hoje:
-  Windows Forms  →  Servicos  →  BancoService  →  SQL Server (CursosDB)
-  ASP.NET MVC    →  Servicos  →  BancoService  →  SQL Server (CursosDB)
-
-depois da API:
-  Windows Forms  →  Servicos  →  ApiService  ┐
-                                             ├→  API  →  BancoService  →  SQL Server
-  ASP.NET MVC    →  Servicos  →  ApiService  ┘
+```text
+   Windows Forms        ASP.NET Core MVC        React Native (Expo)
+         |                      |                        |
+         |                      |                        | HTTP / JWT
+         |                      |                        v
+         |                      |                 API Node.js / Express
+         |                      |                        |
+         +----------------------+------------------------+
+                                |
+                                v
+                      SQL Server / Azure SQL
 ```
 
-**O banco de dados é o mesmo para os dois sistemas.** Quem entrar no desktop e depois na web vê o mesmo progresso, os mesmos cursos e os mesmos usuários. O script está em [CSharp/Banco_CursosDB.sql](CSharp/Banco_CursosDB.sql), numa cópia só.
+Hoje o desktop e a web acessam o banco diretamente; o aplicativo acessa pela API. O cliente HTTP do lado C# (`ClienteApi.cs`) já está escrito e **desligado** — quando o grupo decidir virar a chave, as três interfaces passam a consumir a mesma API, e nenhuma tela precisa mudar.
 
-**A versão 2 está alinhada com a modelagem do Astah.** Os dois sistemas foram revisados mensagem por mensagem contra os 14 diagramas de sequência. O mapa completo está em [CSharp/RASTREABILIDADE.md](CSharp/RASTREABILIDADE.md) e [Web/RASTREABILIDADE_WEB.md](Web/RASTREABILIDADE_WEB.md) — são os documentos para levar na apresentação.
+**O banco de dados é o mesmo para todas as interfaces.** Quem concluir uma aula no celular vê o mesmo XP no desktop, porque a regra e os dados estão num lugar só.
 
----
+## Estrutura do projeto
 
-## Começando (para quem acabou de entrar no repositório)
+```text
+CSharp/          Sistema desktop em Windows Forms e o script do banco
+Web/             O mesmo sistema em ASP.NET Core MVC
+Api/             Briefing da integração (o código da API está no branch main)
+Ferramentas/     Scripts de verificação do projeto
+Modelagem/       Arquivo do Astah e diagramas exportados
+Documentacao/    Relatórios e documentos das demais matérias
+Apresentacao/    Slides e roteiros (vídeos ficam fora, só o link)
+```
+
+## Como executar
+
+**Pré-requisitos:** Visual Studio 2022 ou mais novo, com a carga de trabalho **.NET desktop** (desktop) ou **ASP.NET e desenvolvimento web** (web). O banco é criado automaticamente na primeira execução.
 
 ### 1. Baixar o repositório
 
-No Visual Studio: **Git → Clonar Repositório**, cole o endereço e escolha uma pasta no seu computador.
+No Visual Studio: **Git → Clonar Repositório**, cole o endereço e escolha uma pasta em **Documentos** — não em Downloads, de onde o Windows apaga arquivos antigos sozinho.
 
-> Escolha uma pasta em **Documentos**, não em Downloads. O Windows apaga arquivos antigos da pasta Downloads automaticamente.
+### 2. Rodar o sistema desktop
 
-### 2. Rodar o sistema
+Abra `CSharp/PlataformaCursos.sln` e pressione **Ctrl+F5**.
 
-**Versão desktop:** abra `CSharp/PlataformaCursos.sln` e pressione **Ctrl+F5**.
+### 3. Rodar o site
 
-**Versão web:** abra `Web/PlataformaCursosWeb.sln` e pressione **F5**. O navegador abre sozinho em `http://localhost:5000`.
+Abra `Web/PlataformaCursosWeb.sln` e pressione **Ctrl+F5**. O navegador abre sozinho em `http://localhost:5000`.
 
-Nos dois casos, aguarde a restauração do pacote NuGet na primeira vez (precisa de internet). O banco de dados é criado automaticamente na primeira execução — não é preciso configurar conexão nem rodar script.
+Use **Ctrl+F5** (*Iniciar sem Depuração*), e não F5: com F5 o Visual Studio encerra o servidor assim que a janela do navegador fecha, o que atrapalha abrir uma segunda sessão.
 
-> Quem já rodou a versão 1 **não precisa apagar o banco**. Na primeira execução da versão 2 o programa acrescenta sozinho as colunas e tabelas novas, sem perder nenhum dado.
+Nos dois casos, aguarde a restauração dos pacotes NuGet na primeira vez — precisa de internet, e inclui o **BouncyCastle**, usado para o hash de senha.
 
-### 3. Entrar no sistema
+### 4. Entrar no sistema
 
-| Perfil | Email | Senha | O que pode fazer |
-|---|---|---|---|
-| Administrador | `admin@escola.com` | `admin123` | tudo |
-| Tutor | `carla@escola.com` | `tutor123` | cursos, aulas e progresso dos alunos |
-| Aluno | `maria@escola.com` | `aluno123` | catálogo e as próprias aulas |
+| Perfil | E-mail | Senha |
+|---|---|---|
+| **ADMIN** | `admin@escola.com` | `admin123` |
+| **PROFESSOR** | `carla@escola.com` | `professor123` |
+| **ALUNO** | `maria@escola.com` | `aluno123` |
+| **ALUNO** | `joao@escola.com` | `aluno123` |
 
-Deu algum erro? A seção de problemas comuns está em [CSharp/README.md](CSharp/README.md) e [Web/README.md](Web/README.md).
+**Atenção:** em bancos criados antes da renomeação do perfil, a senha da Carla é `tutor123`. A senha mínima passou a ser de **8 caracteres**, para casar com a validação da API.
 
----
+As senhas são convertidas para `scrypt` no primeiro login correto de cada conta. Por isso os scripts ainda trazem senhas legíveis: elas são o ponto de partida, não o estado final.
 
-## Como trabalhar em grupo sem dor de cabeça
+## Banco de dados
 
-### Antes de começar a mexer, sempre puxe
+O script de criação é [CSharp/Banco_CursosDB.sql](CSharp/Banco_CursosDB.sql), executado automaticamente pelos programas. As tabelas de gamificação e matrícula seguem exatamente o esquema da API, definido em `sql/Etapa1_Professor.sql` e `sql/Etapa4_Gamificacao.sql`, no branch `main`.
 
-No Visual Studio, a seta para baixo na barra do Git, ou **Git → Pull**.
+| Arquivo | Finalidade |
+|---|---|
+| `CSharp/Banco_CursosDB.sql` | Estrutura completa: usuários, cursos, aulas, progresso, gamificação e matrículas. |
+| `CSharp/Zerar_Testes.sql` | Apaga progresso, XP e conquistas para repetir testes. Preserva usuários, cursos e o catálogo de medalhas. |
 
-Isso traz para o seu computador o que os outros já enviaram. Se você trabalhar o dia inteiro sem puxar, vai estar mexendo numa versão antiga — e na hora de enviar terá que juntar tudo na mão.
+**Atenção:** não execute `Banco_CursosDB.sql` no banco do Azure. Ele monta o esquema local; o da nuvem é o do aplicativo mobile. Os `IF OBJECT_ID` evitam recriar tabelas, mas não protegem contra os `ALTER TABLE` e o `UPDATE` da seção de migração. Antes de apontar qualquer interface para o Azure, o grupo precisa comparar os dois esquemas.
 
-### Para enviar o que você fez
+## Verificação do projeto
 
-**Git → Confirmar Tudo** (escreva uma frase do que mudou) e depois **Git → Push**.
+Como as três interfaces compartilham banco e contratos, existe um script que confere o cliente HTTP do C# contra o código real da API — rotas e nomes de campo, um a um:
 
-Escreva mensagens que digam o que mudou: `"corrigi a validacao do email"` ajuda; `"alteracoes"` não ajuda ninguém.
+```bash
+python3 Ferramentas/conferir_api.py ../caminho/para/api/src
+```
+
+Vale rodar sempre que a API mudar de rota ou de nome de campo. O relato completo da sincronização entre os dois lados está em [Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md](Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md).
+
+## Trabalho em grupo
+
+### Antes de mexer, puxe
+
+No Visual Studio: **Git → Buscar** e depois **Puxar**. Trabalhar o dia inteiro sem puxar significa mexer numa versão antiga e ter que juntar tudo na mão depois.
+
+### Para enviar
+
+**Git → Confirmar Tudo**, com uma frase do que mudou, e depois **Git → Enviar por Push**. Mensagens como `"corrigi a validacao do email"` ajudam; `"alteracoes"` não ajuda ninguém.
 
 ### Divisão de arquivos
 
-Dois integrantes mexendo no mesmo arquivo ao mesmo tempo gera conflito, e alguém perde trabalho. Combinem quem cuida do quê:
+Dois integrantes no mesmo arquivo ao mesmo tempo gera conflito, e alguém perde trabalho.
 
 | Integrante | Responsável por |
 |---|---|
-| *(preencher)* | *(ex.: Api/ — o serviço e a integração)* |
+| *(preencher)* | *(ex.: api/ e mobile/)* |
 | *(preencher)* | *(ex.: Web/Views e Web/Controllers)* |
 | *(preencher)* | *(ex.: CSharp/ — formulários)* |
 | *(preencher)* | *(ex.: Modelagem e Documentacao)* |
 
-Os arquivos mais sensíveis são os **`.Designer.cs`** do projeto desktop: quando alguém arrasta um controle na tela, o Visual Studio reescreve o arquivo quase inteiro, e o Git não consegue juntar duas versões dessas. A web não tem esse problema — as views `.cshtml` são texto escrito à mão.
+Os arquivos mais sensíveis são os **`.Designer.cs`** do projeto desktop: quando alguém arrasta um controle na tela, o Visual Studio reescreve o arquivo quase inteiro, e o Git não consegue juntar duas versões dessas. As views `.cshtml` não têm esse problema, por serem texto escrito à mão.
 
-`BancoService.cs`, `Servicos.cs` e `Modelo.cs` são de uso comum, e **existem nos dois projetos** — avise no grupo antes de mexer, e lembre de aplicar a mesma correção nos dois lugares.
+`BancoService.cs`, `Servicos.cs` e `Modelo.cs` **existem nos dois projetos C#** — avise no grupo antes de mexer e lembre de aplicar a mesma correção nos dois lugares.
 
----
+## Observações
 
-## Regras do repositório
-
-**Arquivos acima de 100 MB não sobem.** O GitHub recusa, e o push falha inteiro — não só aquele arquivo. Vídeos de apresentação quase sempre passam disso: deixe no Teams ou no Drive e coloque o link em `Apresentacao/README.md`.
-
-**As pastas `bin` e `obj` não sobem**, de propósito. São geradas na compilação e mudam em cada máquina. Isso vale dentro de `CSharp/`, `Web/` e `Api/` — o trabalho das outras matérias não sofre nenhuma restrição.
-
-> **Criou uma pasta de projeto nova?** Copie o bloco correspondente no `.gitignore`, trocando o prefixo. Se esquecer, as pastas `bin` e `obj` daquele projeto vão para o GitHub: são centenas de arquivos que mudam a cada compilação e geram conflito em todo mundo.
-
-**Senha nenhuma vai para o repositório.** Hoje a conexão com o banco usa a conta do Windows de quem está rodando, então não há senha em lugar algum. Quando a API nascer, se alguém configurar usuário e senha do SQL Server num `appsettings.json`, esse arquivo precisa sair do Git.
-
-**Trabalho de outra matéria vai na pasta certa**, não na raiz. Se nenhuma pasta servir, crie uma nova e avise o grupo.
-
----
+- Arquivos acima de **100 MB não sobem**. O GitHub recusa e o push falha inteiro, não só aquele arquivo. Vídeos de apresentação quase sempre passam disso: deixe no Teams ou no Drive e coloque o link em `Apresentacao/README.md`.
+- As pastas `bin`, `obj` e `.vs` **não sobem**, de propósito. São geradas pela compilação e pelo Visual Studio, mudam em cada máquina e geram conflito.
+- **Criou uma pasta de projeto nova?** Copie o bloco correspondente no `.gitignore`, trocando o prefixo. Se esquecer, centenas de arquivos gerados vão para o GitHub.
+- **Senhas e credenciais não vão para o repositório.** A conexão local usa a conta do Windows de quem está rodando. O `.env` da API e qualquer `appsettings.json` com usuário e senha do SQL Server precisam ficar fora do Git.
+- A recuperação automática de senha por e-mail ainda não está implementada na API, que responde `501`. O desktop e a web têm um fluxo próprio, com código de prazo determinado.
 
 ## Integrantes
 
@@ -154,3 +172,7 @@ Os arquivos mais sensíveis são os **`.Designer.cs`** do projeto desktop: quand
 - *(preencher)*
 - *(preencher)*
 - *(preencher)*
+
+---
+
+**Projeto acadêmico — PIM IV | Professor: Antonio Graça**
