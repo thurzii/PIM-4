@@ -224,6 +224,18 @@ namespace PlataformaCursos
             {
                 MessageBox.Show(afr_mensagem, "Progresso",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // VERSAO 3.3 - desfaz a marcacao na tela.
+                //
+                // O banco recusou (hoje o caso comum e nao ter
+                // matricula), mas a caixa ja ficou marcada: sem isto, a
+                // tela mostraria uma aula concluida que nao foi gravada.
+                // A trava afr_carregando evita que este ajuste dispare o
+                // evento de novo.
+                afr_carregando = true;
+                e.Item.Checked = !e.Item.Checked;
+                afr_carregando = false;
+
                 return;
             }
 
@@ -353,6 +365,79 @@ namespace PlataformaCursos
 
             CarregarAulas(afr_curso);
             AtualizarProgresso();
+            AtualizarBotaoMatricula();
+        }
+
+        // =============================================================
+        // VERSAO 3.3 - O ESTADO DA MATRICULA
+        //
+        // Um controle so para os dois estados, em vez de botao mais
+        // rotulo: o proprio botao diz onde o aluno esta. Desligado
+        // quando ja existe matricula - a acao nao se repete.
+        //
+        // Professor e administrador tambem abrem este catalogo, para
+        // ver o conteudo dos cursos. Para eles o botao some: matricula
+        // e coisa de aluno, e botao que so serve para dar erro confunde.
+        // =============================================================
+        private void AtualizarBotaoMatricula()
+        {
+            if (Sessao.EhAdministrador() || Sessao.EhProfessor())
+            {
+                afr_btnMatricular.Visible = false;
+                return;
+            }
+
+            afr_btnMatricular.Visible = true;
+
+            if (afr_cursoSelecionado == null)
+            {
+                afr_btnMatricular.Enabled = false;
+                afr_btnMatricular.Text = "Matricular-se neste curso";
+                return;
+            }
+
+            bool afr_matriculado = afr_cursoService.EstaMatriculado(
+                                       Sessao.ObterUsuarioId(),
+                                       afr_cursoSelecionado.afr_Id);
+
+            afr_btnMatricular.Enabled = !afr_matriculado;
+
+            afr_btnMatricular.Text = afr_matriculado
+                ? "Voce esta matriculado"
+                : "Matricular-se neste curso";
+        }
+
+        // =============================================================
+        // EVENTO - MATRICULAR-SE NO CURSO SELECIONADO
+        //
+        // A matricula e exigida antes de concluir qualquer aula, como
+        // no aplicativo. Quem recusa e o ProgressoService, nao esta
+        // tela: este botao so poupa o aluno de descobrir pelo erro.
+        // =============================================================
+        private void afr_btnMatricular_Click(object sender, EventArgs e)
+        {
+            if (afr_cursoSelecionado == null)
+            {
+                return;
+            }
+
+            string afr_mensagem;
+
+            bool afr_ok = afr_cursoService.Matricular(Sessao.ObterUsuarioId(),
+                                                      afr_cursoSelecionado.afr_Id,
+                                                      out afr_mensagem);
+
+            if (!afr_ok)
+            {
+                MessageBox.Show(afr_mensagem, "Matricula",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            AtualizarBotaoMatricula();
+
+            afr_lblStatus.ForeColor = Color.DarkViolet;
+            afr_lblStatus.Text = "INSERT em dbo.Matriculas: " + afr_mensagem;
         }
 
         // =============================================================
@@ -496,6 +581,8 @@ namespace PlataformaCursos
             afr_lblConclusao.Text = "";
 
             afr_grpAulas.Text = "Aulas - abra a aula para ver o conteudo, ou marque a caixa para concluir";
+
+            AtualizarBotaoMatricula();
         }
     }
 }

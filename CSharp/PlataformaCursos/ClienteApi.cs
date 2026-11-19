@@ -283,8 +283,8 @@ namespace PlataformaCursos
         // POST /api/cursos/:id/matricula  ->  201 { message }
         //
         // Passou a existir quando o courseRoutes foi montado. E o
-        // equivalente, pela API, do que BancoService.GarantirMatricula
-        // faz direto no banco no modo SQL.
+        // equivalente, pela API, de CursoService.Matricular, que no
+        // modo SQL grava direto em dbo.Matriculas.
         // -------------------------------------------------------------
         public RespostaApi MatricularEmCurso(int afr_cursoId)
         {
@@ -654,12 +654,14 @@ namespace PlataformaCursos
             afr_linha.afr_UsuarioId = afr_Id;
             afr_linha.afr_Nome = afr_Nome ?? "";
             afr_linha.afr_Email = afr_Email ?? "";
-            afr_linha.afr_Perfil = "ALUNO";   // a rota so devolve alunos
             afr_linha.afr_XpTotal = afr_Xp;
             afr_linha.afr_SequenciaAtual = afr_SequenciaAtual;
+            afr_linha.afr_MelhorSequencia = afr_MelhorSequencia;
 
-            // afr_AulasConcluidas e afr_Conquistas ficam em zero de
-            // proposito: a rota nao devolve esses dois numeros.
+            // afr_Nivel vem calculado pela rota e nao e copiado: o
+            // LinhaRanking calcula o nivel com a mesma formula
+            // (XP / 100 + 1), e guardar os dois abriria espaco para
+            // divergirem. O campo existe no DTO so para o JSON bater.
             return afr_linha;
         }
     }

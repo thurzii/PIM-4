@@ -264,9 +264,9 @@
 {
     <h2 style="margin-top:28px;">Classificacao por XP</h2>
     <p class="subtitulo">
-        Todas as pessoas ativas, ordenadas por experiencia acumulada.
-        Professor e administrador aparecem junto com os alunos, porque
-        tambem podem cursar.
+        Alunos ativos, ordenados por experiencia acumulada. O formato
+        acompanha a rota /api/gamificacao/turma, para a lista ser a
+        mesma no celular e aqui.
     </p>
 
     <div class="cartao">
@@ -275,11 +275,8 @@
                 <tr>
                     <th>#</th>
                     <th>Nome</th>
-                    <th>Perfil</th>
                     <th>XP</th>
                     <th>Nivel</th>
-                    <th>Aulas</th>
-                    <th>Conquistas</th>
                     <th>Sequencia</th>
                 </tr>
             </thead>
@@ -304,11 +301,8 @@
                 <tr class="@afr_classeLinha">
                     <td>@afr_linha.ObterMedalha()</td>
                     <td>@afr_linha.afr_Nome</td>
-                    <td>@afr_linha.afr_Perfil</td>
                     <td>@afr_linha.afr_XpTotal</td>
                     <td>@afr_linha.ObterNivel()</td>
-                    <td>@afr_linha.afr_AulasConcluidas</td>
-                    <td>@afr_linha.afr_Conquistas</td>
                     <td>
                         @if (afr_linha.afr_SequenciaAtual >= 2)
                         {

@@ -95,6 +95,10 @@ Solução provisória do lado C#: ao concluir uma aula, o programa garante que e
 
 **Vale decidir em grupo** se é assim que deve ficar, ou se o certo é montar o `courseRoutes` e ter matrícula explícita.
 
+> **Atualização de 19/11 — resolvido.** O grupo escolheu a matrícula explícita, e o responsável pela API montou o `courseRoutes` em `/api/cursos`, removendo as cópias que estavam soltas no `server.js`. O aluno agora se matricula antes de começar o curso, pelo botão, nas três interfaces; `GarantirMatricula` virou `BancoService.Matricular` e só é chamada quando a tela pede. Sem matrícula, o `ProgressoService` recusa gravar progresso, com a mesma mensagem que a API devolve no 403.
+>
+> Duas pendências nasceram dessa mudança, já comunicadas ao responsável pela API: `GET /api/cursos` ficou `studentOnly` (professor e admin levam 403 ao listar cursos) e a nova rota de ranking `GET /api/gamificacao/turma` não devolve a contagem de aulas nem a de conquistas — por isso essas duas colunas saíram da tela de classificação.
+
 ---
 
 ## O que já batia

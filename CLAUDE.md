@@ -137,7 +137,7 @@ O briefing antigo em `Api/README.md` propunha `{ ok, mensagem, dados }`.
 `{ message }` nos erros (em inglês) e **array puro** nas listas. Quem diz se
 deu certo é o código HTTP.
 
-### 5. A matrícula virou explícita na API — e automática no nosso lado
+### 5. A matrícula é explícita nas três interfaces
 
 **Resolvido em 19/11** (commit `ae4c5b9` do branch `main`): o `courseRoutes`
 foi montado em `/api/cursos` e as cópias que estavam soltas no `server.js`
@@ -152,10 +152,19 @@ Três consequências para o C#:
    403 sem ela. No modo API, chame `ClienteApi.MatricularEmCurso` antes.
 3. `GET /api/cursos/:id` passou a trazer `matriculado` e `professorId`.
 
-**Divergência de comportamento, não bug:** o mobile tem um botão
-"matricular-se"; o desktop e a web matriculam sozinhos, em
-`BancoService.GarantirMatricula`, ao concluir a primeira aula. Mesmo banco,
-duas portas de entrada. **Decisão do grupo ainda em aberto.**
+**Decidido pelo grupo em 19/11:** matrícula explícita nas três interfaces.
+O aluno aperta o botão antes de começar o curso. A antiga
+`BancoService.GarantirMatricula`, que matriculava sozinha ao concluir a
+primeira aula, virou `BancoService.Matricular` e só é chamada por
+`CursoService.Matricular`, a pedido da tela.
+
+Quem recusa é o `ProgressoService.AtualizarProgresso`, antes de gravar
+qualquer progresso, com a **mesma mensagem da API** ("Matricule-se no curso
+antes de registrar o progresso."). Esconder o botão na tela é conveniência,
+não a regra — não tire o porteiro do serviço.
+
+Consequência para testes: depois de rodar `Zerar_Testes.sql` é preciso se
+matricular de novo. Não é defeito.
 
 ### 6. Sessão: estática no desktop, por requisição na web
 
@@ -224,12 +233,13 @@ zero no modo API até a rota passar a devolvê-las.
 
 ## Decisões pendentes do grupo
 
-1. Matrícula explícita (botão, como no mobile) × automática (desktop e web)
-   — o `courseRoutes` já foi montado; falta alinhar os dois comportamentos
-2. Qual fluxo de recuperação de senha vale (a API responde 501; o desktop e
+1. Qual fluxo de recuperação de senha vale (a API responde 501; o desktop e
    a web têm código com prazo de 15 minutos)
-3. Comparação de esquema entre o banco local e o do Azure
-4. Unir os dois branches em uma linha só
+2. Comparação de esquema entre o banco local e o do Azure
+3. Unir os dois branches em uma linha só
+4. `GET /api/cursos` ficou `studentOnly` quando o `courseRoutes` foi
+   montado: professor e admin levam 403 ao listar cursos. Já avisado ao
+   responsável pela API — provavelmente não foi intencional.
 
 ---
 

@@ -34,6 +34,8 @@ No GitHub, troque de branch no seletor acima da lista de arquivos. Para ver os d
 
 ### Progresso e gamificação
 
+O aluno **se matricula no curso antes de começar**, pelo botão, nas três interfaces. Sem matrícula o conteúdo continua aberto para leitura, mas nenhuma aula pode ser marcada como concluída — a mesma regra e a mesma mensagem nos três lugares, porque quem recusa é a camada de serviço, não a tela.
+
 A conclusão de aulas concede **10 XP por nova aula**, mais bônus por conquistas. O nível é calculado a partir do XP (`XP / 100 + 1`) e não é armazenado, para nunca divergir dos pontos.
 
 A restrição `UNIQUE (UsuarioId, ReferenciaTipo, ReferenciaId)` da tabela `HistoricoXP` impede que a mesma aula pague XP duas vezes. Como a regra está no banco, vale igual para as três interfaces, sem que nenhuma precise se lembrar de verificar.

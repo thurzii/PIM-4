@@ -384,6 +384,14 @@ namespace PlataformaCursosWeb.Models
         // DS08 - requisitosCurso(dados)
         public string afr_Requisitos { get; set; } = "";
 
+        // VERSAO 3.3 - a matricula virou explicita. A pagina precisa
+        // saber de duas coisas diferentes: se ESTE usuario ja esta
+        // matriculado, e se ele e alguem que PODE se matricular -
+        // professor e administrador abrem o curso para conferir o
+        // conteudo, e para eles o botao nem aparece.
+        public bool afr_Matriculado { get; set; }
+        public bool afr_PodeMatricular { get; set; }
+
         // Mensagem da faixa de progresso
         public string ObterMensagemProgresso()
         {

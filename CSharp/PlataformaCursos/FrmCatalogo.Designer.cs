@@ -56,6 +56,7 @@ namespace PlataformaCursos
             this.afr_colAulaDuracao = new System.Windows.Forms.ColumnHeader();
             this.afr_colAulaId = new System.Windows.Forms.ColumnHeader();
             this.afr_btnAbrirAula = new System.Windows.Forms.Button();
+            this.afr_btnMatricular = new System.Windows.Forms.Button();
             this.afr_lblDicaAula = new System.Windows.Forms.Label();
             this.afr_lblStatus = new System.Windows.Forms.Label();
             this.afr_btnFechar = new System.Windows.Forms.Button();
@@ -287,6 +288,7 @@ namespace PlataformaCursos
             //
             this.afr_grpAulas.Controls.Add(this.afr_lstAulas);
             this.afr_grpAulas.Controls.Add(this.afr_btnAbrirAula);
+            this.afr_grpAulas.Controls.Add(this.afr_btnMatricular);
             this.afr_grpAulas.Controls.Add(this.afr_lblDicaAula);
             this.afr_grpAulas.Location = new System.Drawing.Point(25, 377);
             this.afr_grpAulas.Name = "afr_grpAulas";
@@ -351,9 +353,20 @@ namespace PlataformaCursos
             this.afr_lblDicaAula.ForeColor = System.Drawing.Color.DimGray;
             this.afr_lblDicaAula.Location = new System.Drawing.Point(275, 168);
             this.afr_lblDicaAula.Name = "afr_lblDicaAula";
-            this.afr_lblDicaAula.Size = new System.Drawing.Size(560, 30);
+            this.afr_lblDicaAula.Size = new System.Drawing.Size(280, 30);
             this.afr_lblDicaAula.TabIndex = 2;
             this.afr_lblDicaAula.Text = "Dois cliques na aula abrem o conteudo dela.";
+            //
+            // afr_btnMatricular
+            //
+            this.afr_btnMatricular.BackColor = System.Drawing.Color.PaleGreen;
+            this.afr_btnMatricular.Location = new System.Drawing.Point(570, 162);
+            this.afr_btnMatricular.Name = "afr_btnMatricular";
+            this.afr_btnMatricular.Size = new System.Drawing.Size(265, 32);
+            this.afr_btnMatricular.TabIndex = 3;
+            this.afr_btnMatricular.Text = "Matricular-se neste curso";
+            this.afr_btnMatricular.UseVisualStyleBackColor = false;
+            this.afr_btnMatricular.Click += new System.EventHandler(this.afr_btnMatricular_Click);
             //
             // afr_lblStatus
             //
@@ -445,6 +458,7 @@ namespace PlataformaCursos
         private System.Windows.Forms.ColumnHeader afr_colAulaDuracao;
         private System.Windows.Forms.ColumnHeader afr_colAulaId;
         private System.Windows.Forms.Button afr_btnAbrirAula;
+        private System.Windows.Forms.Button afr_btnMatricular;
         private System.Windows.Forms.Label afr_lblDicaAula;
         private System.Windows.Forms.Label afr_lblStatus;
         private System.Windows.Forms.Button afr_btnFechar;

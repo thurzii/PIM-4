@@ -42,11 +42,8 @@ namespace PlataformaCursos
             this.afr_lstRanking = new System.Windows.Forms.ListView();
             this.afr_colPos = new System.Windows.Forms.ColumnHeader();
             this.afr_colNomeR = new System.Windows.Forms.ColumnHeader();
-            this.afr_colPerfilR = new System.Windows.Forms.ColumnHeader();
             this.afr_colXp = new System.Windows.Forms.ColumnHeader();
             this.afr_colNivel = new System.Windows.Forms.ColumnHeader();
-            this.afr_colAulasR = new System.Windows.Forms.ColumnHeader();
-            this.afr_colConquistasR = new System.Windows.Forms.ColumnHeader();
             this.afr_colSequencia = new System.Windows.Forms.ColumnHeader();
             this.afr_lblResumo = new System.Windows.Forms.Label();
             this.afr_btnFechar = new System.Windows.Forms.Button();
@@ -217,30 +214,21 @@ namespace PlataformaCursos
             this.afr_colPos.Text = "#";
             this.afr_colPos.Width = 50;
             this.afr_colNomeR.Text = "Aluno";
-            this.afr_colNomeR.Width = 200;
-            this.afr_colPerfilR.Text = "Perfil";
-            this.afr_colPerfilR.Width = 90;
+            this.afr_colNomeR.Width = 280;
             this.afr_colXp.Text = "XP";
-            this.afr_colXp.Width = 60;
+            this.afr_colXp.Width = 80;
             this.afr_colNivel.Text = "Nivel";
-            this.afr_colNivel.Width = 60;
-            this.afr_colAulasR.Text = "Aulas";
-            this.afr_colAulasR.Width = 60;
-            this.afr_colConquistasR.Text = "Conquistas";
-            this.afr_colConquistasR.Width = 80;
+            this.afr_colNivel.Width = 80;
             this.afr_colSequencia.Text = "Sequencia";
-            this.afr_colSequencia.Width = 80;
+            this.afr_colSequencia.Width = 110;
             //
             // afr_lstRanking
             //
             this.afr_lstRanking.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.afr_colPos,
             this.afr_colNomeR,
-            this.afr_colPerfilR,
             this.afr_colXp,
             this.afr_colNivel,
-            this.afr_colAulasR,
-            this.afr_colConquistasR,
             this.afr_colSequencia});
             this.afr_lstRanking.FullRowSelect = true;
             this.afr_lstRanking.GridLines = true;
@@ -300,11 +288,8 @@ namespace PlataformaCursos
         private System.Windows.Forms.ListView afr_lstRanking;
         private System.Windows.Forms.ColumnHeader afr_colPos;
         private System.Windows.Forms.ColumnHeader afr_colNomeR;
-        private System.Windows.Forms.ColumnHeader afr_colPerfilR;
         private System.Windows.Forms.ColumnHeader afr_colXp;
         private System.Windows.Forms.ColumnHeader afr_colNivel;
-        private System.Windows.Forms.ColumnHeader afr_colAulasR;
-        private System.Windows.Forms.ColumnHeader afr_colConquistasR;
         private System.Windows.Forms.ColumnHeader afr_colSequencia;
         private System.Windows.Forms.ColumnHeader afr_colCurso;
         private System.Windows.Forms.ColumnHeader afr_colAulas;

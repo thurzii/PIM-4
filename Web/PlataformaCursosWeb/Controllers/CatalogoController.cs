@@ -296,7 +296,44 @@ namespace PlataformaCursosWeb.Controllers
             afr_dados.afr_Resultado = afr_progressoService.VerificarConclusao(
                                           afr_alunoId, afr_curso);
 
+            // VERSAO 3.3 - estado da matricula, para a pagina decidir
+            // entre mostrar o botao, a confirmacao ou nada.
+            afr_dados.afr_Matriculado = afr_cursoService.EstaMatriculado(
+                                            afr_alunoId, afr_curso.afr_Id);
+
+            afr_dados.afr_PodeMatricular = !PodeGerenciarCursos();
+
             return afr_dados;
+        }
+
+        // =============================================================
+        // VERSAO 3.3 - MATRICULA (POST)
+        //
+        // Separado do GET de proposito: matricular muda o banco, e uma
+        // acao dessas nao pode acontecer por alguem abrir um endereco.
+        //
+        // Quem decide se pode e o CursoService; aqui so traduzimos o
+        // resultado para a faixa de aviso e voltamos para o curso.
+        // =============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Matricular(int id)
+        {
+            string afr_mensagem;
+
+            bool afr_ok = afr_cursoService.Matricular(ObterUsuarioId(), id,
+                                                      out afr_mensagem);
+
+            if (afr_ok)
+            {
+                AvisarSucesso(afr_mensagem);
+            }
+            else
+            {
+                AvisarErro(afr_mensagem);
+            }
+
+            return RedirectToAction("Detalhes", new { id = id });
         }
     }
 }

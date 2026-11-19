@@ -1975,21 +1975,22 @@ COMMIT TRANSACTION;";
         }
 
         // -------------------------------------------------------------
-        // Garante que existe matricula do aluno no curso.
+        // Matricula o aluno no curso.
         //
-        // POR QUE ISTO EXISTE: a conquista PRIMEIRO_CURSO conta cursos
-        // concluidos olhando dbo.Matriculas. Quem cria matricula na API
-        // e courseRoutes.js - que NAO esta montado no server.js. Ou
-        // seja, hoje nada cria matricula e essa conquista nunca e dada
-        // a ninguem, nem pelo celular.
+        // VERSAO 3.3 - antes isto se chamava GarantirMatricula e era
+        // chamado por dentro, ao concluir a primeira aula: a matricula
+        // acontecia sem o aluno pedir. Virou uma acao explicita por
+        // decisao do grupo em 19/11, igual ao botao do aplicativo e a
+        // rota POST /api/cursos/:id/matricula.
         //
-        // Matricular aqui, ao concluir a primeira aula do curso, faz a
-        // conquista funcionar sem mudar a regra: continua sendo "todas
-        // as aulas de um curso em que estou matriculado". E como a
-        // tabela e a mesma, isso conserta o problema para o celular
-        // tambem. Vale conversar com o grupo se e assim que deve ficar.
+        // O IF NOT EXISTS continua aqui, e nao no C#: duas janelas do
+        // programa abertas no mesmo curso poderiam chamar isto ao mesmo
+        // tempo, e quem decide e o banco.
+        //
+        // Devolve true quando criou a matricula e false quando ja
+        // existia - por isso a tela nao trata false como erro.
         // -------------------------------------------------------------
-        public bool GarantirMatricula(int afr_usuarioId, int afr_cursoId)
+        public bool Matricular(int afr_usuarioId, int afr_cursoId)
         {
             try
             {
@@ -2008,6 +2009,39 @@ COMMIT TRANSACTION;";
                         afr_comando.Parameters.AddWithValue("@usuarioId", afr_usuarioId);
                         afr_comando.Parameters.AddWithValue("@cursoId", afr_cursoId);
                         return afr_comando.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        // -------------------------------------------------------------
+        // O aluno esta matriculado neste curso?
+        //
+        // VERSAO 3.3 - usado como porteiro da conclusao de aula, no
+        // ProgressoService. Em caso de erro devolve false: sem conseguir
+        // confirmar a matricula, o certo e nao deixar passar.
+        // -------------------------------------------------------------
+        public bool EstaMatriculado(int afr_usuarioId, int afr_cursoId)
+        {
+            try
+            {
+                string afr_sql =
+                    "SELECT 1 FROM dbo.Matriculas " +
+                    "WHERE UsuarioId = @usuarioId AND CursoId = @cursoId;";
+
+                using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
+                {
+                    afr_conexao.Open();
+
+                    using (SqlCommand afr_comando = new SqlCommand(afr_sql, afr_conexao))
+                    {
+                        afr_comando.Parameters.AddWithValue("@usuarioId", afr_usuarioId);
+                        afr_comando.Parameters.AddWithValue("@cursoId", afr_cursoId);
+                        return afr_comando.ExecuteScalar() != null;
                     }
                 }
             }
@@ -2222,22 +2256,23 @@ ORDER BY c.XPBonus, c.Id;";
 
             try
             {
+                // Consulta espelhada na da rota /api/gamificacao/turma,
+                // inclusive no criterio de desempate (nome e depois Id):
+                // duas ordens diferentes para o mesmo ranking colocariam
+                // dois alunos empatados em posicoes trocadas conforme a
+                // tela fosse aberta no celular ou aqui.
                 string afr_sql = @"
 SELECT TOP (@limite)
     u.Id                          AS id,
     u.Nome                        AS nome,
     u.Email                       AS email,
-    u.Perfil                      AS perfil,
     ISNULL(g.XP, 0)               AS xpTotal,
     ISNULL(g.SequenciaAtual, 0)   AS sequenciaAtual,
-    (SELECT COUNT(*) FROM dbo.HistoricoXP h
-      WHERE h.UsuarioId = u.Id AND h.ReferenciaTipo = 'AULA')  AS aulasConcluidas,
-    (SELECT COUNT(*) FROM dbo.UsuarioConquistas uc
-      WHERE uc.UsuarioId = u.Id)                               AS conquistas
+    ISNULL(g.MelhorSequencia, 0)  AS melhorSequencia
 FROM dbo.Usuarios u
 LEFT JOIN dbo.Gamificacao g ON g.UsuarioId = u.Id
-WHERE u.Ativo = 1
-ORDER BY ISNULL(g.XP, 0) DESC, u.Nome;";
+WHERE u.Perfil = 'ALUNO' AND u.Ativo = 1
+ORDER BY ISNULL(g.XP, 0) DESC, u.Nome ASC, u.Id ASC;";
 
                 using (SqlConnection afr_conexao = new SqlConnection(ObterConexaoPadrao()))
                 {
@@ -2261,11 +2296,9 @@ ORDER BY ISNULL(g.XP, 0) DESC, u.Nome;";
                                 afr_linha.afr_UsuarioId = Convert.ToInt32(afr_leitor["id"]);
                                 afr_linha.afr_Nome = afr_leitor["nome"].ToString();
                                 afr_linha.afr_Email = afr_leitor["email"].ToString();
-                                afr_linha.afr_Perfil = afr_leitor["perfil"].ToString();
                                 afr_linha.afr_XpTotal = Convert.ToInt32(afr_leitor["xpTotal"]);
                                 afr_linha.afr_SequenciaAtual = Convert.ToInt32(afr_leitor["sequenciaAtual"]);
-                                afr_linha.afr_AulasConcluidas = Convert.ToInt32(afr_leitor["aulasConcluidas"]);
-                                afr_linha.afr_Conquistas = Convert.ToInt32(afr_leitor["conquistas"]);
+                                afr_linha.afr_MelhorSequencia = Convert.ToInt32(afr_leitor["melhorSequencia"]);
 
                                 afr_lista.Add(afr_linha);
                             }

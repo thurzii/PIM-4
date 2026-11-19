@@ -936,6 +936,55 @@ namespace PlataformaCursos
 
             return true;
         }
+
+        // -------------------------------------------------------------
+        // VERSAO 3.3 - MATRICULA EXPLICITA
+        //
+        // O aluno se matricula antes de comecar o curso, como no
+        // aplicativo. Decisao do grupo em 19/11.
+        //
+        // A PERMISSAO E CONFERIDA AQUI, nao na tela: so ALUNO se
+        // matricula, do mesmo jeito que a rota da API e studentOnly.
+        // Professor e administrador acompanham cursos, nao cursam.
+        // -------------------------------------------------------------
+        public bool Matricular(int afr_usuarioId, int afr_cursoId, out string afr_mensagem)
+        {
+            if (!Sessao.EstaAberta())
+            {
+                afr_mensagem = "Entre no sistema para se matricular.";
+                return false;
+            }
+
+            if (Sessao.EhAdministrador() || Sessao.EhProfessor())
+            {
+                afr_mensagem = "Apenas aluno pode se matricular em um curso.";
+                return false;
+            }
+
+            Curso afr_curso = afr_bancoService.BuscarCursoPorId(afr_cursoId);
+
+            if (afr_curso == null || !afr_curso.afr_Ativo)
+            {
+                afr_mensagem = "Curso nao encontrado ou inativo.";
+                return false;
+            }
+
+            // false aqui nao e erro: quer dizer que a matricula ja
+            // existia. Nos dois casos o aluno termina matriculado, que e
+            // o que a tela precisa saber.
+            afr_bancoService.Matricular(afr_usuarioId, afr_cursoId);
+
+            afr_logService.RegistrarCurso(afr_usuarioId,
+                                          "Matriculou-se no curso Id " + afr_cursoId + ".");
+
+            afr_mensagem = "Matricula realizada. Bons estudos!";
+            return true;
+        }
+
+        public bool EstaMatriculado(int afr_usuarioId, int afr_cursoId)
+        {
+            return afr_bancoService.EstaMatriculado(afr_usuarioId, afr_cursoId);
+        }
     }
 
     // =================================================================
@@ -1063,6 +1112,33 @@ namespace PlataformaCursos
         {
             afr_ganho = new GanhoGamificacao();
 
+            // Precisa da aula antes de qualquer coisa para saber de QUAL
+            // curso ela e: a matricula e por curso, nao por aula.
+            Aula afr_aula = afr_bancoService.BuscarAulaPorId(afr_aulaId, afr_usuarioId);
+
+            if (afr_aula == null)
+            {
+                afr_mensagem = "Aula nao encontrada.";
+                return false;
+            }
+
+            // VERSAO 3.3 - PORTEIRO DA MATRICULA
+            //
+            // Sem matricula, nao mexe no progresso. A mesma regra e a
+            // mesma mensagem da API (courseRoutes.js responde 403 com
+            // este texto), para o aluno ler a mesma coisa no celular e
+            // aqui.
+            //
+            // A checagem vale tambem para DESMARCAR, como na API. Na
+            // pratica nao deveria acontecer - sem matricula nao ha o que
+            // desmarcar -, mas uma porta so e porta se fecha dos dois
+            // lados.
+            if (!afr_bancoService.EstaMatriculado(afr_usuarioId, afr_aula.afr_CursoId))
+            {
+                afr_mensagem = "Matricule-se no curso antes de registrar o progresso.";
+                return false;
+            }
+
             bool afr_ok;
 
             if (afr_concluida)
@@ -1085,17 +1161,10 @@ namespace PlataformaCursos
 
             afr_logService.RegistrarCurso(afr_usuarioId, afr_texto);
 
-            // Precisa da aula para saber de QUAL curso ela e: a
-            // matricula e por curso, nao por aula.
-            Aula afr_aula = afr_bancoService.BuscarAulaPorId(afr_aulaId, afr_usuarioId);
-
             if (afr_concluida)
             {
-                if (afr_aula != null)
-                {
-                    afr_ganho = afr_gamificacaoService.RegistrarAulaConcluida(
-                                    afr_usuarioId, afr_aula.afr_CursoId, afr_aulaId);
-                }
+                afr_ganho = afr_gamificacaoService.RegistrarAulaConcluida(
+                                afr_usuarioId, afr_aula.afr_CursoId, afr_aulaId);
             }
             else
             {
@@ -1221,11 +1290,11 @@ namespace PlataformaCursos
         public GanhoGamificacao RegistrarAulaConcluida(int afr_usuarioId, int afr_cursoId,
                                                        int afr_aulaId)
         {
-            // A conquista PRIMEIRO_CURSO conta cursos concluidos olhando
-            // dbo.Matriculas. Sem uma linha la, ela nunca sai. Ver a
-            // explicacao em BancoService.GarantirMatricula.
-            afr_bancoService.GarantirMatricula(afr_usuarioId, afr_cursoId);
-
+            // VERSAO 3.3 - aqui havia uma chamada a GarantirMatricula,
+            // que matriculava o aluno sozinho ao concluir a primeira
+            // aula. Saiu: a matricula virou explicita, e quem confere se
+            // ela existe e o ProgressoService, ANTES de gravar qualquer
+            // progresso. Chegar ate aqui ja significa matriculado.
             return afr_bancoService.ConcederXpPorAula(afr_usuarioId, afr_aulaId);
         }
 

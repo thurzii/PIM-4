@@ -83,6 +83,45 @@
         </p>
     </div>
 
+    @* ------------------------------------------------------------ *@
+    @* MATRICULA (VERSAO 3.3)                                        *@
+    @*                                                               *@
+    @* Nao aparece para professor e administrador: eles abrem o      *@
+    @* curso para conferir o conteudo, nao para cursar.              *@
+    @* ------------------------------------------------------------ *@
+    @if (Model.afr_PodeMatricular)
+    {
+        <div class="cartao">
+            <h3>Matricula</h3>
+
+            @if (Model.afr_Matriculado)
+            {
+                <p class="situacao-aprovado" style="margin:0;">
+                    Voce esta matriculado neste curso.
+                </p>
+            }
+            else
+            {
+                <p style="margin:0 0 10px;">
+                    Matricule-se para comecar a registrar o seu progresso
+                    nas aulas.
+                </p>
+
+                @* POST, e nao link: matricular grava no banco, e isso *@
+                @* nao pode acontecer por alguem abrir um endereco.    *@
+                <form asp-controller="Catalogo" asp-action="Matricular" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="@Model.afr_Curso.afr_Id" />
+
+                    <button type="submit" class="botao botao-primario">
+                        Matricular-se neste curso
+                    </button>
+                </form>
+            }
+        </div>
+    }
+
 </div>
 
 @* ---------------------------------------------------------------- *@
@@ -102,6 +141,17 @@ else
         Clique no titulo da aula para abrir o conteudo dela.
     </p>
 
+    @* Sem matricula o conteudo continua aberto para leitura; o que   *@
+    @* fica travado e gravar progresso. Quem recusa de verdade e o    *@
+    @* ProgressoService - esconder o botao aqui so evita que o aluno  *@
+    @* descubra pelo erro.                                            *@
+    @if (Model.afr_PodeMatricular && !Model.afr_Matriculado)
+    {
+        <p class="situacao-andamento" style="margin-top:-6px; margin-bottom:12px;">
+            Matricule-se no curso antes de registrar o progresso.
+        </p>
+    }
+
     foreach (Aula afr_aula in Model.afr_Aulas)
     {
         <div class="aula @(afr_aula.afr_Concluida ? "concluida" : "")">
@@ -117,27 +167,34 @@ else
 
             <div class="duracao">@afr_aula.afr_DuracaoMin min</div>
 
-            <form asp-controller="Catalogo" asp-action="MarcarAula" method="post">
-                @Html.AntiForgeryToken()
+            @if (Model.afr_PodeMatricular && !Model.afr_Matriculado)
+            {
+                <span class="ajuda">Matricule-se para concluir</span>
+            }
+            else
+            {
+                <form asp-controller="Catalogo" asp-action="MarcarAula" method="post">
+                    @Html.AntiForgeryToken()
 
-                <input type="hidden" name="cursoId" value="@Model.afr_Curso.afr_Id" />
-                <input type="hidden" name="aulaId" value="@afr_aula.afr_Id" />
+                    <input type="hidden" name="cursoId" value="@Model.afr_Curso.afr_Id" />
+                    <input type="hidden" name="aulaId" value="@afr_aula.afr_Id" />
 
-                @* Inverte o estado atual: marcada vira desmarcada e vice-versa *@
-                <input type="hidden" name="concluida"
-                       value="@((!afr_aula.afr_Concluida).ToString().ToLower())" />
+                    @* Inverte o estado atual: marcada vira desmarcada e vice-versa *@
+                    <input type="hidden" name="concluida"
+                           value="@((!afr_aula.afr_Concluida).ToString().ToLower())" />
 
-                @if (afr_aula.afr_Concluida)
-                {
-                    <button type="submit" class="botao botao-pequeno">Desmarcar</button>
-                }
-                else
-                {
-                    <button type="submit" class="botao botao-primario botao-pequeno">
-                        Marcar como concluida
-                    </button>
-                }
-            </form>
+                    @if (afr_aula.afr_Concluida)
+                    {
+                        <button type="submit" class="botao botao-pequeno">Desmarcar</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="botao botao-primario botao-pequeno">
+                            Marcar como concluida
+                        </button>
+                    }
+                </form>
+            }
 
         </div>
     }

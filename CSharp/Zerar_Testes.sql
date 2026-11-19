@@ -61,8 +61,10 @@ BEGIN
     DELETE FROM dbo.UsuarioConquistas WHERE UsuarioId = @UsuarioId;
 
     -- Os cursos em que ele se matriculou.
-    -- O programa matricula sozinho ao concluir a primeira aula de um
-    -- curso, entao nao ha o que refazer a mao depois.
+    -- ATENCAO: desde a versao 3.3 a matricula e explicita (o aluno
+    -- aperta o botao, como no aplicativo). Depois de rodar isto, ele
+    -- precisa se matricular de novo antes de concluir qualquer aula -
+    -- nao e defeito, e o fluxo igual ao do primeiro acesso.
     DELETE FROM dbo.Matriculas WHERE UsuarioId = @UsuarioId;
 
     -- O XP total e a sequencia de dias.

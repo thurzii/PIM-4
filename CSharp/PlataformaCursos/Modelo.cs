@@ -728,12 +728,18 @@ namespace PlataformaCursos
     // CLASSE 16 - LinhaRanking   (VERSAO 3.2)
     //
     // Uma linha da classificacao por XP. Nao tem tabela propria: e o
-    // resultado de uma consulta que junta Usuarios, Gamificacao,
-    // HistoricoXP e UsuarioConquistas.
+    // resultado de uma consulta que junta Usuarios e Gamificacao.
     //
     // Quem ve isto e professor ou administrador. O aluno ve so o
     // proprio painel, na tela principal - ranking visivel para a turma
     // inteira e uma decisao do grupo, nao um detalhe tecnico.
+    //
+    // O FORMATO E O DA ROTA /api/gamificacao/turma, por decisao do
+    // grupo em 19/11. Por isso sairam daqui a contagem de aulas, a de
+    // conquistas e o perfil: a rota nao devolve nenhum dos tres, e
+    // manter campos que so existem no modo SQL faria a mesma tela
+    // mostrar coisas diferentes conforme a origem dos dados. Tambem por
+    // isso a consulta local passou a trazer so quem tem perfil ALUNO.
     // =================================================================
     public class LinhaRanking
     {
@@ -741,12 +747,10 @@ namespace PlataformaCursos
         public int afr_UsuarioId { get; set; }
         public string afr_Nome { get; set; } = "";
         public string afr_Email { get; set; } = "";
-        public string afr_Perfil { get; set; } = "";
 
         public int afr_XpTotal { get; set; }
         public int afr_SequenciaAtual { get; set; }
-        public int afr_AulasConcluidas { get; set; }
-        public int afr_Conquistas { get; set; }
+        public int afr_MelhorSequencia { get; set; }
 
         // Mesma conta da API: XP / 100 + 1
         public int ObterNivel()
@@ -778,9 +782,7 @@ namespace PlataformaCursos
         public string ObterResumo()
         {
             return afr_Posicao + "o  " + afr_Nome + "  -  " +
-                   afr_XpTotal + " XP (nivel " + ObterNivel() + "), " +
-                   afr_AulasConcluidas + " aula(s), " +
-                   afr_Conquistas + " conquista(s)";
+                   afr_XpTotal + " XP (nivel " + ObterNivel() + ")";
         }
     }
 

@@ -89,13 +89,15 @@ namespace PlataformaCursos
         // -------------------------------------------------------------
         // VERSAO 3.2 - CLASSIFICACAO POR XP
         //
-        // Mostra todo mundo ordenado por XP. O servico ja recusa quem
+        // Mostra os alunos ordenados por XP. O servico ja recusa quem
         // nao pode ver (devolve lista vazia), entao nao ha como abrir
         // esta lista sendo aluno nem chamando por fora.
         //
-        // Entram tambem professor e administrador, nao so os alunos:
-        // eles tambem podem cursar, e some-los faria parecer defeito
-        // quando o XP deles nao aparecesse. A coluna Perfil distingue.
+        // SO ALUNOS, e sem as colunas de aulas e conquistas: o formato e
+        // o da rota /api/gamificacao/turma, por decisao do grupo em
+        // 19/11. Uma versao anterior mostrava professor e administrador
+        // junto, com uma coluna Perfil; isso ficaria diferente do
+        // celular assim que o modo API fosse ligado.
         // -------------------------------------------------------------
         private void CarregarRanking()
         {
@@ -114,11 +116,8 @@ namespace PlataformaCursos
                 ListViewItem afr_item = new ListViewItem(afr_linha.ObterMedalha());
 
                 afr_item.SubItems.Add(afr_linha.afr_Nome);
-                afr_item.SubItems.Add(afr_linha.afr_Perfil);
                 afr_item.SubItems.Add(afr_linha.afr_XpTotal.ToString());
                 afr_item.SubItems.Add(afr_linha.ObterNivel().ToString());
-                afr_item.SubItems.Add(afr_linha.afr_AulasConcluidas.ToString());
-                afr_item.SubItems.Add(afr_linha.afr_Conquistas.ToString());
 
                 // Sequencia de 1 dia nao e sequencia; mostra traco
                 if (afr_linha.afr_SequenciaAtual >= 2)
@@ -145,7 +144,7 @@ namespace PlataformaCursos
             }
 
             afr_lblRanking.Text = "CLASSIFICACAO POR XP  -  " +
-                                  afr_ranking.Count + " pessoa(s)";
+                                  afr_ranking.Count + " aluno(s)";
         }
 
         // -------------------------------------------------------------
