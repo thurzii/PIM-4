@@ -27,6 +27,12 @@
    responde. As rotas de curso e de administracao que funcionam sao as
    escritas direto no server.js. Nada aqui chama rota nao montada.
 
+   VERSAO 5 - APONTA PARA A NOSSA API
+   O grupo combinou que cada projeto tem a sua API, as duas no mesmo
+   banco do Azure. A do desktop e da web esta em Api/PlataformaCursosApi:
+   mesmas rotas e formatos da API do Gui (por isso este cliente nao
+   precisou mudar) e algumas rotas a mais, marcadas "VERSAO 5" abaixo.
+
    COMO ESTA HOJE
    DESLIGADO por padrao (Api:Ativa = false). Os programas continuam
    lendo e gravando no SQL Server. Este arquivo e o caminho pronto para
@@ -464,6 +470,78 @@ namespace PlataformaCursos
         }
 
         // -------------------------------------------------------------
+        // VERSAO 5 - rotas que so a NOSSA API tem (Api/PlataformaCursosApi)
+        //
+        // A API do grupo e propria do desktop e da web, com as mesmas
+        // rotas e regras da API do Gui, mais estas, que as telas daqui
+        // precisam. Todas usam tabelas que ja existem no banco do Azure.
+        // -------------------------------------------------------------
+        public RespostaApi ObterUsuario(int afr_usuarioId)
+        {
+            return Chamar(HttpMethod.Get, "/api/admin/usuarios/" + afr_usuarioId, null);
+        }
+
+        // Senha vazia = manter a atual
+        public RespostaApi AlterarUsuario(int afr_usuarioId, string afr_nome, string afr_email,
+                                          string afr_senha, string afr_perfil, bool afr_ativo)
+        {
+            Dictionary<string, object> afr_corpo = new Dictionary<string, object>();
+
+            afr_corpo["nome"] = afr_nome ?? "";
+            afr_corpo["email"] = (afr_email ?? "").Trim().ToLowerInvariant();
+            afr_corpo["senha"] = afr_senha ?? "";
+            afr_corpo["perfil"] = (afr_perfil ?? "").ToUpperInvariant();
+            afr_corpo["ativo"] = afr_ativo;
+
+            return Chamar(HttpMethod.Put, "/api/admin/usuarios/" + afr_usuarioId, afr_corpo);
+        }
+
+        public RespostaApi ExcluirUsuario(int afr_usuarioId)
+        {
+            return Chamar(HttpMethod.Delete, "/api/admin/usuarios/" + afr_usuarioId, null);
+        }
+
+        // Uma aula pelo id, ja com o curso dela e se quem pede concluiu
+        public RespostaApi AbrirAula(int afr_aulaId)
+        {
+            return Chamar(HttpMethod.Get, "/api/aulas/" + afr_aulaId, null);
+        }
+
+        public RespostaApi AlterarAula(int afr_aulaId, string afr_titulo, int afr_duracaoMin)
+        {
+            return Chamar(HttpMethod.Put, "/api/admin/aulas/" + afr_aulaId,
+                          CorpoAula(afr_titulo, afr_duracaoMin));
+        }
+
+        public RespostaApi AlterarAulaProfessor(int afr_aulaId, string afr_titulo, int afr_duracaoMin)
+        {
+            return Chamar(HttpMethod.Put, "/api/professor/aulas/" + afr_aulaId,
+                          CorpoAula(afr_titulo, afr_duracaoMin));
+        }
+
+        private static Dictionary<string, object> CorpoAula(string afr_titulo, int afr_duracaoMin)
+        {
+            Dictionary<string, object> afr_corpo = new Dictionary<string, object>();
+
+            afr_corpo["titulo"] = afr_titulo ?? "";
+            afr_corpo["duracaoMin"] = afr_duracaoMin;
+
+            return afr_corpo;
+        }
+
+        // O progresso de UM aluno em cada curso (professor ve os dele)
+        public RespostaApi ObterProgressoDoAluno(int afr_alunoId)
+        {
+            return Chamar(HttpMethod.Get, "/api/progresso/alunos/" + afr_alunoId, null);
+        }
+
+        // O mesmo que /gamificacao/me, de outro aluno (professor e admin)
+        public RespostaApi ObterGamificacaoDoAluno(int afr_alunoId)
+        {
+            return Chamar(HttpMethod.Get, "/api/gamificacao/alunos/" + afr_alunoId, null);
+        }
+
+        // -------------------------------------------------------------
         // O metodo que faz a chamada de verdade.
         //
         // Sincrono de proposito (.GetAwaiter().GetResult()): o resto do
@@ -624,11 +702,20 @@ namespace PlataformaCursos
         [JsonPropertyName("ativo")]
         public bool afr_Ativo { get; set; }
 
+        // VERSAO 5 - a nossa API devolve; a do Gui nao (fica vazio)
+        [JsonPropertyName("dataCadastro")]
+        public DateTime? afr_DataCadastro { get; set; }
+
         // Converte para a classe que o resto do programa ja usa, para
         // nenhuma tela precisar saber que o dado veio da API.
         public Usuario ParaUsuario()
         {
             Usuario afr_usuario = new Usuario();
+
+            if (afr_DataCadastro.HasValue)
+            {
+                afr_usuario.afr_DataCadastro = afr_DataCadastro.Value;
+            }
 
             afr_usuario.afr_Id = afr_Id;
             afr_usuario.afr_Nome = afr_Nome ?? "";
@@ -748,6 +835,10 @@ namespace PlataformaCursos
         [JsonPropertyName("id")]
         public int afr_Id { get; set; }
 
+        // VERSAO 5 - so vem em GET /api/aulas/:id
+        [JsonPropertyName("cursoId")]
+        public int afr_CursoId { get; set; }
+
         [JsonPropertyName("titulo")]
         public string afr_Titulo { get; set; } = "";
 
@@ -817,6 +908,13 @@ namespace PlataformaCursos
 
             return afr_ganho;
         }
+    }
+
+    // VERSAO 5 - GET /api/progresso/alunos/:id (uma linha por curso)
+    public class ProgressoAlunoApi : CursoApi
+    {
+        [JsonPropertyName("concluidas")]
+        public int afr_Concluidas { get; set; }
     }
 
     // VERSAO 4 - GET /api/gamificacao/me (so aluno)

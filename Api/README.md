@@ -1,286 +1,96 @@
-# API — o serviço que vai atender os dois sistemas
+# API do desktop e da web
 
-> Esta pasta ainda está vazia. É o espaço do projeto de API do grupo.
-> Este documento é o briefing: onde encaixar, o que expor e o que **não** mexer.
+A API que o sistema desktop (Windows Forms) e o site (ASP.NET Core MVC) usam para falar com o **banco do Azure**. Feita em C# / ASP.NET Core (.NET 8), na mesma linguagem dos dois programas.
 
----
+## Por que uma API própria
 
-## ATENÇÃO — esta pasta está obsoleta (18/11/2026)
+Cada projeto do grupo tem a sua API: o aplicativo do Guilherme usa a dele (Node.js, branch `main`), e o desktop e a web usam esta. **As duas gravam no mesmo banco do Azure.** Se uma mudar uma regra e a outra não, os dados ficam incoerentes.
 
-**A API existe e está no branch `main` deste repositório**, em `api/`. Esta pasta
-`Api/` foi criada quando ainda não havia código para olhar, e o briefing abaixo
-foi escrito por suposição.
+Por isso esta API segue a do aplicativo em tudo que mexe em dados:
 
-**O envelope `{ ok, mensagem, dados }` proposto adiante NÃO é o que a API faz.**
-Ela responde `{ token, user }` no login, `{ message }` nos erros (em inglês) e
-array puro nas listas. Quem diz se deu certo é o código HTTP.
+| O quê | Como está garantido |
+|---|---|
+| Rotas, nomes de campo, mensagens e códigos HTTP | Iguais aos da API do aplicativo (comparados lado a lado no teste) |
+| Senha | `scrypt:<salt>:<hash>`, o mesmo formato. Uma senha criada por uma API entra pela outra |
+| Token de login | JWT com a mesma chave, os mesmos campos e a mesma validade (8 h). O token de uma vale na outra |
+| Regra de XP | O T-SQL do `gamificationService.js` copiado **por programa**, sem redigitar ([Infra/RegraXp.cs](PlataformaCursosApi/Infra/RegraXp.cs)) |
+| Matrícula e permissões | Mesmas regras: só aluno se matricula e ganha XP; professor só mexe nos cursos dele |
 
-O que vale hoje:
+**Se uma regra mudar na API do aplicativo, tem que mudar aqui também, e vice-versa.**
 
-- **`Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md`** — o relato real, a partir do
-  código: o que foi sincronizado, o que foi testado e o que falta decidir
-- **`CSharp/PlataformaCursos/ClienteApi.cs`** — o cliente HTTP, com as 16 rotas
-  conferidas uma a uma contra o `server.js`
-- **`Ferramentas/conferir_api.py`** — confere o cliente contra a API quando ela mudar
+## Como rodar
 
-O texto abaixo fica só como registro de como o grupo pensava a integração antes
-de os dois lados se encontrarem.
+1. Copie `PlataformaCursosApi/.env.exemplo` para `PlataformaCursosApi/.env` e preencha (o mesmo `.env` da API do aplicativo serve sem mudar nada).
+2. Abra `Api/PlataformaCursosApi.sln` no Visual Studio e aperte **F5**, ou rode `dotnet run` dentro de `PlataformaCursosApi/`.
+3. Confira em `http://localhost:3000/api/health`. A resposta esperada é `{"api":"ok","database":"ok"}`.
 
----
+Sem `JWT_SECRET` no `.env`, a API **não inicia** e diz por quê. É de propósito: uma chave padrão escrita no código estaria no GitHub, e com ela qualquer um fabricaria um token de administrador.
 
-## Registro: o briefing original de 17/11/2026
+### O `.env` nunca vai para o GitHub
 
-Depois da análise de integração do grupo (`Analise_Integracao_PIM4_Mobile_Desktop.docx`),
-o desktop e o site ganharam a camada de troca. Leia primeiro:
+Ele tem o usuário e a senha do banco do Azure. Está no `.gitignore` do repositório inteiro; só o `.env.exemplo`, sem segredos, sobe.
 
-- **`Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md`** — resposta item a item àquele
-  documento: o que foi resolvido, o que ficou pendente e por quê.
-- **`CSharp/PlataformaCursos/ClienteApi.cs`** — o cliente HTTP, já escrito, com os
-  oito endpoints da tabela da análise. Há uma cópia equivalente em
-  `Web/PlataformaCursosWeb/Services/ClienteApi.cs`.
+## Ligando o desktop e a web nesta API
 
-**Está desligado** (`Api:Ativa = false`). Os dois programas continuam falando com o
-SQL Server. Para ligar faltam oito respostas, listadas no fim da
-`RESPOSTA_ANALISE_INTEGRACAO.md` e repetidas como comentário no próprio
-`ClienteApi.cs` — essencialmente: os nomes dos campos do JSON, o formato do token
-e quais rotas estão de fato montadas no `server.js`.
-
-O envelope combinado abaixo (seção sobre o problema do `out`) **continua valendo** e
-já está implementado do lado C#.
-
----
-
-## 1. Como está hoje
-
-Os dois sistemas falam **direto** com o SQL Server:
-
-```
-Windows Forms  →  Servicos.cs  →  BancoService  →  SQL Server (CursosDB)
-ASP.NET MVC    →  Servicos.cs  →  BancoService  →  SQL Server (CursosDB)
-```
-
-Funciona, e para a entrega da disciplina está correto. Mas tem três incômodos reais:
-
-1. **A string de conexão vive dentro de cada cliente.** Quem roda o programa precisa de acesso ao banco. Num sistema de verdade, o aluno não tem — e nem deveria ter.
-2. **O `BancoService.cs` está duplicado** nos dois projetos. São 63 KB de código igual em dois lugares. Corrigiu um bug num? Precisa lembrar do outro.
-3. **Nada além de C# consegue usar o sistema.** Um aplicativo de celular, por exemplo, ficaria de fora.
-
-## 2. Como fica com a API
-
-```
-Windows Forms  →  Servicos.cs  →  ApiService  ┐
-                                              ├→  API  →  BancoService  →  SQL Server
-ASP.NET MVC    →  Servicos.cs  →  ApiService  ┘
-```
-
-Repare: o `BancoService` **não é jogado fora**. Ele se muda para dentro da API, e passa a ser o único lugar do sistema inteiro que conhece SQL. Os clientes ganham um `ApiService`, que fala HTTP em vez de SQL.
-
----
-
-## 3. Onde exatamente está a emenda
-
-**No `BancoService`.** Ele é a fronteira: tudo acima dele é regra de negócio e tela; ele é a única classe que abre conexão e monta comando SQL.
-
-Isso não é acaso — o projeto foi escrito em camadas justamente para esta troca ser contida:
-
-| Camada | Arquivo | Muda com a API? |
+| Programa | Onde | O que mudar |
 |---|---|---|
-| Telas | `Frm*.cs`, `Views/*.cshtml` | **não** |
-| Regra de negócio | `Servicos.cs` (7 classes) | **não** |
-| Acesso a dados | `BancoService.cs` | **vira `ApiService` no cliente, e se muda para a API** |
-| Domínio | `Modelo.cs` (11 classes) | **não** (vira projeto compartilhado) |
+| Web | `Web/PlataformaCursosWeb/appsettings.json` | `"Ativa": true` e `"UrlBase"` com o endereço da API |
+| Desktop | `CSharp/PlataformaCursos/ClienteApi.cs` | `ATIVA = true` e `URL_BASE` com o endereço da API |
 
-> **A meta a perseguir:** o `ApiService` deve ter **exatamente as mesmas assinaturas públicas** do `BancoService`. Se conseguir isso, nenhuma linha do `Servicos.cs`, dos formulários ou das views precisa mudar. É o que torna a troca viável no prazo de um trabalho.
+Com a chave ligada, os dois programas **não abrem conexão com banco nenhum**: tudo passa pela API. Com ela desligada, usam o banco local, para testes.
 
----
+## Rotas
 
-## 4. Os 37 métodos que a API precisa cobrir
+### As mesmas da API do aplicativo
 
-Lista tirada do `BancoService.cs` atual. A coluna de endpoint é **sugestão** — o importante é cobrir a operação.
-
-### Usuários
-
-| Método do BancoService | Endpoint sugerido |
+| Rota | Quem |
 |---|---|
-| `ListarUsuarios(termo)` | `GET /api/usuarios?termo=` |
-| `ListarUsuarios(termo, perfil)` | `GET /api/usuarios?termo=&perfil=` |
-| `BuscarUsuarioPorId(id)` | `GET /api/usuarios/{id}` |
-| `BuscarUsuarioPorEmail(email)` | `GET /api/usuarios/por-email?email=` |
-| `EmailJaExiste(email, idIgnorar)` | `GET /api/usuarios/email-existe?email=&idIgnorar=` |
-| `InserirUsuario(usuario)` | `POST /api/usuarios` |
-| `AtualizarUsuario(usuario)` | `PUT /api/usuarios/{id}` |
-| `AtualizarSenha(email, novaSenha)` | `PUT /api/usuarios/senha` |
-| `ExcluirUsuario(id)` | `DELETE /api/usuarios/{id}` |
-| `ContarProgressoDoUsuario(id)` | `GET /api/usuarios/{id}/progresso/total` |
-| `ContarLogDoUsuario(id)` | `GET /api/usuarios/{id}/log/total` |
+| `GET /api/health` | todos |
+| `POST /api/auth/login` · `POST /api/auth/recover` (501) | todos |
+| `GET /api/cursos/:id` | logado (professor só os dele) |
+| `POST /api/cursos/:id/matricula` · `PUT /api/cursos/:c/aulas/:a/progresso` | aluno |
+| `GET /api/gamificacao/me` | aluno |
+| `GET /api/gamificacao/turma` | professor e admin |
+| `GET/POST /api/professor/cursos` · `PUT /api/professor/cursos/:id` | professor |
+| `GET/POST /api/professor/cursos/:id/aulas` · `DELETE /api/professor/aulas/:id` | professor |
+| `GET /api/professor/cursos/:id/alunos` | professor |
+| `GET/POST /api/admin/cursos` · `PUT/DELETE /api/admin/cursos/:id` | admin |
+| `POST /api/admin/cursos/:id/aulas` · `DELETE /api/admin/aulas/:id` | admin |
+| `GET/POST /api/admin/usuarios` · `PUT /api/admin/usuarios/:id/status` | admin |
 
-### Cursos
+### A mais, para as telas do desktop e da web
 
-| Método do BancoService | Endpoint sugerido |
+Todas usam **só tabelas que já existem** no banco do Azure.
+
+| Rota | Para quê |
 |---|---|
-| `ListarCursos(FiltroCurso)` | `GET /api/cursos?termo=&cargaMin=&cargaMax=&somenteAtivos=&somenteNaoConcluidos=&usuarioId=` |
-| `BuscarCursoPorId(id)` | `GET /api/cursos/{id}` |
-| `InserirCurso(curso)` | `POST /api/cursos` |
-| `AtualizarCurso(curso)` | `PUT /api/cursos/{id}` |
-| `ExcluirCurso(id)` | `DELETE /api/cursos/{id}` |
-| `ContarAlunosComProgressoNoCurso(cursoId)` | `GET /api/cursos/{id}/alunos-com-progresso` |
+| `GET /api/cursos` | Catálogo também para professor (os cursos dele) e admin. Na API do aplicativo é só de aluno |
+| `GET /api/admin/usuarios/:id` · `PUT /api/admin/usuarios/:id` · `DELETE /api/admin/usuarios/:id` | Ver, editar e excluir usuário. Ninguém exclui a própria conta, e o sistema nunca fica sem administrador ativo |
+| `GET /api/aulas/:id` | Abrir uma aula pelo id |
+| `PUT /api/professor/aulas/:id` · `PUT /api/admin/aulas/:id` | Editar título e duração da aula |
+| `GET /api/progresso/alunos/:id` | Progresso de um aluno em cada curso (professor vê só os cursos dele) |
+| `GET /api/gamificacao/alunos/:id` | XP e medalhas de um aluno, para a tela do professor |
 
-> O `FiltroCurso` tem seis campos e carrega o `usuarioId`, porque o filtro "somente os que eu ainda não concluí" depende de quem está perguntando. Vale virar *query string*, como acima.
+A lista de usuários e o ranking também trazem campos a mais (`dataCadastro`, `aulasConcluidas`, `conquistas`). Quem não usa ignora.
 
-### Aulas
+**Uma correção em relação à API do aplicativo:** em `DELETE /api/admin/aulas/:id`, o progresso da aula é apagado antes. Na outra API, essa rota dá erro 500 se algum aluno já concluiu a aula.
 
-| Método do BancoService | Endpoint sugerido |
-|---|---|
-| `ListarAulasDoCurso(cursoId, usuarioId)` | `GET /api/cursos/{cursoId}/aulas?usuarioId=` |
-| `BuscarAulaPorId(aulaId, usuarioId)` | `GET /api/aulas/{id}?usuarioId=` |
-| `InserirAula(aula)` | `POST /api/aulas` |
-| `AtualizarAula(aula)` | `PUT /api/aulas/{id}` |
-| `ExcluirAula(id)` | `DELETE /api/aulas/{id}` |
+## O que ainda não dá
 
-> O `usuarioId` aparece aqui porque a aula volta com a marca `afr_Concluida` **daquele** aluno. Passe 0 quando quem pergunta é o tutor, que não tem progresso.
+Precisam de tabela ou coluna que o banco do Azure não tem:
 
-### Progresso
+- **Texto da aula** (coluna `Conteudo` em `Aulas`)
+- **Histórico de ações** (tabela `LogAcoes`)
+- **Recuperação de senha** (tabela `CodigosRecuperacao`)
 
-| Método do BancoService | Endpoint sugerido |
-|---|---|
-| `MarcarAulaConcluida(usuarioId, aulaId)` | `POST /api/progresso` |
-| `DesmarcarAulaConcluida(usuarioId, aulaId)` | `DELETE /api/progresso?usuarioId=&aulaId=` |
-| `ContarAulasConcluidas(usuarioId, cursoId)` | `GET /api/progresso/concluidas?usuarioId=&cursoId=` |
-| `BuscarProgressoDoAluno(alunoId)` | `GET /api/alunos/{id}/progresso` |
-| `MontarResultado(concluidas, total, curso)` | **não precisa de endpoint** |
+O banco é compartilhado: **combinar com o grupo antes de criar.** Até lá, essas telas mostram um aviso em vez de gravar escondido no banco local.
 
-> `MontarResultado` é conta pura: não abre conexão nenhuma. Pode continuar rodando no cliente. Confira o corpo do método antes de decidir.
+## Como foi testada
 
-### Recuperação de senha (DS02)
+Num SQL Server de teste montado com os scripts do branch `main` (`sql/CursosDB.sql`, `Etapa1_Professor.sql` e `Etapa4_Gamificacao.sql`, a mesma estrutura do Azure):
 
-| Método do BancoService | Endpoint sugerido |
-|---|---|
-| `GravarCodigo(usuarioId, codigo, expiracao)` | `POST /api/codigos` |
-| `BuscarCodigo(usuarioId, codigo)` | `GET /api/codigos?usuarioId=&codigo=` |
-| `MarcarCodigoUsado(codigoId)` | `PUT /api/codigos/{id}/usado` |
+- **Lado a lado com a API do aplicativo, no mesmo banco:** as mesmas requisições deram as mesmas respostas. Dois alunos, um por API, fizeram os mesmos passos e terminaram com o mesmo XP, sequência e medalhas.
+- **Rotas a mais:** regras de edição e exclusão, aula por id, progresso e XP de um aluno.
+- **Web e desktop ligados nela**, com os três perfis.
 
-### Histórico de ações (DS12)
-
-| Método do BancoService | Endpoint sugerido |
-|---|---|
-| `RegistrarAcao(logAcao)` | `POST /api/log` |
-| `ListarLogDoUsuario(usuarioId, tipo, limite)` | `GET /api/usuarios/{id}/log?tipo=&limite=` |
-
-### Infraestrutura — estes **não** viram endpoint de cliente
-
-| Método | O que fazer |
-|---|---|
-| `ObterConexaoPadrao()` | fica só dentro da API |
-| `DetectarServidor(out msg)` | fica só dentro da API |
-| `PrepararBanco(out msg)` | a **API** passa a fazer isso ao subir |
-| `TestarConexao(out msg)` | vira `GET /api/status` — o cliente passa a testar a API, não o banco |
-| `ObterDescricao()` | o `GET /api/status` devolve junto, para a barra de rodapé continuar mostrando algo |
-
----
-
-## 5. O detalhe que mais atrapalha: os parâmetros `out`
-
-Metade dos métodos tem esta cara:
-
-```csharp
-public bool InserirUsuario(Usuario afr_usuario, out string afr_mensagem)
-```
-
-HTTP não tem parâmetro `out`. A saída é a API devolver sempre um envelope com as duas informações:
-
-```json
-{ "ok": true, "mensagem": "Usuario cadastrado com Id 7.", "dados": { "afr_Id": 7 } }
-```
-
-e o `ApiService` desmontar esse envelope de volta na assinatura original:
-
-```csharp
-public bool InserirUsuario(Usuario afr_usuario, out string afr_mensagem)
-{
-    var afr_resposta = PostarEReceber("api/usuarios", afr_usuario);
-
-    afr_mensagem = afr_resposta.mensagem;   // sai do envelope
-    return afr_resposta.ok;                 // sai do envelope
-}
-```
-
-Feito assim, **o `Servicos.cs` não percebe diferença nenhuma.** É o que permite trocar a camada de baixo sem reescrever o de cima.
-
----
-
-## 6. O que muda em cada cliente
-
-### No desktop — uma linha por classe de serviço
-
-O `Servicos.cs` do Windows Forms cria o banco assim:
-
-```csharp
-private BancoService afr_bancoService = new BancoService();
-```
-
-Vira:
-
-```csharp
-private ApiService afr_bancoService = new ApiService();
-```
-
-São 6 ocorrências em `Servicos.cs`, mais algumas nos formulários que usam `ObterDescricao()` e `TestarConexao()` (`FrmLogin`, `FrmPrincipal`, `FrmCursos`, `FrmUsuarios`). Um Ctrl+H resolve quase tudo.
-
-### Na web — uma linha no `Program.cs`
-
-A web usa injeção de dependência, então basta trocar o registro:
-
-```csharp
-builder.Services.AddScoped<BancoService>();   // antes
-builder.Services.AddScoped<ApiService>();     // depois
-```
-
-e o tipo nos construtores dos serviços.
-
-### O caminho mais elegante, se sobrar tempo
-
-Extrair uma interface com as 37 assinaturas:
-
-```csharp
-public interface IDadosService { ... }
-
-public class BancoService : IDadosService { ... }   // vai para a API
-public class ApiService    : IDadosService { ... }  // fica nos clientes
-```
-
-Aí os clientes dependem da interface, e trocar uma implementação pela outra vira configuração. Também permite rodar o desktop sem a API no ar, se alguém precisar demonstrar offline.
-
----
-
-## 7. O que não deve ser tocado
-
-- **`Modelo.cs`** — as 11 classes de domínio são iguais nos dois projetos. O ideal é virarem um projeto de biblioteca compartilhado (`Modelo/Modelo.csproj`), referenciado pelos três. Se isso der trabalho demais, deixe duplicado mesmo; só não deixe os dois sairem do ar um do outro.
-- **`Servicos.cs`** — é a regra de negócio, e ela não muda por causa de transporte. Se você precisar mexer aqui, provavelmente o `ApiService` fugiu das assinaturas originais.
-- **Formulários e views** — não têm por que saber que existe uma API.
-- **A rastreabilidade com o Astah** — os documentos [`../CSharp/RASTREABILIDADE.md`](../CSharp/RASTREABILIDADE.md) e [`../Web/RASTREABILIDADE_WEB.md`](../Web/RASTREABILIDADE_WEB.md) ligam cada mensagem dos 14 diagramas ao método que a implementa. Se um nome de método mudar, atualize o documento junto — é o que o professor vai usar para conferir.
-
----
-
-## 8. Ordem de trabalho sugerida
-
-1. **Criar o projeto** `Api/PlataformaCursosApi` (ASP.NET Core Web API, .NET 8) e mover o `BancoService.cs` para dentro dele.
-2. **Fazer um endpoint só funcionar de ponta a ponta** — sugiro `GET /api/cursos`. Teste no Swagger antes de mexer em qualquer cliente.
-3. **Criar o `ApiService`** num dos clientes, implementando só esse método, e fazer a tela de catálogo funcionar contra a API.
-4. **Só então** implementar os 36 restantes. O padrão já estará resolvido; o resto é repetição.
-5. **Repetir a troca no segundo cliente**, que agora é copiar e colar.
-
-> Comece pela leitura (`GET`). As escritas (`POST`, `PUT`, `DELETE`) têm o envelope de `ok` e `mensagem` para acertar, e é mais fácil depurar isso quando a leitura já está funcionando.
-
----
-
-## 9. Pontos de atenção
-
-**O banco é um só.** Desktop e web usam o mesmo `CursosDB`. O script está em [`../CSharp/Banco_CursosDB.sql`](../CSharp/Banco_CursosDB.sql), com as seis tabelas, a migração da versão 1 e consultas de conferência. Enquanto a API não estiver pronta, os dois clientes continuam funcionando direto no banco — a troca pode ser feita sem parar o trabalho dos outros.
-
-**Senha em `appsettings`.** Hoje a conexão usa `Integrated Security`, ou seja, a conta do Windows de quem está rodando: não há senha em lugar nenhum. Se a API for configurada com usuário e senha do SQL Server, **esse arquivo precisa sair do Git**. O `.gitignore` da raiz tem um aviso sobre isso.
-
-**Autenticação.** Hoje o `ValidarLogin` compara a senha dentro do cliente. Com API, isso deveria acontecer do lado do servidor — o cliente manda e-mail e senha e recebe o usuário (ou uma negativa). Dá para fazer a troca mantendo a assinatura do `ValidarLogin`. Um passo adiante seria a API devolver um token, mas aí o `Servicos.cs` muda, e isso já é outro trabalho. **Para a entrega, mantenha o mínimo.**
-
-**CORS.** Não deve ser necessário. O desktop não é navegador, e a web chama a API pelo servidor dela, não pelo JavaScript do navegador. Se aparecer erro de CORS, é sinal de que alguma chamada está saindo do navegador — vale conferir se é mesmo o que se quer.
-
-**As senhas continuam em texto simples.** É assim no trabalho inteiro, para a demonstração ficar clara. Se for mexer nisso, mexa em todo lugar de uma vez: banco, API e os dois clientes. Meio caminho quebra o login.
+Os testes não foram rodados contra o Azure de verdade: eles criam usuários e cursos de mentira, que iriam parar no banco que o aplicativo usa.

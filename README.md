@@ -18,7 +18,7 @@ No GitHub, troque de branch no seletor acima da lista de arquivos. Para ver os d
 - **Desktop:** C# e Windows Forms (.NET 8).
 - **Web:** C# e ASP.NET Core MVC (.NET 8), com autenticação por cookie.
 - **Mobile:** React Native e Expo (JavaScript).
-- **API:** Node.js e Express.
+- **APIs:** a do desktop e da web em C# e ASP.NET Core (`Api/`); a do aplicativo em Node.js e Express (branch `main`). As duas seguem as mesmas regras e gravam no mesmo banco.
 - **Banco de dados:** Microsoft SQL Server, com suporte à conexão ao Azure SQL.
 - **Autenticação:** senhas armazenadas com `scrypt`, no mesmo formato nas três interfaces.
 
@@ -53,19 +53,20 @@ Ao desmarcar uma aula, o desktop e a web estornam o XP daquela aula, para o tota
 ## Arquitetura
 
 ```text
-   Windows Forms        ASP.NET Core MVC        React Native (Expo)
-         |                      |                        |
-         |                      |                        | HTTP / JWT
-         |                      |                        v
-         |                      |                 API Node.js / Express
-         |                      |                        |
-         +----------------------+------------------------+
-                                |
-                                v
-                      SQL Server / Azure SQL
+   Windows Forms     ASP.NET Core MVC             React Native (Expo)
+         |                  |                             |
+         +--------+---------+                             |
+                  | HTTP / JWT                            | HTTP / JWT
+                  v                                       v
+       API C# / ASP.NET Core (Api/)            API Node.js / Express (main)
+                  |                                       |
+                  +-------------------+-------------------+
+                                      |
+                                      v
+                           Azure SQL (o mesmo banco)
 ```
 
-Hoje o desktop e a web acessam o banco diretamente; o aplicativo acessa pela API. O cliente HTTP do lado C# (`ClienteApi.cs`) já está escrito e **desligado** — quando o grupo decidir virar a chave, as três interfaces passam a consumir a mesma API, e nenhuma tela precisa mudar.
+Cada projeto tem a sua API, e as duas gravam no **mesmo banco do Azure**. Por isso a nossa segue as rotas, os formatos e as regras da API do aplicativo: mesmo hash de senha, mesmo token, mesma regra de XP. O desktop e a web ligam na API por uma chave (`Api:Ativa` na web, `ConfiguracaoApi.ATIVA` no desktop); com a chave desligada, usam o banco local, para testes. Detalhes em [Api/README.md](Api/README.md).
 
 **O banco de dados é o mesmo para todas as interfaces.** Quem concluir uma aula no celular vê o mesmo XP no desktop, porque a regra e os dados estão num lugar só.
 
@@ -74,7 +75,7 @@ Hoje o desktop e a web acessam o banco diretamente; o aplicativo acessa pela API
 ```text
 CSharp/          Sistema desktop em Windows Forms e o script do banco
 Web/             O mesmo sistema em ASP.NET Core MVC
-Api/             Briefing da integração (o código da API está no branch main)
+Api/             A API do desktop e da web (C#), ligada ao banco do Azure
 Ferramentas/     Scripts de verificação do projeto
 Modelagem/       Arquivo do Astah e diagramas exportados
 Documentacao/    Relatórios e documentos das demais matérias

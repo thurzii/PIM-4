@@ -665,7 +665,7 @@ namespace PlataformaCursos
         // DS13 - validaEAtualiza(novosDados)
         public bool EditarUsuario(Usuario afr_usuario, out string afr_mensagem)
         {
-            // VERSAO 4 - a API so sabe ativar e desativar
+            // VERSAO 5 - modo API: a nossa API edita o usuario inteiro
             if (afr_ponte.Ativa())
             {
                 return EditarUsuarioPelaApi(afr_usuario, out afr_mensagem);
@@ -718,46 +718,31 @@ namespace PlataformaCursos
         }
 
         // -------------------------------------------------------------
-        // VERSAO 4 - edicao no modo API.
+        // VERSAO 5 - edicao no modo API.
         //
-        // A unica rota de edicao e PUT /api/admin/usuarios/:id/status.
-        // Se o administrador so mudou a situacao (ativo/inativo), ela
-        // resolve. Se mexeu em nome, email, perfil ou senha, a tela avisa
-        // que isso ainda nao existe na API, em vez de gravar metade.
+        // As mesmas conferencias do modo local, com a senha opcional:
+        // em branco quer dizer "manter a atual", e quem guarda o hash e
+        // a API. O email repetido e o admin tirando o proprio acesso sao
+        // recusados por ela tambem.
         // -------------------------------------------------------------
         private bool EditarUsuarioPelaApi(Usuario afr_usuario, out string afr_mensagem)
         {
-            Usuario afr_atual = afr_ponte.BuscarUsuario(afr_usuario.afr_Id);
+            afr_usuario.afr_Senha = afr_usuario.afr_Senha ?? "";
 
-            if (afr_atual == null)
+            if (!Validar(afr_usuario, out afr_mensagem, true))
             {
-                afr_mensagem = "Usuario nao encontrado.";
                 return false;
             }
 
-            bool afr_soSituacao =
-                afr_atual.afr_Nome == (afr_usuario.afr_Nome ?? "").Trim() &&
-                AutenticacaoService.NormalizarEmail(afr_atual.afr_Email) ==
-                    AutenticacaoService.NormalizarEmail(afr_usuario.afr_Email) &&
-                afr_atual.afr_Perfil == afr_usuario.afr_Perfil &&
-                string.IsNullOrWhiteSpace(afr_usuario.afr_Senha);
-
-            if (!afr_soSituacao)
+            if (VerificarDuplicidade(afr_usuario.afr_Email, afr_usuario.afr_Id))
             {
-                afr_mensagem = "Pela API, por enquanto, so da para ativar ou desativar " +
-                               "o usuario. Editar nome, email, perfil ou senha ainda " +
-                               "nao existe na API.";
+                afr_mensagem = "Ja existe outro usuario com este email.";
                 return false;
             }
 
-            if (afr_atual.afr_Ativo == afr_usuario.afr_Ativo)
-            {
-                afr_mensagem = "Nada foi alterado.";
-                return true;
-            }
+            afr_usuario.afr_Email = AutenticacaoService.NormalizarEmail(afr_usuario.afr_Email);
 
-            return afr_ponte.AlterarStatusUsuario(afr_usuario.afr_Id, afr_usuario.afr_Ativo,
-                                                  out afr_mensagem);
+            return afr_ponte.EditarUsuario(afr_usuario, out afr_mensagem);
         }
 
         // -------------------------------------------------------------
@@ -785,12 +770,34 @@ namespace PlataformaCursos
         {
             ElegibilidadeExclusao afr_resultado = new ElegibilidadeExclusao();
 
-            // VERSAO 4 - a API nao tem rota para excluir usuario
+            // VERSAO 5 - modo API: a nossa API exclui. Ela mesma recusa a
+            // propria conta e o ultimo admin; aqui a regra se repete so
+            // para a tela de confirmacao ja chegar com o motivo.
             if (afr_ponte.Ativa())
             {
-                afr_resultado.afr_Elegivel = false;
-                afr_resultado.afr_Motivo = "Excluir usuario ainda nao existe na API. " +
-                                           "Por enquanto, desative o usuario em Editar.";
+                Usuario afr_alvo = afr_ponte.BuscarUsuario(afr_id);
+
+                if (afr_alvo == null)
+                {
+                    afr_resultado.afr_Elegivel = false;
+                    afr_resultado.afr_Motivo = "Usuario nao encontrado.";
+                    return afr_resultado;
+                }
+
+                if (afr_id == Sessao.ObterUsuarioId())
+                {
+                    afr_resultado.afr_Elegivel = false;
+                    afr_resultado.afr_Motivo = "Voce nao pode excluir a sua propria conta.";
+                    return afr_resultado;
+                }
+
+                afr_resultado.afr_Elegivel = true;
+                afr_resultado.afr_Motivo = "O usuario pode ser excluido.";
+                afr_resultado.afr_DadosDetalhados.Add(
+                    "Usuario: " + afr_alvo.afr_Nome + " (" + afr_alvo.afr_Email + ")");
+                afr_resultado.afr_DadosDetalhados.Add("Perfil: " + afr_alvo.afr_Perfil);
+                afr_resultado.afr_DadosDetalhados.Add(
+                    "O progresso, o XP e as medalhas dele serao apagados");
                 return afr_resultado;
             }
 
@@ -857,8 +864,7 @@ namespace PlataformaCursos
         {
             if (afr_ponte.Ativa())
             {
-                afr_mensagem = PonteApi.SEM_ROTA;
-                return false;
+                return afr_ponte.ExcluirUsuario(afr_id, out afr_mensagem);
             }
 
             Usuario afr_usuario = afr_bancoService.BuscarUsuarioPorId(afr_id);
@@ -876,7 +882,9 @@ namespace PlataformaCursos
             return true;
         }
 
-        private bool Validar(Usuario afr_usuario, out string afr_mensagem)
+        // afr_senhaOpcional: na edicao pela API, senha vazia = manter
+        private bool Validar(Usuario afr_usuario, out string afr_mensagem,
+                             bool afr_senhaOpcional = false)
         {
             afr_mensagem = "";
 
@@ -899,7 +907,10 @@ namespace PlataformaCursos
             // A regra dos 8 caracteres vale para a senha DIGITADA. Numa
             // edicao em que a senha nao foi trocada, o que chega aqui ja e
             // o hash - comprido por natureza e sem nada para medir.
-            if (!SenhaHash.EhQualquerHash(afr_usuario.afr_Senha) && afr_usuario.afr_Senha.Length < 8)
+            bool afr_mantemSenha = afr_senhaOpcional && afr_usuario.afr_Senha == "";
+
+            if (!afr_mantemSenha && !SenhaHash.EhQualquerHash(afr_usuario.afr_Senha) &&
+                afr_usuario.afr_Senha.Length < 8)
             {
                 afr_mensagem = "A senha precisa ter pelo menos 8 caracteres.";
                 return false;
@@ -1310,12 +1321,11 @@ namespace PlataformaCursos
                 return false;
             }
 
-            // VERSAO 4 - a API nao tem rota para editar aula
+            // VERSAO 5 - modo API: titulo e duracao (o texto da aula nao
+            // tem coluna no banco do Azure)
             if (afr_ponte.Ativa())
             {
-                afr_mensagem = "Editar aula (titulo, duracao e conteudo) ainda nao existe " +
-                               "na API. Ela volta a funcionar quando a rota for criada.";
-                return false;
+                return afr_ponte.EditarAula(afr_aula, out afr_mensagem);
             }
 
             return afr_bancoService.AtualizarAula(afr_aula, out afr_mensagem);
@@ -1555,24 +1565,16 @@ namespace PlataformaCursos
         // -------------------------------------------------------------
         public List<ProgressoCurso> BuscarProgresso(int afr_alunoId)
         {
-            // VERSAO 4 - pela API so existe o progresso de quem esta
-            // logado. O de outro aluno depende de uma rota que ainda nao
-            // existe (ver ProgressoDeOutrosDisponivel).
+            // VERSAO 5 - modo API: o proprio progresso pelos cursos de quem
+            // esta logado; o de outro aluno pela rota da nossa API
             if (afr_ponte.Ativa())
             {
                 return afr_alunoId == Sessao.ObterUsuarioId()
                     ? afr_ponte.MeuProgresso()
-                    : new List<ProgressoCurso>();
+                    : afr_ponte.ProgressoDoAluno(afr_alunoId);
             }
 
             return afr_bancoService.BuscarProgressoDoAluno(afr_alunoId);
-        }
-
-        // VERSAO 4 - a tela do professor pergunta isto para explicar a
-        // lista vazia em vez de dizer que nao ha cursos
-        public bool ProgressoDeOutrosDisponivel()
-        {
-            return !afr_ponte.Ativa();
         }
 
         // -------------------------------------------------------------

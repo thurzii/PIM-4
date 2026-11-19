@@ -22,12 +22,18 @@
    desligada o programa usa o banco local, como antes - o modo de
    testes combinado pelo grupo enquanto a API nao estiver no Azure.
 
-   O QUE AINDA NAO TEM ROTA
-   Algumas telas usam operacoes que a API ainda nao oferece (editar e
-   excluir usuario, editar aula, historico de acoes, progresso de outro
-   aluno, recuperacao de senha). Nesses casos o metodo devolve false com
-   a mensagem SEM_ROTA, em vez de cair no banco local escondido: metade
-   no banco e metade na API e justamente o que o grupo quis evitar.
+   VERSAO 5 - A API E A NOSSA (Api/PlataformaCursosApi)
+   Cada projeto do grupo tem a sua API, e as duas gravam no mesmo banco
+   do Azure. A nossa segue as rotas e as regras da API do Gui e tem
+   rotas a mais para as telas daqui (editar e excluir usuario, editar
+   aula, progresso e XP de um aluno).
+
+   O QUE AINDA NAO DA
+   Historico de acoes, recuperacao de senha e o texto da aula precisam
+   de tabelas que o banco do Azure nao tem. Combinar com o grupo antes
+   de criar: o banco e compartilhado. Ate la, essas telas avisam em vez
+   de cair escondido no banco local - metade no banco e metade na API e
+   justamente o que o grupo quis evitar.
    ===================================================================== */
 
 using System;
@@ -37,10 +43,6 @@ namespace PlataformaCursos
 {
     public class PonteApi
     {
-        public const string SEM_ROTA =
-            "Esta operacao ainda nao existe na API. Ela volta a funcionar " +
-            "quando a rota for criada.";
-
         // DIFERENCA EM RELACAO A WEB: no desktop o cliente e um so para o
         // programa inteiro (ConfiguracaoApi.ObterCliente) e guarda o token
         // do login. Na web cada requisicao cria o seu e o token vem do
@@ -224,10 +226,21 @@ namespace PlataformaCursos
             return afr_lista;
         }
 
-        // Nao ha rota de "um usuario": procura na lista que o perfil
-        // logado pode ver
+        // Admin: GET /api/admin/usuarios/:id (rota da nossa API, traz a
+        // data de cadastro). Professor: procura na lista de alunos.
         public Usuario BuscarUsuario(int afr_id)
         {
+            if (Sessao.EhAdministrador())
+            {
+                RespostaApi afr_resposta = Cliente().ObterUsuario(afr_id);
+                UsuarioApi afr_daApi = afr_resposta.afr_Ok ? afr_resposta.Converter<UsuarioApi>() : null;
+
+                if (afr_daApi != null)
+                {
+                    return afr_daApi.ParaUsuario();
+                }
+            }
+
             List<Usuario> afr_lista = Sessao.EhAdministrador()
                 ? ListarUsuarios("")
                 : ListarAlunos("");
@@ -261,15 +274,25 @@ namespace PlataformaCursos
             return afr_resposta.afr_Ok;
         }
 
-        // PUT /api/admin/usuarios/:id/status - a unica edicao que existe
-        public bool AlterarStatusUsuario(int afr_id, bool afr_ativo, out string afr_mensagem)
+        // VERSAO 5 - PUT /api/admin/usuarios/:id (rota da nossa API).
+        // Senha vazia = manter a atual. Quem impede o admin de tirar o
+        // proprio acesso ou o do ultimo admin e a API.
+        public bool EditarUsuario(Usuario afr_usuario, out string afr_mensagem)
         {
-            RespostaApi afr_resposta = Cliente().AlterarStatusUsuario(afr_id, afr_ativo);
+            RespostaApi afr_resposta = Cliente().AlterarUsuario(
+                afr_usuario.afr_Id, afr_usuario.afr_Nome, afr_usuario.afr_Email,
+                afr_usuario.afr_Senha, afr_usuario.afr_Perfil, afr_usuario.afr_Ativo);
 
-            afr_mensagem = afr_resposta.afr_Ok
-                ? (afr_ativo ? "Usuario ativado." : "Usuario desativado.")
-                : afr_resposta.afr_Mensagem;
+            afr_mensagem = afr_resposta.afr_Ok ? "Usuario atualizado." : afr_resposta.afr_Mensagem;
+            return afr_resposta.afr_Ok;
+        }
 
+        // VERSAO 5 - DELETE /api/admin/usuarios/:id (rota da nossa API)
+        public bool ExcluirUsuario(int afr_id, out string afr_mensagem)
+        {
+            RespostaApi afr_resposta = Cliente().ExcluirUsuario(afr_id);
+
+            afr_mensagem = afr_resposta.afr_Ok ? "Usuario excluido." : afr_resposta.afr_Mensagem;
             return afr_resposta.afr_Ok;
         }
 
@@ -448,27 +471,32 @@ namespace PlataformaCursos
         }
 
         // -------------------------------------------------------------
-        // Nao ha rota de "uma aula". A aula e procurada dentro dos
-        // cursos que o perfil enxerga. Sao poucos cursos, entao o custo
-        // e pequeno - mas a rota GET /api/aulas/:id resolveria melhor.
+        // VERSAO 5 - GET /api/aulas/:id (rota da nossa API)
         //
-        // A API tambem nao guarda o TEXTO da aula (nao existe a coluna
-        // Conteudo no banco dela), entao a aula chega sem conteudo.
+        // O banco do Azure nao tem a coluna do TEXTO da aula, entao a
+        // aula chega sem conteudo ate o grupo combinar essa coluna.
         // -------------------------------------------------------------
         public Aula AbrirAula(int afr_aulaId)
         {
-            foreach (Curso afr_curso in ListarCursos(""))
-            {
-                foreach (Aula afr_aula in ListarAulas(afr_curso.afr_Id))
-                {
-                    if (afr_aula.afr_Id == afr_aulaId)
-                    {
-                        return afr_aula;
-                    }
-                }
-            }
+            RespostaApi afr_resposta = Cliente().AbrirAula(afr_aulaId);
+            AulaApi afr_daApi = afr_resposta.afr_Ok ? afr_resposta.Converter<AulaApi>() : null;
 
-            return null;
+            return afr_daApi != null ? afr_daApi.ParaAula(afr_daApi.afr_CursoId) : null;
+        }
+
+        // VERSAO 5 - titulo e duracao; o texto da aula nao tem coluna
+        public bool EditarAula(Aula afr_aula, out string afr_mensagem)
+        {
+            RespostaApi afr_resposta = Sessao.EhAdministrador()
+                ? Cliente().AlterarAula(afr_aula.afr_Id, afr_aula.afr_Titulo, afr_aula.afr_DuracaoMin)
+                : Cliente().AlterarAulaProfessor(afr_aula.afr_Id, afr_aula.afr_Titulo, afr_aula.afr_DuracaoMin);
+
+            afr_mensagem = afr_resposta.afr_Ok
+                ? "Aula atualizada. O texto da aula nao e gravado pela API: o banco do Azure " +
+                  "ainda nao tem essa coluna."
+                : afr_resposta.afr_Mensagem;
+
+            return afr_resposta.afr_Ok;
         }
 
         public bool CriarAula(Aula afr_aula, out string afr_mensagem)
@@ -579,27 +607,52 @@ namespace PlataformaCursos
             return afr_corpo.ParaPontuacao(Sessao.ObterUsuarioId());
         }
 
-        // -------------------------------------------------------------
-        // O XP de OUTRO aluno, para a tela do professor. Sai da linha
-        // dele no ranking: XP e sequencia vem, as medalhas nao (a rota
-        // nao devolve conquistas).
-        // -------------------------------------------------------------
+        // VERSAO 5 - o XP e as medalhas de OUTRO aluno, para a tela do
+        // professor: GET /api/gamificacao/alunos/:id (rota da nossa API)
         public Pontuacao PontuacaoDoAluno(int afr_alunoId)
         {
-            Pontuacao afr_pontuacao = new Pontuacao();
-            afr_pontuacao.afr_UsuarioId = afr_alunoId;
+            RespostaApi afr_resposta = Cliente().ObterGamificacaoDoAluno(afr_alunoId);
+            PontuacaoApi afr_corpo = afr_resposta.afr_Ok ? afr_resposta.Converter<PontuacaoApi>() : null;
 
-            foreach (LinhaRanking afr_linha in Ranking())
+            if (afr_corpo == null)
             {
-                if (afr_linha.afr_UsuarioId == afr_alunoId)
-                {
-                    afr_pontuacao.afr_XpTotal = afr_linha.afr_XpTotal;
-                    afr_pontuacao.afr_SequenciaAtual = afr_linha.afr_SequenciaAtual;
-                    afr_pontuacao.afr_MelhorSequencia = afr_linha.afr_MelhorSequencia;
-                }
+                Pontuacao afr_vazia = new Pontuacao();
+                afr_vazia.afr_UsuarioId = afr_alunoId;
+                return afr_vazia;
             }
 
-            return afr_pontuacao;
+            return afr_corpo.ParaPontuacao(afr_alunoId);
+        }
+
+        // VERSAO 5 - o progresso de OUTRO aluno, curso a curso:
+        // GET /api/progresso/alunos/:id (rota da nossa API)
+        public List<ProgressoCurso> ProgressoDoAluno(int afr_alunoId)
+        {
+            List<ProgressoCurso> afr_lista = new List<ProgressoCurso>();
+
+            RespostaApi afr_resposta = Cliente().ObterProgressoDoAluno(afr_alunoId);
+            List<ProgressoAlunoApi> afr_itens = afr_resposta.afr_Ok
+                ? afr_resposta.Converter<List<ProgressoAlunoApi>>()
+                : null;
+
+            if (afr_itens == null)
+            {
+                return afr_lista;
+            }
+
+            foreach (ProgressoAlunoApi afr_item in afr_itens)
+            {
+                Curso afr_curso = afr_item.ParaCurso();
+                afr_curso.afr_PercentualMinimo = 100;
+
+                ProgressoCurso afr_linha = new ProgressoCurso();
+                afr_linha.afr_Curso = afr_curso;
+                afr_linha.afr_Resultado = MontarResultado(afr_item.afr_Concluidas, afr_item.afr_TotalAulas);
+
+                afr_lista.Add(afr_linha);
+            }
+
+            return afr_lista;
         }
 
         // GET /api/gamificacao/turma (professor e admin)
