@@ -29,6 +29,26 @@ Desktop.ini
 ~$*
 
 # ---------------------------------------------------------------------
+# .vs/ - estado interno do Visual Studio, em QUALQUER pasta
+# ---------------------------------------------------------------------
+# Guarda posicao de janela, cache do IntelliSense, arquivos abertos e
+# um banco .suo com varios megabytes. Nao e codigo: e o Visual Studio
+# anotando como VOCE deixou a tela. Cada integrante gera o seu, muda a
+# cada vez que o programa abre, e conflita com o dos outros.
+#
+# As regras mais abaixo cobriam .vs so dentro de CSharp/, Web/ e Api/,
+# e por isso o .vs da RAIZ do repositorio escapou e foi parar no
+# GitHub. Esta regra, sem prefixo, vale em qualquer lugar.
+#
+# Se ele ja foi commitado uma vez, acrescentar aqui NAO o remove:
+# o Git continua acompanhando o que ja esta sob controle dele. Para
+# tirar, rode uma vez no terminal, na pasta do repositorio:
+#     git rm -r --cached .vs
+# e faca um commit. Os arquivos continuam no seu computador.
+# ---------------------------------------------------------------------
+.vs/
+
+# ---------------------------------------------------------------------
 # CSharp/ - o sistema em Windows Forms
 # Estes arquivos sao gerados pelo Visual Studio a cada compilacao e
 # mudam na maquina de cada integrante, entao causariam conflito.
