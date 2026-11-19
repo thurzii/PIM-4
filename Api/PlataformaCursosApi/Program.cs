@@ -88,4 +88,39 @@ Console.WriteLine("[API] .env lido de: " + (ArquivoEnv.CaminhoUsado == "" ? "(ne
 Console.WriteLine("[API] Banco: " + afr_banco.Descrever());
 Console.WriteLine("[API] Rodando em http://localhost:" + afr_porta);
 
+// ---------------------------------------------------------------------
+// ABRE O NAVEGADOR NA PAGINA DE SITUACAO
+//
+// Uma API nao tem tela: ela sobe e fica esperando. Para quem esta
+// rodando saber na hora se ela conectou no Azure, o navegador abre
+// sozinho em /api/health ({"database":"ok"} = tudo certo). E o mesmo
+// recurso da versao web (ver Web/PlataformaCursosWeb/Program.cs).
+//
+// Para desligar: ABRIR_NAVEGADOR=false no .env.
+// ---------------------------------------------------------------------
+if (ArquivoEnv.LerBool("ABRIR_NAVEGADOR", true))
+{
+    // ApplicationStarted dispara quando a API ja esta ouvindo; antes
+    // disso o endereco ainda nao responde
+    app.Lifetime.ApplicationStarted.Register(() =>
+    {
+        try
+        {
+            string afr_pagina = "http://localhost:" + afr_porta + "/api/health";
+
+            // UseShellExecute = true faz o Windows abrir no navegador
+            // padrao, em vez de tentar executar o endereco como programa
+            var afr_abrir = new System.Diagnostics.ProcessStartInfo(afr_pagina);
+            afr_abrir.UseShellExecute = true;
+
+            System.Diagnostics.Process.Start(afr_abrir);
+        }
+        catch (Exception afr_erro)
+        {
+            // Sem navegador, a API continua no ar: basta abrir na mao
+            Console.WriteLine("[API] Nao deu para abrir o navegador: " + afr_erro.Message);
+        }
+    });
+}
+
 app.Run();
