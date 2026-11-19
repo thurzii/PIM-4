@@ -182,4 +182,4 @@ Os arquivos mais sensíveis são os **`.Designer.cs`** do projeto desktop: quand
 
 ---
 
-**Projeto acadêmico — PIM IV | Professor: Antonio Graça**
+**Projeto acadêmico — PIM IV 
