@@ -20,6 +20,34 @@ function studentOnly(req, res, next) {
   next();
 }
 
+// Ranking global de alunos, visivel somente para professores e administradores.
+// Para restringir a uma turma/curso especifico, sera necessario definir a regra
+// de escopo junto a equipe web/desktop.
+router.get('/turma', auth, async (req, res) => {
+  const perfil = String(req.user?.perfil || '').toUpperCase();
+  if (!['ADMIN', 'PROFESSOR'].includes(perfil)) {
+    return res.status(403).json({ message: 'Acesso permitido apenas a professores e administradores.' });
+  }
+  try {
+    const pool = await getPool();
+    const result = await pool.request().query(`
+      SELECT u.Id AS id, u.Nome AS nome, u.Email AS email,
+             ISNULL(g.XP, 0) AS xp,
+             CAST(FLOOR(ISNULL(g.XP, 0) / 100.0) AS INT) + 1 AS nivel,
+             ISNULL(g.SequenciaAtual, 0) AS sequenciaAtual,
+             ISNULL(g.MelhorSequencia, 0) AS melhorSequencia
+      FROM dbo.Usuarios u
+      LEFT JOIN dbo.Gamificacao g ON g.UsuarioId = u.Id
+      WHERE u.Perfil = 'ALUNO' AND u.Ativo = 1
+      ORDER BY ISNULL(g.XP, 0) DESC, u.Nome ASC, u.Id ASC
+    `);
+    return res.json(result.recordset.map((aluno, index) => ({ posicao: index + 1, ...aluno })));
+  } catch (error) {
+    console.error('Erro ao consultar ranking:', error);
+    return res.status(500).json({ message: 'Erro ao consultar ranking de XP.' });
+  }
+});
+
 // GET /api/gamificacao/me
 // Retorna XP, nível, sequência e conquistas do aluno
 router.get('/me', auth, studentOnly, async (req, res) => {

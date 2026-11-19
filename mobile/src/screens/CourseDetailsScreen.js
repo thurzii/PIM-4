@@ -5,6 +5,7 @@ import React, {
 
 import {
   Alert,
+  TouchableOpacity,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -46,6 +47,16 @@ export default function CourseDetailsScreen({ route }) {
       load();
     }, [id])
   );
+
+  async function matricular() {
+    try {
+      await api.post(`/cursos/${id}/matricula`);
+      await load();
+      Alert.alert('Sucesso', 'Matrícula realizada com sucesso.');
+    } catch (error) {
+      Alert.alert('Erro', error.response?.data?.message || 'Não foi possível realizar a matrícula.');
+    }
+  }
 
   async function toggle(aula, value) {
     try {
@@ -132,6 +143,12 @@ export default function CourseDetailsScreen({ route }) {
         </Text>
       </View>
 
+      {!data.matriculado && (
+        <TouchableOpacity onPress={matricular} style={{ backgroundColor: '#4F46E5', padding: 15, borderRadius: 12, marginBottom: 18 }}>
+          <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '700' }}>Matricular-se neste curso</Text>
+        </TouchableOpacity>
+      )}
+
       <Text style={styles.heading}>
         Aulas
       </Text>
@@ -152,6 +169,7 @@ export default function CourseDetailsScreen({ route }) {
           </View>
 
           <Switch
+            disabled={!data.matriculado}
             value={!!aula.concluida}
             onValueChange={(value) =>
               toggle(aula, value)

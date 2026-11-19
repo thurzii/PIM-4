@@ -20,6 +20,11 @@ async function auth(req, res, next) {
   }
 }
 
+function studentOnly(req, res, next) {
+  if (req.user?.perfil !== 'ALUNO') return res.status(403).json({ message: 'Acesso restrito a alunos.' });
+  next();
+}
+
 function professorOnly(req, res, next) {
   if (req.user?.perfil !== 'PROFESSOR') return res.status(403).json({ message: 'Acesso restrito a professores.' });
   next();
@@ -32,4 +37,4 @@ function adminOnly(req, res, next) {
   next();
 }
 
-module.exports = { auth, adminOnly, professorOnly };
+module.exports = { auth, adminOnly, professorOnly, studentOnly };

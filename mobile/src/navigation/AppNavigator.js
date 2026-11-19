@@ -31,11 +31,12 @@ import AdminUsersScreen from '../screens/AdminUsersScreen';
 import ProfessorCoursesScreen from '../screens/ProfessorCoursesScreen';
 import ProfessorCourseScreen from '../screens/ProfessorCourseScreen';
 import ProfessorStudentsScreen from '../screens/ProfessorStudentsScreen';
+import RankingScreen from '../screens/RankingScreen';
 
 const Stack = createNativeStackNavigator();
 const Tabs = createBottomTabNavigator();
 
-const tabIcons = { 'Cursos': ['home-outline', 'home'], 'Perfil': ['person-outline', 'person'], 'Admin': ['grid-outline', 'grid'], 'Usuários': ['people-outline', 'people'], 'Meus cursos': ['book-outline', 'book'] };
+const tabIcons = { 'Cursos': ['home-outline', 'home'], 'Perfil': ['person-outline', 'person'], 'Admin': ['grid-outline', 'grid'], 'Usuários': ['people-outline', 'people'], 'Meus cursos': ['book-outline', 'book'], 'Ranking': ['trophy-outline', 'trophy'] };
 const tabOptions = ({ route }) => ({
   headerShown: false,
   tabBarActiveTintColor: '#4F46E5',
@@ -80,10 +81,8 @@ function AdminTabs() {
         component={AdminUsersScreen}
       />
 
-      <Tabs.Screen
-        name="Perfil"
-        component={ProfileScreen}
-      />
+      <Tabs.Screen name="Ranking" component={RankingScreen} />
+      <Tabs.Screen name="Perfil" component={ProfileScreen} />
     </Tabs.Navigator>
   );
 }
@@ -91,6 +90,7 @@ function AdminTabs() {
 function ProfessorTabs() {
   return <Tabs.Navigator screenOptions={tabOptions}>
     <Tabs.Screen name="Meus cursos" component={ProfessorCoursesScreen} />
+    <Tabs.Screen name="Ranking" component={RankingScreen} />
     <Tabs.Screen name="Perfil" component={ProfileScreen} />
   </Tabs.Navigator>;
 }

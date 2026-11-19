@@ -1,114 +1,83 @@
 # Plataforma de Cursos Mobile — PIM IV
 
-Aplicativo mobile educacional desenvolvido como parte do **Projeto Integrado Multidisciplinar (PIM IV)**. A plataforma permite gerenciar cursos e acompanhar a aprendizagem dos alunos, com acesso às funcionalidades de acordo com o perfil de cada usuário.
+Aplicativo educacional em **React Native + Expo**, com API **Node.js/Express**, autenticação **JWT** e persistência no **SQL Server**. O aplicativo consome a API HTTP; credenciais de banco ficam somente no backend.
 
-## Tecnologias
+## Perfis e permissões
 
-- **Aplicativo:** React Native e Expo (JavaScript).
-- **API:** Node.js e Express.
-- **Banco de dados:** Microsoft SQL Server, com suporte à conexão ao Azure SQL.
-- **Autenticação:** JWT e armazenamento de senhas com `scrypt` para novas contas.
+- **ALUNO:** cadastro público, login, catálogo, progresso de aulas, perfil e conquistas.
+- **PROFESSOR:** criado por administrador; gerencia os próprios cursos, aulas e acompanha matrículas.
+- **ADMIN:** criado somente por outro administrador; gerencia usuários e cursos. Não existe cadastro público de administradores.
 
-## Funcionalidades
+A API define o perfil no cadastro público, independentemente de valores enviados pelo aplicativo. Senhas novas usam `scrypt`; há compatibilidade legada com senhas antigas, que devem ser migradas. Recuperação automática de senha ainda não foi implementada.
 
-| Perfil | Funcionalidades principais |
-|---|---|
-| **ADMIN** | Cadastrar e gerenciar usuários (alunos, professores e administradores) e gerenciar cursos. |
-| **PROFESSOR** | Gerenciar os próprios cursos e aulas e acompanhar matrículas. |
-| **ALUNO** | Consultar o catálogo, acessar cursos, acompanhar aulas concluídas e visualizar perfil, XP e conquistas. |
+## Instalação e execução
 
-**O cadastro de usuários é exclusivo do administrador.** Não existe cadastro público pelo aplicativo.
+Requisitos: Node.js compatível com o Expo do projeto, Android Emulator/Expo Go, SQL Server acessível.
 
-### Progresso e gamificação
+1. Copie `api/.env.example` para `api/.env` e preencha `DB_SERVER`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET` e configurações de criptografia. **Nunca publique `.env`**.
+2. Na pasta `api`, execute `npm install` e `npm run dev`.
+3. Verifique `http://localhost:3000/api/health` (API e banco devem indicar `ok`).
+4. Na pasta `mobile`, configure `EXPO_PUBLIC_API_URL` em `.env`: emulador Android `http://10.0.2.2:3000/api`; celular físico `http://IP_DO_PC:3000/api` na mesma rede.
+5. Execute `npm install`, `npx expo install @expo/vector-icons` e `npx expo start -c` na pasta `mobile`.
 
-A conclusão de aulas é registrada no banco de dados. O sistema concede **10 XP por nova aula concluída**, além de possíveis bônus por conquistas. O histórico evita a concessão duplicada de XP pela mesma conclusão. Ao desmarcar uma aula, o progresso atual é atualizado, mas o XP já concedido não é estornado.
+## Banco de dados e scripts SQL
 
-## Arquitetura
+**Não execute scripts diretamente no banco de produção sem backup e conferência do banco selecionado.**
 
-```text
-Aplicativo React Native (Expo)
-             |
-             | Requisições HTTP / JWT
-             v
-      API Node.js / Express
-             |
-             v
-    SQL Server / Azure SQL
-```
+| Script | Finalidade | Recomendação |
+|---|---|---|
+| `sql/CursosDB.sql` | Estrutura base de Usuarios, Cursos, Aulas e Progresso; inclui cursos de exemplo | Manter como bootstrap histórico; revisar antes de executar |
+| `sql/Etapa1_Professor.sql` | Adiciona Cursos.ProfessorId e Matriculas | Manter; executar após a estrutura base |
+| `sql/Etapa4_Gamificacao.sql` | Cria Gamificacao, HistoricoXP, Conquistas e UsuarioConquistas | Manter; executar após a estrutura base |
+| `sql/DiagnosticoBanco.sql` | Consulta colunas e relacionamentos sem modificar dados | Manter para suporte; diagnóstico ampliado pode incluir gamificação |
+| `sql/Desativar_Usuarios_Demo.sql` | Desativa contas de teste com e-mails fixos | Arquivar; não faz parte da instalação normal |
 
-O aplicativo acessa os dados por meio da API; as credenciais do SQL Server permanecem no backend. Essa arquitetura permite que outras interfaces, como sistemas web e desktop, reutilizem os mesmos serviços.
+### Atenção aos nomes de banco
 
-## Estrutura do projeto
+`CursosDB.sql` cria/seleciona **CursosDB**; `Desativar_Usuarios_Demo.sql` seleciona **PlataformaCursosDB**. Esses nomes não devem ser presumidos como o banco Azure atual. Confirme `DB_DATABASE` em `api/.env` e a conexão no SSMS/Azure Data Studio. Para banco existente, **não rode novamente o script inicial sem revisar**. O script base inclui inserts de demonstração e `CREATE DATABASE`.
 
-```text
-api/       Backend, autenticação e comunicação com o banco
-mobile/    Aplicativo React Native / Expo
-sql/       Scripts de criação, evolução e diagnóstico do banco
-```
+### Tabelas e relacionamentos
 
-## Como executar
+- `Usuarios`: identidade, e-mail, hash de senha, perfil e status.
+- `Cursos`: catálogo, carga horária, estado e `ProfessorId` após a migração.
+- `Aulas`: aulas pertencentes aos cursos.
+- `Progresso`: conclusão atual por aluno e aula (par único).
+- `Matriculas`: vínculo aluno-curso.
+- `Gamificacao`: XP total e sequências de estudo.
+- `HistoricoXP`: eventos de XP concedidos uma única vez por referência.
+- `Conquistas`: catálogo de conquistas e bônus.
+- `UsuarioConquistas`: conquistas desbloqueadas pelos alunos.
 
-**Pré-requisitos:** Node.js, ambiente Expo (Expo Go ou emulador Android) e acesso a um SQL Server configurado.
+**Ordem para banco novo (revisar nomes e permissões antes):** estrutura base → professor/matrículas → gamificação → diagnóstico. O script de desativação de demo é opcional e não deve ser usado automaticamente.
 
-### 1. Configurar e iniciar a API
+## Progresso e gamificação
 
-Na pasta `api`, copie `.env.example` para `.env` e configure as variáveis de conexão (`DB_SERVER`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD`) e `JWT_SECRET`, conforme o exemplo do projeto.
+A tela de curso usa **checkboxes** para conclusão. O aplicativo atualiza a interface imediatamente e reverte se a API retornar erro. A API registra em `Progresso` e chama `awardLessonCompletion` para conceder **10 XP por aula nova**, além dos bônus de conquistas. O `HistoricoXP` impede conceder XP duplicado ao marcar a mesma aula novamente. Desmarcar a aula remove a conclusão atual, **mas não estorna XP já concedido**; o perfil conta aulas atualmente concluídas em `Progresso`, enquanto o XP é histórico. O perfil recarrega os dados ao receber foco.
 
-```bash
-cd api
-npm install
-npm run dev
-```
+O backend principal usado por `npm run dev` é `api/src/server.js`; existem módulos em `api/src/routes/` que não estão todos montados no servidor. Evite editar uma rota isolada supondo que esteja ativa. Para futura manutenção, recomenda-se consolidar as rotas em módulos únicos.
 
-Verifique a disponibilidade em `http://localhost:3000/api/health`.
+## Testes manuais recomendados
 
-### 2. Configurar e iniciar o aplicativo
+1. Criar conta pública e confirmar perfil ALUNO; tentar enviar ADMIN pelo cadastro público e verificar que não ganha privilégios.
+2. Fazer login como ADMIN, cadastrar professor e validar permissões.
+3. Matricular aluno, marcar aula uma vez e conferir `Progresso`, `Gamificacao` e `HistoricoXP` no SQL Server.
+4. Abrir perfil e verificar XP, nível e número de aulas; desmarcar/remarcar e conferir que XP não duplica.
+5. Conferir home e gerenciamento de cursos em ADMIN e PROFESSOR.
 
-Na pasta `mobile`, defina `EXPO_PUBLIC_API_URL` no arquivo `.env`:
+## Limitações e segurança
 
-- **Emulador Android:** `http://10.0.2.2:3000/api`
-- **Celular físico:** `http://IP_DO_COMPUTADOR:3000/api` (mesma rede)
+- Integração real com SQL Server/Android precisa ser validada no ambiente da equipe.
+- Recuperação de senha via e-mail não está implementada.
+- A contagem de matrículas no painel do professor é a soma das matrículas por curso, não usuários únicos.
+- Use HTTPS e segredos fortes em produção; restrinja permissões do usuário SQL.
+- Não envie `node_modules`, `.expo` ou `.env` ao Git.
 
-```bash
-cd mobile
-npm install
-npx expo start -c
-```
 
-Abra o aplicativo pelo Expo Go ou emulador. Para realizar o login, é necessário que exista uma conta ativa no banco. O primeiro administrador deve ser provisionado de forma controlada, sem endpoint público de cadastro.
+## Atualização visual — painéis de professor e administrador
 
-## Banco de dados
+As telas `AdminScreen.js` e `ProfessorCoursesScreen.js` utilizam agora cabeçalhos com SafeAreaView, cards de indicadores, área de destaque e ações rápidas. O administrador consulta `/admin/cursos` e o professor consulta `/professor/cursos`. Os indicadores são calculados a partir das listas retornadas por essas rotas, sem números fictícios. O total de matrículas do professor é a soma das matrículas por curso (um aluno em dois cursos conta duas vezes). Para instalar as dependências, execute `npx expo install react-native-safe-area-context @expo/vector-icons` na pasta mobile.
 
-Os scripts da pasta `sql/` documentam a estrutura e as evoluções do banco:
 
-| Arquivo | Finalidade |
-|---|---|
-| `CursosDB.sql` | Estrutura inicial de usuários, cursos, aulas e progresso. |
-| `Etapa1_Professor.sql` | Associação de professores aos cursos e matrículas. |
-| `Etapa4_Gamificacao.sql` | Tabelas de XP, conquistas e histórico de pontuação. |
-| `DiagnosticoBanco.sql` | Consultas para verificar a estrutura existente. |
-| `Desativar_Usuarios_Demo.sql` | Script auxiliar para desativação de contas de demonstração; não faz parte da instalação padrão. |
+## Cadastro de usuarios — somente ADMIN
 
-**Atenção:** antes de executar scripts, confirme o banco selecionado e revise o conteúdo. O script inicial pode criar banco e inserir dados de exemplo; não deve ser reaplicado automaticamente em um banco já existente. Os arquivos usam nomes de banco que podem diferir da configuração atual do Azure SQL.
-
-## Validação funcional
-
-Para demonstrar o funcionamento do projeto, recomenda-se verificar:
-
-1. Login de usuários com os três perfis e restrições de acesso correspondentes.
-2. Cadastro de aluno e professor realizado por um administrador.
-3. Gerenciamento de cursos e aulas pelo professor responsável.
-4. Matrícula e conclusão de aula por um aluno.
-5. Atualização do progresso e do XP, sem duplicação ao concluir a mesma aula novamente.
-6. Persistência das informações no SQL Server.
-
-## Observações
-
-- A recuperação automática de senha por e-mail ainda não está implementada.
-- A integração com Azure SQL e dispositivos Android depende da configuração do ambiente de execução.
-- O arquivo `.env`, senhas, tokens e outras credenciais não devem ser publicados no repositório.
-- Para uma implantação pública, é necessário configurar HTTPS e revisar as permissões de acesso ao banco.
-
----
-
-**Projeto acadêmico — PIM IV | Módulo de desenvolvimento mobile**
+O cadastro publico foi removido. Somente usuarios autenticados com perfil `ADMIN` podem cadastrar novos usuarios (`ALUNO`, `PROFESSOR` ou `ADMIN`) pelo painel administrativo, usando `POST /api/admin/usuarios`. A rota publica `POST /api/auth/register` nao existe mais. A interface de login nao oferece `Criar conta`. Professores e alunos nao podem criar usuarios. O primeiro administrador deve ser provisionado de forma controlada diretamente no ambiente administrativo/banco de dados, nunca por endpoint publico.
