@@ -34,11 +34,16 @@ namespace PlataformaCursosWeb.Controllers
         private readonly AutenticacaoService afr_autenticacaoService;
         private readonly BancoService afr_bancoService;
 
+        // VERSAO 4 - no modo API a conexao testada e descrita e a da API
+        private readonly PonteApi afr_ponte;
+
         // Os servicos chegam prontos pela INJECAO DE DEPENDENCIA
-        public ContaController(AutenticacaoService afr_autenticacao, BancoService afr_banco)
+        public ContaController(AutenticacaoService afr_autenticacao, BancoService afr_banco,
+                               PonteApi afr_ponteApi)
         {
             afr_autenticacaoService = afr_autenticacao;
             afr_bancoService = afr_banco;
+            afr_ponte = afr_ponteApi;
         }
 
         // =============================================================
@@ -56,7 +61,11 @@ namespace PlataformaCursosWeb.Controllers
             // Avisa na tela se o banco nao respondeu
             string afr_mensagemBanco;
 
-            if (!afr_bancoService.TestarConexao(out afr_mensagemBanco))
+            bool afr_conectou = afr_ponte.Ativa()
+                ? afr_ponte.TestarConexao(out afr_mensagemBanco)
+                : afr_bancoService.TestarConexao(out afr_mensagemBanco);
+
+            if (!afr_conectou)
             {
                 ViewBag.ErroBanco = afr_mensagemBanco;
             }
@@ -108,6 +117,16 @@ namespace PlataformaCursosWeb.Controllers
                 new Claim(ClaimTypes.Role, afr_usuario.afr_Perfil),
                 new Claim("PrimeiroNome", afr_usuario.ObterPrimeiroNome())
             };
+
+            // VERSAO 4 - no modo API o token do login vai junto no cookie.
+            // O cookie e cifrado e HttpOnly: o navegador guarda, mas nem a
+            // pessoa nem um script da pagina conseguem ler o token.
+            string afr_tokenApi = afr_autenticacaoService.ObterUltimoTokenApi();
+
+            if (afr_tokenApi != "")
+            {
+                afr_claims.Add(new Claim(SessaoAtual.CLAIM_TOKEN_API, afr_tokenApi));
+            }
 
             var afr_identidade = new ClaimsIdentity(
                                      afr_claims,

@@ -49,12 +49,20 @@ namespace PlataformaCursosWeb.Services
         private readonly IHttpContextAccessor afr_contexto;
         private readonly BancoService afr_bancoService;
 
+        // VERSAO 4 - no modo API o usuario nao e buscado no banco local
+        private readonly ConfiguracaoApi afr_configuracaoApi;
+
+        // Nome do item do cookie que guarda o token da API
+        public const string CLAIM_TOKEN_API = "TokenApi";
+
         // Cache da requisicao: evita ir ao banco duas vezes no mesmo
         // carregamento de pagina
         private Usuario afr_usuarioCarregado = null;
 
-        public SessaoAtual(IHttpContextAccessor afr_acessor, BancoService afr_banco)
+        public SessaoAtual(IHttpContextAccessor afr_acessor, BancoService afr_banco,
+                           ConfiguracaoApi afr_api)
         {
+            this.afr_configuracaoApi = afr_api;
             this.afr_contexto = afr_acessor;
             this.afr_bancoService = afr_banco;
         }
@@ -152,6 +160,16 @@ namespace PlataformaCursosWeb.Services
                 return afr_usuarioCarregado;
             }
 
+            // No modo API o banco local nao e a fonte de verdade: o que se
+            // sabe do usuario e o que o login da API devolveu e foi para o
+            // cookie. Quem ainda precisava do objeto inteiro era a
+            // confirmacao de senha, que no modo API pergunta a propria API.
+            if (afr_configuracaoApi.EstaAtiva())
+            {
+                afr_usuarioCarregado = MontarDoCookie();
+                return afr_usuarioCarregado;
+            }
+
             afr_usuarioCarregado = afr_bancoService.BuscarUsuarioPorId(ObterUsuarioId());
 
             return afr_usuarioCarregado;
@@ -162,6 +180,12 @@ namespace PlataformaCursosWeb.Services
         // Quem decide continua sendo a classe Usuario, igual ao desktop.
         // Aqui o perfil vem do cookie, entao nem precisa ir ao banco.
         // -------------------------------------------------------------
+        // VERSAO 4 - o token da API que o login gravou no cookie
+        public string ObterTokenApi()
+        {
+            return Ler(CLAIM_TOKEN_API);
+        }
+
         private Usuario MontarDoCookie()
         {
             Usuario afr_usuario = new Usuario();

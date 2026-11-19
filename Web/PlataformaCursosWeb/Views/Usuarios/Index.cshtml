@@ -102,7 +102,14 @@ else
                                 <span class="etiqueta etiqueta-inativo">Inativo</span>
                             }
                         </td>
-                        <td><time datetime="@afr_usuario.afr_DataCadastro.ToString("yyyy-MM-dd")">@afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy")</time></td>
+                        <td>@if (afr_usuario.afr_DataCadastro > DateTime.MinValue)
+                        {
+                            <time datetime="@afr_usuario.afr_DataCadastro.ToString("yyyy-MM-dd")">@afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy")</time>
+                        }
+                        else
+                        {
+                            <span aria-label="sem data">&mdash;</span>
+                        }</td>
                         <td class="coluna-acoes">
                             <div class="acoes-linha" style="justify-content:flex-end;">
                                 @* DS12 - solicitarVisualizacaoPerfil(usuario) *@

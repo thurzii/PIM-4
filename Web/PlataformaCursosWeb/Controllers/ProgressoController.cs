@@ -116,7 +116,15 @@ namespace PlataformaCursosWeb.Controllers
             // VERSAO 3.2 - XP, nivel e conquistas deste aluno
             afr_dados.afr_Pontuacao = afr_gamificacaoService.ObterPontuacao(alunoId);
 
-            if (afr_dados.afr_Progresso.Count == 0)
+            if (afr_dados.afr_Progresso.Count == 0 && !afr_progressoService.ProgressoDeOutrosDisponivel())
+            {
+                // VERSAO 4 - modo API: a lista vazia nao quer dizer que nao
+                // ha cursos, e sim que a rota ainda nao existe
+                ViewBag.Aviso = "Pela API ainda nao da para ver o progresso de cada curso " +
+                                "deste aluno: a rota nao existe. O XP e a sequencia de dias " +
+                                "aparecem acima.";
+            }
+            else if (afr_dados.afr_Progresso.Count == 0)
             {
                 ViewBag.Aviso = "Nao existe nenhum curso ativo cadastrado no sistema.";
             }

@@ -27,6 +27,11 @@
     {
         afr_classeEtiqueta = "etiqueta-professor";
     }
+
+    // VERSAO 4 - so o aluno faz curso e ganha XP (decisao do grupo).
+    // Professor e admin acompanham os cursos, entao o painel de XP e o
+    // "cursos que voce concluiu" nao fazem sentido para eles.
+    bool afr_ehAluno = !Model.afr_EhAdmin && !Model.afr_EhProfessor;
 }
 
 <h1>Ola, @Model.afr_Nome</h1>
@@ -50,10 +55,13 @@
         <dd class="numero">@Model.afr_TotalCursos</dd>
     </div>
 
-    <div class="cartao">
-        <dt class="numero-rotulo">cursos que voce concluiu</dt>
-        <dd class="numero">@Model.afr_MeusConcluidos / @Model.afr_MeusCursos</dd>
-    </div>
+    @if (afr_ehAluno)
+    {
+        <div class="cartao">
+            <dt class="numero-rotulo">cursos que voce concluiu</dt>
+            <dd class="numero">@Model.afr_MeusConcluidos / @Model.afr_MeusCursos</dd>
+        </div>
+    }
 
     @if (Model.afr_PodeGerenciarUsuarios)
     {
@@ -67,8 +75,8 @@
 @* ---------------------------------------------------------------- *@
 @* VERSAO 3 - PAINEL DE GAMIFICACAO                                  *@
 @*                                                                   *@
-@* Aparece para todo perfil, inclusive professor e admin: eles        *@
-@* tambem podem cursar. Para quem nunca concluiu nada mostra o nivel  *@
+@* VERSAO 4 - aparece so para o ALUNO: professor e admin nao cursam  *@
+@* nem ganham XP. Para quem nunca concluiu nada mostra o nivel        *@
 @* 1 com a barra zerada, em vez de esconder o painel - o aluno        *@
 @* precisa ver que existe algo a conquistar.                          *@
 @*                                                                   *@
@@ -84,60 +92,63 @@
     var afr_todasConquistas = afr_pontuacao.afr_Conquistas;
 }
 
-<section class="cartao painel-xp" style="margin-bottom:24px;" aria-label="Sua pontuacao">
-    <header class="xp-topo">
-        <div>
-            <p class="xp-nivel">
-                Nivel @afr_pontuacao.ObterNivel() &mdash; @afr_pontuacao.ObterTituloDoNivel()
-            </p>
-            <p class="xp-detalhe">
-                @afr_pontuacao.afr_XpTotal XP &nbsp;|&nbsp;
-                faltam @afr_pontuacao.ObterXpParaProximoNivel()
-                para o nivel @(afr_pontuacao.ObterNivel() + 1)
-            </p>
-
-            @* VERSAO 3.1 - sequencia de dias seguidos, vinda da API.
-               So a partir de 2 dias: "1 dia seguido" nao e sequencia. *@
-            @if (afr_pontuacao.afr_SequenciaAtual >= 2)
-            {
-                <p class="xp-sequencia">
-                    @afr_pontuacao.afr_SequenciaAtual dias seguidos
-                    <span class="xp-recorde">
-                        (recorde: @afr_pontuacao.afr_MelhorSequencia)
-                    </span>
+@if (afr_ehAluno)
+{
+    <section class="cartao painel-xp" style="margin-bottom:24px;" aria-label="Sua pontuacao">
+        <header class="xp-topo">
+            <div>
+                <p class="xp-nivel">
+                    Nivel @afr_pontuacao.ObterNivel() &mdash; @afr_pontuacao.ObterTituloDoNivel()
                 </p>
+                <p class="xp-detalhe">
+                    @afr_pontuacao.afr_XpTotal XP &nbsp;|&nbsp;
+                    faltam @afr_pontuacao.ObterXpParaProximoNivel()
+                    para o nivel @(afr_pontuacao.ObterNivel() + 1)
+                </p>
+
+                @* VERSAO 3.1 - sequencia de dias seguidos, vinda da API.
+                   So a partir de 2 dias: "1 dia seguido" nao e sequencia. *@
+                @if (afr_pontuacao.afr_SequenciaAtual >= 2)
+                {
+                    <p class="xp-sequencia">
+                        @afr_pontuacao.afr_SequenciaAtual dias seguidos
+                        <span class="xp-recorde">
+                            (recorde: @afr_pontuacao.afr_MelhorSequencia)
+                        </span>
+                    </p>
+                }
+            </div>
+
+            <p class="xp-contagem">
+                @afr_pontuacao.afr_AulasConcluidas aula(s) &middot;
+                @afr_pontuacao.afr_CursosConcluidos curso(s)
+            </p>
+        </header>
+
+        <progress class="xp-barra" max="100" value="@afr_percentual"
+                  aria-label="Progresso ate o proximo nivel">@afr_percentual%</progress>
+
+        @* As conquistas que faltam aparecem apagadas, nao escondidas:   *@
+        @* saber o que da para ganhar e metade da graca.                 *@
+        <ul class="xp-conquistas">
+            @foreach (var afr_medalha in afr_todasConquistas)
+            {
+                @* O titulo mostra a descricao e quanto XP a medalha vale,
+                   tanto nas ganhas quanto nas que faltam. *@
+                string afr_classe = afr_medalha.afr_Conquistada
+                    ? "medalha medalha-ganha"
+                    : "medalha medalha-falta";
+
+                string afr_dica = afr_medalha.afr_Descricao +
+                                  " (+" + afr_medalha.afr_XpBonus + " XP)";
+
+                <li class="@afr_classe" title="@afr_dica">
+                    @afr_medalha.afr_Icone @afr_medalha.afr_Nome
+                </li>
             }
-        </div>
-
-        <p class="xp-contagem">
-            @afr_pontuacao.afr_AulasConcluidas aula(s) &middot;
-            @afr_pontuacao.afr_CursosConcluidos curso(s)
-        </p>
-    </header>
-
-    <progress class="xp-barra" max="100" value="@afr_percentual"
-              aria-label="Progresso ate o proximo nivel">@afr_percentual%</progress>
-
-    @* As conquistas que faltam aparecem apagadas, nao escondidas:   *@
-    @* saber o que da para ganhar e metade da graca.                 *@
-    <ul class="xp-conquistas">
-        @foreach (var afr_medalha in afr_todasConquistas)
-        {
-            @* O titulo mostra a descricao e quanto XP a medalha vale,
-               tanto nas ganhas quanto nas que faltam. *@
-            string afr_classe = afr_medalha.afr_Conquistada
-                ? "medalha medalha-ganha"
-                : "medalha medalha-falta";
-
-            string afr_dica = afr_medalha.afr_Descricao +
-                              " (+" + afr_medalha.afr_XpBonus + " XP)";
-
-            <li class="@afr_classe" title="@afr_dica">
-                @afr_medalha.afr_Icone @afr_medalha.afr_Nome
-            </li>
-        }
-    </ul>
-</section>
+        </ul>
+    </section>
+}
 
 <div class="grade grade-2">
 

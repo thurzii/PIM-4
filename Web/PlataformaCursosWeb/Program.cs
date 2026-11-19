@@ -62,6 +62,10 @@ builder.Services.AddScoped<GamificacaoService>();
 // mesmo assim para quem quiser consultar ConfiguracaoApi.EstaAtiva().
 builder.Services.AddScoped<ConfiguracaoApi>();
 
+// VERSAO 4 - a ponte entre os servicos e a API. Com Api:Ativa = true,
+// os servicos perguntam a API por meio dela em vez de ir ao banco local.
+builder.Services.AddScoped<PonteApi>();
+
 // =====================================================================
 // 2) AUTENTICACAO POR COOKIE
 // =====================================================================
@@ -92,6 +96,19 @@ var app = builder.Build();
 // 3) PREPARACAO DO BANCO DE DADOS
 //    Roda uma vez, quando a aplicacao sobe.
 // =====================================================================
+// VERSAO 4 - COM A API LIGADA, O SITE NAO TOCA EM BANCO NENHUM.
+// PrepararBanco cria tabelas, roda ALTER TABLE/UPDATE de migracao e
+// cadastra usuarios de teste. No banco local isso e o que se quer; no
+// banco do Azure, que o aplicativo ja usa, seria estragar o esquema
+// dele. No modo API quem fala com o banco e so a API.
+bool afr_modoApi = app.Configuration.GetValue<bool?>("Api:Ativa") ?? false;
+
+if (afr_modoApi)
+{
+    Console.WriteLine("[API] Modo API: o banco local nao sera preparado. " +
+                      "Endereco da API: " + app.Configuration.GetValue<string>("Api:UrlBase"));
+}
+else
 using (var afr_escopo = app.Services.CreateScope())
 {
     var afr_bancoService = afr_escopo.ServiceProvider.GetRequiredService<BancoService>();

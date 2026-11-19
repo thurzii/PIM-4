@@ -59,8 +59,10 @@
     {
         <span class="etiqueta etiqueta-inativo">Inativo</span>
     }
-    &middot;
-    cadastro em <time datetime="@Model.afr_Usuario.afr_DataCadastro.ToString("yyyy-MM-ddTHH:mm")">@Model.afr_Usuario.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm")</time>
+    @if (Model.afr_Usuario.afr_DataCadastro > DateTime.MinValue)
+    {
+        <text>&middot; cadastro em <time datetime="@Model.afr_Usuario.afr_DataCadastro.ToString("yyyy-MM-ddTHH:mm")">@Model.afr_Usuario.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm")</time></text>
+    }
 </p>
 
 <dl class="grade grade-3 numeros" style="margin-bottom:24px;">

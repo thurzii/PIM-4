@@ -40,15 +40,20 @@ namespace PlataformaCursosWeb.Controllers
         private readonly AutenticacaoService afr_autenticacaoService;
         private readonly BancoService afr_bancoService;
 
+        // VERSAO 4 - no modo API a conexao testada e descrita e a da API
+        private readonly PonteApi afr_ponte;
+
         public UsuariosController(UsuarioService afr_usuario,
                                   LogService afr_log,
                                   AutenticacaoService afr_autenticacao,
-                                  BancoService afr_banco)
+                                  BancoService afr_banco,
+                                  PonteApi afr_ponteApi)
         {
             afr_usuarioService = afr_usuario;
             afr_logService = afr_log;
             afr_autenticacaoService = afr_autenticacao;
             afr_bancoService = afr_banco;
+            afr_ponte = afr_ponteApi;
         }
 
         // =============================================================
@@ -57,7 +62,7 @@ namespace PlataformaCursosWeb.Controllers
         public IActionResult Index(string termo)
         {
             ViewBag.Termo = (termo ?? "").Trim();
-            ViewBag.StatusBanco = afr_bancoService.ObterDescricao();
+            ViewBag.StatusBanco = (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
 
             // Para a lista marcar "(voce)" e esconder o botao de excluir
             // da propria conta

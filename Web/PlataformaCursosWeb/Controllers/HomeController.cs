@@ -26,6 +26,9 @@ namespace PlataformaCursosWeb.Controllers
     public class HomeController : ControllerPadrao
     {
         private readonly BancoService afr_bancoService;
+
+        // VERSAO 4 - no modo API a conexao testada e descrita e a da API
+        private readonly PonteApi afr_ponte;
         private readonly CursoService afr_cursoService;
         private readonly UsuarioService afr_usuarioService;
         private readonly ProgressoService afr_progressoService;
@@ -37,9 +40,11 @@ namespace PlataformaCursosWeb.Controllers
                               CursoService afr_curso,
                               UsuarioService afr_usuario,
                               ProgressoService afr_progresso,
-                              GamificacaoService afr_gamificacao)
+                              GamificacaoService afr_gamificacao,
+                              PonteApi afr_ponteApi)
         {
             afr_bancoService = afr_banco;
+            afr_ponte = afr_ponteApi;
             afr_cursoService = afr_curso;
             afr_usuarioService = afr_usuario;
             afr_progressoService = afr_progresso;
@@ -100,7 +105,7 @@ namespace PlataformaCursosWeb.Controllers
                 afr_dados.afr_DataCadastro = afr_usuario.afr_DataCadastro;
             }
 
-            afr_dados.afr_StatusBanco = afr_bancoService.ObterDescricao();
+            afr_dados.afr_StatusBanco = (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
 
             return View(afr_dados);
         }
@@ -112,7 +117,11 @@ namespace PlataformaCursosWeb.Controllers
         {
             string afr_mensagem;
 
-            if (afr_bancoService.TestarConexao(out afr_mensagem))
+            bool afr_conectou = afr_ponte.Ativa()
+                ? afr_ponte.TestarConexao(out afr_mensagem)
+                : afr_bancoService.TestarConexao(out afr_mensagem);
+
+            if (afr_conectou)
             {
                 AvisarSucesso(afr_mensagem);
             }

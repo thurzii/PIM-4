@@ -86,7 +86,14 @@
                 <tr>
                     <td>@afr_aluno.afr_Nome</td>
                     <td>@afr_aluno.afr_Email</td>
-                    <td><time datetime="@afr_aluno.afr_DataCadastro.ToString("yyyy-MM-dd")">@afr_aluno.afr_DataCadastro.ToString("dd/MM/yyyy")</time></td>
+                    <td>@if (afr_aluno.afr_DataCadastro > DateTime.MinValue)
+                        {
+                            <time datetime="@afr_aluno.afr_DataCadastro.ToString("yyyy-MM-dd")">@afr_aluno.afr_DataCadastro.ToString("dd/MM/yyyy")</time>
+                        }
+                        else
+                        {
+                            <span aria-label="sem data">&mdash;</span>
+                        }</td>
                     <td class="coluna-acoes">
                         <a class="botao botao-pequeno @(afr_aluno.afr_Id == Model.afr_AlunoId ? "botao-primario" : "")"
                            asp-controller="Progresso" asp-action="Index"
@@ -107,8 +114,11 @@
 {
     <h2>@Model.afr_Aluno.afr_Nome</h2>
     <p class="subtitulo">
-        @Model.afr_Aluno.afr_Email &middot;
-        cadastro em <time datetime="@Model.afr_Aluno.afr_DataCadastro.ToString("yyyy-MM-dd")">@Model.afr_Aluno.afr_DataCadastro.ToString("dd/MM/yyyy")</time>
+        @Model.afr_Aluno.afr_Email
+        @if (Model.afr_Aluno.afr_DataCadastro > DateTime.MinValue)
+        {
+            <text>&middot; cadastro em <time datetime="@Model.afr_Aluno.afr_DataCadastro.ToString("yyyy-MM-dd")">@Model.afr_Aluno.afr_DataCadastro.ToString("dd/MM/yyyy")</time></text>
+        }
     </p>
 
     @* ------------------------------------------------------------- *@
