@@ -30,6 +30,9 @@ namespace PlataformaCursos
     public partial class FrmPrincipal : Form
     {
         private BancoService afr_bancoService = new BancoService();
+
+        // VERSAO 4 - no modo API a conexao testada e descrita e a da API
+        private PonteApi afr_ponte = new PonteApi();
         private AutenticacaoService afr_autenticacaoService = new AutenticacaoService();
 
         // VERSAO 3 - para montar o painel de XP e conquistas
@@ -72,9 +75,15 @@ namespace PlataformaCursos
             afr_lblBoasVindas.Text = "Ola, " + afr_usuario.ObterPrimeiroNome() +
                                      ".  |  " + afr_usuario.ObterResumo();
 
-            afr_lblSessao.Text = "Sessao aberta " + Sessao.ObterTempoSessao() +
-                                 ".  |  Cadastro desde " +
-                                 afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy") + ".";
+            afr_lblSessao.Text = "Sessao aberta " + Sessao.ObterTempoSessao() + ".";
+
+            // A API nao devolve a data de cadastro: sem ela, a frase sai
+            // em vez de mostrar 01/01/0001
+            if (afr_usuario.afr_DataCadastro > DateTime.MinValue)
+            {
+                afr_lblSessao.Text = afr_lblSessao.Text + "  |  Cadastro desde " +
+                                     afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy") + ".";
+            }
 
             // Area do aluno: todo mundo tem. O professor e o admin tambem
             // podem navegar no catalogo como qualquer pessoa.
@@ -96,21 +105,34 @@ namespace PlataformaCursos
             if (Sessao.EhAdministrador())
             {
                 afr_lblStatus.Text = "Perfil ADMIN: catalogo, cursos, progresso dos alunos e usuarios.  "
-                                   + afr_bancoService.ObterDescricao();
+                                   + (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
             }
             else if (Sessao.EhProfessor())
             {
                 afr_lblStatus.Text = "Perfil PROFESSOR: catalogo, cursos e aulas, e progresso dos alunos.  "
-                                   + afr_bancoService.ObterDescricao();
+                                   + (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
             }
             else
             {
                 afr_lblStatus.Text = "Perfil ALUNO: catalogo de cursos e as suas aulas.  "
-                                   + afr_bancoService.ObterDescricao();
+                                   + (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
             }
 
             // VERSAO 3 - painel de XP, nivel e conquistas
-            MostrarPontuacao(afr_usuario.afr_Id);
+            //
+            // VERSAO 4 - so para o ALUNO (decisao do grupo): professor e
+            // admin acompanham os cursos, nao cursam nem ganham XP.
+            bool afr_ehAluno = !Sessao.EhAdministrador() && !Sessao.EhProfessor();
+
+            afr_lblNivel.Visible = afr_ehAluno;
+            afr_lblXp.Visible = afr_ehAluno;
+            afr_barraNivel.Visible = afr_ehAluno;
+            afr_lblConquistas.Visible = afr_ehAluno;
+
+            if (afr_ehAluno)
+            {
+                MostrarPontuacao(afr_usuario.afr_Id);
+            }
         }
 
         // =============================================================
@@ -198,8 +220,8 @@ namespace PlataformaCursos
         // =============================================================
         // VERSAO 3 - PAINEL DE GAMIFICACAO
         //
-        // Aparece para todo mundo, inclusive professor e admin: eles
-        // tambem podem cursar. Para quem nunca concluiu nada, mostra o
+        // VERSAO 4 - aparece so para o aluno: professor e admin nao
+        // cursam nem ganham XP. Para quem nunca concluiu nada, mostra o
         // nivel 1 com a barra zerada, em vez de esconder o painel - o
         // aluno precisa ver que existe algo a conquistar.
         // =============================================================
@@ -309,7 +331,9 @@ namespace PlataformaCursos
         {
             string afr_mensagem;
 
-            bool afr_ok = afr_bancoService.TestarConexao(out afr_mensagem);
+            bool afr_ok = afr_ponte.Ativa()
+                ? afr_ponte.TestarConexao(out afr_mensagem)
+                : afr_bancoService.TestarConexao(out afr_mensagem);
 
             if (afr_ok)
             {
@@ -322,7 +346,7 @@ namespace PlataformaCursos
 
             afr_lblStatus.Text = afr_mensagem;
 
-            MessageBox.Show(afr_bancoService.ObterDescricao() + Environment.NewLine + afr_mensagem,
+            MessageBox.Show((afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao()) + Environment.NewLine + afr_mensagem,
                             "Conexao", MessageBoxButtons.OK,
                             afr_ok ? MessageBoxIcon.Information : MessageBoxIcon.Error);
         }

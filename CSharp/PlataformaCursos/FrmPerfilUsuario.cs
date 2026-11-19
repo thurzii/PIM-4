@@ -112,7 +112,7 @@ namespace PlataformaCursos
             afr_lblPapel.Text = "Papel: " + afr_usuario.afr_Perfil
                               + (afr_usuario.afr_Ativo ? "   (ativo)" : "   (inativo)");
             afr_lblCadastro.Text = "Cadastrado em: "
-                                 + afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm");
+                                 + afr_usuario.ObterDataCadastro("dd/MM/yyyy HH:mm");
 
             // buscarHistoricoAcoes(usuario)
             // -> historicoAcoes(loginLog, acoesCrud, cursosRelacionados)

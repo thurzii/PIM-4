@@ -18,6 +18,9 @@ namespace PlataformaCursos
     public partial class FrmLogin : Form
     {
         private BancoService afr_bancoService = new BancoService();
+
+        // VERSAO 4 - no modo API a conexao testada e descrita e a da API
+        private PonteApi afr_ponte = new PonteApi();
         private AutenticacaoService afr_autenticacaoService = new AutenticacaoService();
 
         // =============================================================
@@ -29,10 +32,20 @@ namespace PlataformaCursos
 
             string afr_mensagem;
 
-            if (afr_bancoService.PrepararBanco(out afr_mensagem))
+            // VERSAO 4 - COM A API LIGADA, O PROGRAMA NAO TOCA EM BANCO
+            // NENHUM. PrepararBanco cria tabelas, roda ALTER TABLE/UPDATE
+            // de migracao e cadastra usuarios de teste: no banco do Azure,
+            // que o aplicativo ja usa, isso estragaria o esquema dele. No
+            // modo API o que se testa aqui e se a API responde.
+            bool afr_pronto = afr_ponte.Ativa()
+                ? afr_ponte.TestarConexao(out afr_mensagem)
+                : afr_bancoService.PrepararBanco(out afr_mensagem);
+
+            if (afr_pronto)
             {
                 afr_lblStatus.ForeColor = Color.DimGray;
-                afr_lblStatus.Text = afr_mensagem + "  " + afr_bancoService.ObterDescricao();
+                afr_lblStatus.Text = afr_mensagem + "  " +
+                                     (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
 
                 // Facilita a demonstracao: ja deixa o email do admin preenchido
                 afr_txtEmail.Text = "admin@escola.com";

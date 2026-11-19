@@ -15,6 +15,13 @@
    5) CursoService ......... DS03, DS04, DS09, DS10
    6) AulaService .......... DS05 - abrirAula / assistirAula
    7) ProgressoService ..... DS05, DS07, DS08
+
+   VERSAO 4 - MODO API
+   Com a API ligada (ConfiguracaoApi.ATIVA = true), cada metodo abaixo
+   pergunta a API pela PonteApi em vez de ir ao banco local. O bloco
+   "if (afr_ponte.Ativa())" no comeco de cada metodo e esse desvio; o
+   resto do metodo e o modo local, mantido para os testes enquanto a API
+   nao estiver no Azure. E o mesmo desvio da versao web.
    ===================================================================== */
 
 using System;
@@ -116,21 +123,36 @@ namespace PlataformaCursos
     public class LogService
     {
         private BancoService afr_bancoService = new BancoService();
+        private PonteApi afr_ponte = new PonteApi();
+
+        // VERSAO 4 - a API nao tem historico de acoes. No modo API nada
+        // e gravado no banco local (ele nao e a fonte de verdade) e as
+        // consultas voltam vazias ate a rota existir.
+        private bool SemHistorico()
+        {
+            return afr_ponte.Ativa();
+        }
 
         public void RegistrarLogin(int afr_usuarioId, string afr_descricao)
         {
+            if (SemHistorico()) return;
+
             afr_bancoService.RegistrarAcao(
                 new LogAcao(afr_usuarioId, LogAcao.TIPO_LOGIN, afr_descricao));
         }
 
         public void RegistrarCrud(int afr_usuarioId, string afr_descricao)
         {
+            if (SemHistorico()) return;
+
             afr_bancoService.RegistrarAcao(
                 new LogAcao(afr_usuarioId, LogAcao.TIPO_CRUD, afr_descricao));
         }
 
         public void RegistrarCurso(int afr_usuarioId, string afr_descricao)
         {
+            if (SemHistorico()) return;
+
             afr_bancoService.RegistrarAcao(
                 new LogAcao(afr_usuarioId, LogAcao.TIPO_CURSO, afr_descricao));
         }
@@ -138,23 +160,31 @@ namespace PlataformaCursos
         // DS12 - loginLog
         public List<LogAcao> BuscarLoginLog(int afr_usuarioId)
         {
+            if (SemHistorico()) return new List<LogAcao>();
+
             return afr_bancoService.ListarLogDoUsuario(afr_usuarioId, LogAcao.TIPO_LOGIN, 50);
         }
 
         // DS12 - acoesCrud
         public List<LogAcao> BuscarAcoesCrud(int afr_usuarioId)
         {
+            if (SemHistorico()) return new List<LogAcao>();
+
             return afr_bancoService.ListarLogDoUsuario(afr_usuarioId, LogAcao.TIPO_CRUD, 50);
         }
 
         // DS12 - cursosRelacionados
         public List<LogAcao> BuscarCursosRelacionados(int afr_usuarioId)
         {
+            if (SemHistorico()) return new List<LogAcao>();
+
             return afr_bancoService.ListarLogDoUsuario(afr_usuarioId, LogAcao.TIPO_CURSO, 50);
         }
 
         public List<LogAcao> BuscarHistoricoCompleto(int afr_usuarioId)
         {
+            if (SemHistorico()) return new List<LogAcao>();
+
             return afr_bancoService.ListarLogDoUsuario(afr_usuarioId, "", 150);
         }
     }
@@ -166,6 +196,7 @@ namespace PlataformaCursos
     public class AutenticacaoService
     {
         private BancoService afr_bancoService = new BancoService();
+        private PonteApi afr_ponte = new PonteApi();
         private EmailService afr_emailService = new EmailService();
         private LogService afr_logService = new LogService();
 
@@ -184,6 +215,23 @@ namespace PlataformaCursos
             {
                 afr_mensagem = "Informe o email e a senha.";
                 return null;
+            }
+
+            // VERSAO 4 - modo API: quem confere a senha e a API. O token
+            // fica guardado no cliente do programa (ConfiguracaoApi).
+            if (afr_ponte.Ativa())
+            {
+                string afr_tokenNoCliente;
+                Usuario afr_daApi = afr_ponte.Entrar(NormalizarEmail(afr_email), afr_senha,
+                                                     out afr_tokenNoCliente, out afr_mensagem);
+
+                if (afr_daApi != null)
+                {
+                    Sessao.Abrir(afr_daApi);
+                    afr_mensagem = "Bem-vindo, " + afr_daApi.ObterPrimeiroNome() + ".";
+                }
+
+                return afr_daApi;
             }
 
             // DS01 - buscarUsuario(email)
@@ -259,6 +307,12 @@ namespace PlataformaCursos
             }
 
             Sessao.Encerrar();
+
+            // VERSAO 4 - sem sessao, o token da API tambem sai
+            if (afr_ponte.Ativa())
+            {
+                ConfiguracaoApi.ObterCliente().EsquecerToken();
+            }
         }
 
         // -------------------------------------------------------------
@@ -286,6 +340,13 @@ namespace PlataformaCursos
         {
             afr_codigoGerado = "";
             afr_mensagem = "";
+
+            // VERSAO 4 - a API ainda nao tem recuperacao (responde 501)
+            if (afr_ponte.Ativa())
+            {
+                afr_mensagem = afr_ponte.RecuperarSenha(afr_email);
+                return false;
+            }
 
             if (afr_email.Trim() == "")
             {
@@ -338,6 +399,12 @@ namespace PlataformaCursos
         public bool ConferirCodigo(string afr_email, string afr_codigo, out string afr_mensagem)
         {
             afr_mensagem = "";
+
+            if (afr_ponte.Ativa())
+            {
+                afr_mensagem = afr_ponte.RecuperarSenha(afr_email);
+                return false;
+            }
 
             Usuario afr_usuario = afr_bancoService.BuscarUsuarioPorEmail(afr_email.Trim());
 
@@ -447,6 +514,20 @@ namespace PlataformaCursos
                 return false;
             }
 
+            // VERSAO 4 - no modo API a senha nao esta no banco local: quem
+            // confere e a API, refazendo o login com a senha digitada
+            if (afr_ponte.Ativa())
+            {
+                if (!afr_ponte.ConfirmarSenha(afr_senhaDigitada, out afr_mensagem))
+                {
+                    afr_mensagem = "Senha incorreta. A exclusao foi cancelada.";
+                    return false;
+                }
+
+                afr_mensagem = "Identidade confirmada.";
+                return true;
+            }
+
             Usuario afr_logado = Sessao.ObterUsuario();
 
             // VERSAO 3 - confere pelo hash, igual ao login
@@ -473,6 +554,7 @@ namespace PlataformaCursos
     public class UsuarioService
     {
         private BancoService afr_bancoService = new BancoService();
+        private PonteApi afr_ponte = new PonteApi();
         private LogService afr_logService = new LogService();
 
         // DS12 - verificarPermissaoAdmin(admin)
@@ -497,24 +579,47 @@ namespace PlataformaCursos
 
         public List<Usuario> ListarUsuarios(string afr_termo)
         {
+            if (afr_ponte.Ativa()) return afr_ponte.ListarUsuarios(afr_termo);
+
             return afr_bancoService.ListarUsuarios(afr_termo);
         }
 
         // DS07 - a lista de alunos que o professor pode acompanhar
         public List<Usuario> ListarAlunos(string afr_termo)
         {
+            if (afr_ponte.Ativa()) return afr_ponte.ListarAlunos(afr_termo);
+
             return afr_bancoService.ListarUsuarios(afr_termo, Usuario.PERFIL_ALUNO);
         }
 
         // DS12 - buscarDadosUsuario(usuario) / dadosUsuario(...)
         public Usuario BuscarDadosUsuario(int afr_id)
         {
+            if (afr_ponte.Ativa()) return afr_ponte.BuscarUsuario(afr_id);
+
             return afr_bancoService.BuscarUsuarioPorId(afr_id);
         }
 
         // DS11 - verificarDuplicidade(email) / emailDisponivel(true)
         public bool VerificarDuplicidade(string afr_email, int afr_idIgnorar)
         {
+            // VERSAO 4 - no modo API procura na lista que a API devolve
+            if (afr_ponte.Ativa())
+            {
+                string afr_procurado = AutenticacaoService.NormalizarEmail(afr_email);
+
+                foreach (Usuario afr_existente in afr_ponte.ListarUsuarios(""))
+                {
+                    if (afr_existente.afr_Id != afr_idIgnorar &&
+                        AutenticacaoService.NormalizarEmail(afr_existente.afr_Email) == afr_procurado)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
             return afr_bancoService.EmailJaExiste((afr_email ?? "").Trim(), afr_idIgnorar);
         }
 
@@ -535,6 +640,13 @@ namespace PlataformaCursos
             // VERSAO 3.1 - email no mesmo formato da API (minusculas)
             afr_usuario.afr_Email = AutenticacaoService.NormalizarEmail(afr_usuario.afr_Email);
 
+            // VERSAO 4 - no modo API a senha vai em texto pela conexao e
+            // quem gera o hash e a propria API
+            if (afr_ponte.Ativa())
+            {
+                return afr_ponte.CriarUsuario(afr_usuario, out afr_mensagem);
+            }
+
             // VERSAO 3 - a senha vai para o banco como hash, nunca como texto
             afr_usuario.afr_Senha = GarantirHash(afr_usuario.afr_Senha);
 
@@ -553,6 +665,12 @@ namespace PlataformaCursos
         // DS13 - validaEAtualiza(novosDados)
         public bool EditarUsuario(Usuario afr_usuario, out string afr_mensagem)
         {
+            // VERSAO 4 - a API so sabe ativar e desativar
+            if (afr_ponte.Ativa())
+            {
+                return EditarUsuarioPelaApi(afr_usuario, out afr_mensagem);
+            }
+
             // VERSAO 3 - senha em branco na edicao significa "manter a atual".
             // A tela nao mostra mais a senha gravada, porque agora o que esta
             // no banco e um hash e nao ha como voltar dele para a senha. Entao
@@ -600,6 +718,49 @@ namespace PlataformaCursos
         }
 
         // -------------------------------------------------------------
+        // VERSAO 4 - edicao no modo API.
+        //
+        // A unica rota de edicao e PUT /api/admin/usuarios/:id/status.
+        // Se o administrador so mudou a situacao (ativo/inativo), ela
+        // resolve. Se mexeu em nome, email, perfil ou senha, a tela avisa
+        // que isso ainda nao existe na API, em vez de gravar metade.
+        // -------------------------------------------------------------
+        private bool EditarUsuarioPelaApi(Usuario afr_usuario, out string afr_mensagem)
+        {
+            Usuario afr_atual = afr_ponte.BuscarUsuario(afr_usuario.afr_Id);
+
+            if (afr_atual == null)
+            {
+                afr_mensagem = "Usuario nao encontrado.";
+                return false;
+            }
+
+            bool afr_soSituacao =
+                afr_atual.afr_Nome == (afr_usuario.afr_Nome ?? "").Trim() &&
+                AutenticacaoService.NormalizarEmail(afr_atual.afr_Email) ==
+                    AutenticacaoService.NormalizarEmail(afr_usuario.afr_Email) &&
+                afr_atual.afr_Perfil == afr_usuario.afr_Perfil &&
+                string.IsNullOrWhiteSpace(afr_usuario.afr_Senha);
+
+            if (!afr_soSituacao)
+            {
+                afr_mensagem = "Pela API, por enquanto, so da para ativar ou desativar " +
+                               "o usuario. Editar nome, email, perfil ou senha ainda " +
+                               "nao existe na API.";
+                return false;
+            }
+
+            if (afr_atual.afr_Ativo == afr_usuario.afr_Ativo)
+            {
+                afr_mensagem = "Nada foi alterado.";
+                return true;
+            }
+
+            return afr_ponte.AlterarStatusUsuario(afr_usuario.afr_Id, afr_usuario.afr_Ativo,
+                                                  out afr_mensagem);
+        }
+
+        // -------------------------------------------------------------
         // VERSAO 3 - converte em hash so o que ainda nao e hash.
         //
         // Sem esta verificacao, salvar duas vezes o mesmo usuario
@@ -623,6 +784,15 @@ namespace PlataformaCursos
         public ElegibilidadeExclusao VerificarElegibilidadeExclusao(int afr_id)
         {
             ElegibilidadeExclusao afr_resultado = new ElegibilidadeExclusao();
+
+            // VERSAO 4 - a API nao tem rota para excluir usuario
+            if (afr_ponte.Ativa())
+            {
+                afr_resultado.afr_Elegivel = false;
+                afr_resultado.afr_Motivo = "Excluir usuario ainda nao existe na API. " +
+                                           "Por enquanto, desative o usuario em Editar.";
+                return afr_resultado;
+            }
 
             Usuario afr_usuario = afr_bancoService.BuscarUsuarioPorId(afr_id);
 
@@ -685,6 +855,12 @@ namespace PlataformaCursos
         // DS14 - removerDefinitivamente(usuario)
         public bool RemoverDefinitivamente(int afr_id, out string afr_mensagem)
         {
+            if (afr_ponte.Ativa())
+            {
+                afr_mensagem = PonteApi.SEM_ROTA;
+                return false;
+            }
+
             Usuario afr_usuario = afr_bancoService.BuscarUsuarioPorId(afr_id);
 
             string afr_nome = afr_usuario != null ? afr_usuario.afr_Nome : "Id " + afr_id;
@@ -749,6 +925,7 @@ namespace PlataformaCursos
     public class CursoService
     {
         private BancoService afr_bancoService = new BancoService();
+        private PonteApi afr_ponte = new PonteApi();
         private LogService afr_logService = new LogService();
 
         // DS09 e DS10 - quem pode mexer em curso e o PROFESSOR (e o admin)
@@ -777,6 +954,8 @@ namespace PlataformaCursos
             FiltroCurso afr_filtro = new FiltroCurso();
             afr_filtro.afr_SomenteAtivos = true;
 
+            if (afr_ponte.Ativa()) return FiltrarDaApi(afr_filtro);
+
             return afr_bancoService.ListarCursos(afr_filtro);
         }
 
@@ -789,6 +968,8 @@ namespace PlataformaCursos
             }
 
             afr_filtro.afr_SomenteAtivos = true;
+
+            if (afr_ponte.Ativa()) return FiltrarDaApi(afr_filtro);
 
             return afr_bancoService.ListarCursos(afr_filtro);
         }
@@ -804,12 +985,52 @@ namespace PlataformaCursos
 
             afr_filtro.afr_SomenteAtivos = false;
 
+            if (afr_ponte.Ativa()) return FiltrarDaApi(afr_filtro);
+
             return afr_bancoService.ListarCursos(afr_filtro);
+        }
+
+        // -------------------------------------------------------------
+        // VERSAO 4 - os filtros da busca (DS04) no modo API.
+        //
+        // A API so filtra por texto. Carga horaria, situacao e "so os
+        // que nao conclui" sao aplicados aqui, sobre a lista que ela
+        // devolve - a mesma regra que o BancoService faz em SQL.
+        // -------------------------------------------------------------
+        private List<Curso> FiltrarDaApi(FiltroCurso afr_filtro)
+        {
+            List<Curso> afr_resultado = new List<Curso>();
+            List<int> afr_concluidos = new List<int>();
+
+            if (afr_filtro.afr_SomenteNaoConcluidos)
+            {
+                foreach (ProgressoCurso afr_linha in afr_ponte.MeuProgresso())
+                {
+                    if (afr_linha.afr_Resultado.afr_Aprovado)
+                    {
+                        afr_concluidos.Add(afr_linha.afr_Curso.afr_Id);
+                    }
+                }
+            }
+
+            foreach (Curso afr_curso in afr_ponte.ListarCursos(afr_filtro.afr_Termo))
+            {
+                if (afr_filtro.afr_SomenteAtivos && !afr_curso.afr_Ativo) continue;
+                if (afr_filtro.afr_CargaMinima > 0 && afr_curso.afr_CargaHoraria < afr_filtro.afr_CargaMinima) continue;
+                if (afr_filtro.afr_CargaMaxima > 0 && afr_curso.afr_CargaHoraria > afr_filtro.afr_CargaMaxima) continue;
+                if (afr_concluidos.Contains(afr_curso.afr_Id)) continue;
+
+                afr_resultado.Add(afr_curso);
+            }
+
+            return afr_resultado;
         }
 
         // DS09 - getDadosCurso(curso) / dadosCurso(titulo, desc)
         public Curso GetDadosCurso(int afr_id)
         {
+            if (afr_ponte.Ativa()) return afr_ponte.ObterCurso(afr_id);
+
             return afr_bancoService.BuscarCursoPorId(afr_id);
         }
 
@@ -819,6 +1040,8 @@ namespace PlataformaCursos
             {
                 return false;
             }
+
+            if (afr_ponte.Ativa()) return afr_ponte.CriarCurso(afr_curso, out afr_mensagem);
 
             if (!afr_bancoService.InserirCurso(afr_curso, out afr_mensagem))
             {
@@ -839,6 +1062,8 @@ namespace PlataformaCursos
                 return false;
             }
 
+            if (afr_ponte.Ativa()) return afr_ponte.EditarCurso(afr_curso, out afr_mensagem);
+
             if (!afr_bancoService.AtualizarCurso(afr_curso, out afr_mensagem))
             {
                 return false;
@@ -858,6 +1083,11 @@ namespace PlataformaCursos
         public ElegibilidadeExclusao VerificarElegibilidadeExclusao(int afr_cursoId)
         {
             ElegibilidadeExclusao afr_resultado = new ElegibilidadeExclusao();
+
+            if (afr_ponte.Ativa())
+            {
+                return ElegibilidadePelaApi(afr_cursoId);
+            }
 
             Curso afr_curso = afr_bancoService.BuscarCursoPorId(afr_cursoId);
 
@@ -893,9 +1123,48 @@ namespace PlataformaCursos
             return afr_resultado;
         }
 
+        // -------------------------------------------------------------
+        // VERSAO 4 - DS10 no modo API. So o admin tem rota de excluir
+        // curso, e a API nao conta quantos alunos perdem o progresso.
+        // -------------------------------------------------------------
+        private ElegibilidadeExclusao ElegibilidadePelaApi(int afr_cursoId)
+        {
+            ElegibilidadeExclusao afr_resultado = new ElegibilidadeExclusao();
+            Curso afr_curso = afr_ponte.ObterCurso(afr_cursoId);
+
+            if (afr_curso == null)
+            {
+                afr_resultado.afr_Elegivel = false;
+                afr_resultado.afr_Motivo = "Curso nao encontrado.";
+                return afr_resultado;
+            }
+
+            if (!Sessao.EhAdministrador())
+            {
+                afr_resultado.afr_Elegivel = false;
+                afr_resultado.afr_Motivo = "Na API, so o administrador exclui curso. " +
+                                           "Voce pode desativar o curso em Editar.";
+                return afr_resultado;
+            }
+
+            afr_resultado.afr_Elegivel = true;
+            afr_resultado.afr_Motivo = "O curso pode ser excluido. Os alunos matriculados " +
+                                       "perdem o progresso nele.";
+
+            afr_resultado.afr_DadosDetalhados.Add(
+                "Curso: " + afr_curso.afr_Titulo + " (" + afr_curso.afr_CargaHoraria + "h)");
+
+            afr_resultado.afr_DadosDetalhados.Add(
+                afr_curso.afr_TotalAulas + " aula(s) serao apagadas junto");
+
+            return afr_resultado;
+        }
+
         // DS10 - removerDefinitivamente(curso)
         public bool RemoverDefinitivamente(int afr_cursoId, out string afr_mensagem)
         {
+            if (afr_ponte.Ativa()) return afr_ponte.ExcluirCurso(afr_cursoId, out afr_mensagem);
+
             Curso afr_curso = afr_bancoService.BuscarCursoPorId(afr_cursoId);
 
             string afr_titulo = afr_curso != null ? afr_curso.afr_Titulo : "Id " + afr_cursoId;
@@ -961,6 +1230,12 @@ namespace PlataformaCursos
                 return false;
             }
 
+            // VERSAO 4 - modo API: a propria API confere curso e matricula
+            if (afr_ponte.Ativa())
+            {
+                return afr_ponte.Matricular(afr_cursoId, out afr_mensagem);
+            }
+
             Curso afr_curso = afr_bancoService.BuscarCursoPorId(afr_cursoId);
 
             if (afr_curso == null || !afr_curso.afr_Ativo)
@@ -983,6 +1258,9 @@ namespace PlataformaCursos
 
         public bool EstaMatriculado(int afr_usuarioId, int afr_cursoId)
         {
+            // Pela API so da para saber da matricula de quem esta logado
+            if (afr_ponte.Ativa()) return afr_ponte.EstaMatriculado(afr_cursoId);
+
             return afr_bancoService.EstaMatriculado(afr_usuarioId, afr_cursoId);
         }
     }
@@ -994,15 +1272,22 @@ namespace PlataformaCursos
     public class AulaService
     {
         private BancoService afr_bancoService = new BancoService();
+        private PonteApi afr_ponte = new PonteApi();
 
         public List<Aula> ListarAulas(int afr_cursoId, int afr_usuarioId)
         {
+            // Pela API, o "concluida" de cada aula e sempre o de quem
+            // esta logado: o token diz quem e
+            if (afr_ponte.Ativa()) return afr_ponte.ListarAulas(afr_cursoId);
+
             return afr_bancoService.ListarAulasDoCurso(afr_cursoId, afr_usuarioId);
         }
 
         // DS05 - abrirAula(aula): traz a aula com o conteudo
         public Aula AbrirAula(int afr_aulaId, int afr_usuarioId)
         {
+            if (afr_ponte.Ativa()) return afr_ponte.AbrirAula(afr_aulaId);
+
             return afr_bancoService.BuscarAulaPorId(afr_aulaId, afr_usuarioId);
         }
 
@@ -1012,6 +1297,8 @@ namespace PlataformaCursos
             {
                 return false;
             }
+
+            if (afr_ponte.Ativa()) return afr_ponte.CriarAula(afr_aula, out afr_mensagem);
 
             return afr_bancoService.InserirAula(afr_aula, out afr_mensagem);
         }
@@ -1023,11 +1310,21 @@ namespace PlataformaCursos
                 return false;
             }
 
+            // VERSAO 4 - a API nao tem rota para editar aula
+            if (afr_ponte.Ativa())
+            {
+                afr_mensagem = "Editar aula (titulo, duracao e conteudo) ainda nao existe " +
+                               "na API. Ela volta a funcionar quando a rota for criada.";
+                return false;
+            }
+
             return afr_bancoService.AtualizarAula(afr_aula, out afr_mensagem);
         }
 
         public bool ExcluirAula(int afr_id, out string afr_mensagem)
         {
+            if (afr_ponte.Ativa()) return afr_ponte.ExcluirAula(afr_id, out afr_mensagem);
+
             return afr_bancoService.ExcluirAula(afr_id, out afr_mensagem);
         }
 
@@ -1081,6 +1378,7 @@ namespace PlataformaCursos
     public class ProgressoService
     {
         private BancoService afr_bancoService = new BancoService();
+        private PonteApi afr_ponte = new PonteApi();
         private LogService afr_logService = new LogService();
 
         // VERSAO 3 - quem paga o XP e as conquistas
@@ -1111,6 +1409,32 @@ namespace PlataformaCursos
                                        out GanhoGamificacao afr_ganho)
         {
             afr_ganho = new GanhoGamificacao();
+
+            // VERSAO 4 - SO ALUNO FAZ CURSO E GANHA XP (decisao do grupo).
+            // Professor e administrador acompanham os cursos, nao cursam.
+            // Igual a API, onde a rota de progresso e studentOnly. A tela
+            // ja esconde o botao, mas a regra fica aqui.
+            if (Sessao.EhAdministrador() || Sessao.EhProfessor())
+            {
+                afr_mensagem = "Apenas aluno registra progresso nas aulas.";
+                return false;
+            }
+
+            // VERSAO 4 - modo API: a API confere a matricula, grava o
+            // progresso e paga o XP, tudo na mesma chamada
+            if (afr_ponte.Ativa())
+            {
+                Aula afr_daApi = afr_ponte.AbrirAula(afr_aulaId);
+
+                if (afr_daApi == null)
+                {
+                    afr_mensagem = "Aula nao encontrada.";
+                    return false;
+                }
+
+                return afr_ponte.MarcarProgresso(afr_daApi.afr_CursoId, afr_aulaId, afr_concluida,
+                                                 out afr_ganho, out afr_mensagem);
+            }
 
             // Precisa da aula antes de qualquer coisa para saber de QUAL
             // curso ela e: a matricula e por curso, nao por aula.
@@ -1178,6 +1502,14 @@ namespace PlataformaCursos
 
         public int ObterAulasConcluidas(int afr_usuarioId, int afr_cursoId)
         {
+            // Pela API so se sabe o progresso de quem esta logado
+            if (afr_ponte.Ativa())
+            {
+                return afr_usuarioId == Sessao.ObterUsuarioId()
+                    ? afr_ponte.ContarConcluidas(afr_cursoId)
+                    : 0;
+            }
+
             return afr_bancoService.ContarAulasConcluidas(afr_usuarioId, afr_cursoId);
         }
 
@@ -1223,7 +1555,24 @@ namespace PlataformaCursos
         // -------------------------------------------------------------
         public List<ProgressoCurso> BuscarProgresso(int afr_alunoId)
         {
+            // VERSAO 4 - pela API so existe o progresso de quem esta
+            // logado. O de outro aluno depende de uma rota que ainda nao
+            // existe (ver ProgressoDeOutrosDisponivel).
+            if (afr_ponte.Ativa())
+            {
+                return afr_alunoId == Sessao.ObterUsuarioId()
+                    ? afr_ponte.MeuProgresso()
+                    : new List<ProgressoCurso>();
+            }
+
             return afr_bancoService.BuscarProgressoDoAluno(afr_alunoId);
+        }
+
+        // VERSAO 4 - a tela do professor pergunta isto para explicar a
+        // lista vazia em vez de dizer que nao ha cursos
+        public bool ProgressoDeOutrosDisponivel()
+        {
+            return !afr_ponte.Ativa();
         }
 
         // -------------------------------------------------------------
@@ -1279,6 +1628,7 @@ namespace PlataformaCursos
     public class GamificacaoService
     {
         private BancoService afr_bancoService = new BancoService();
+        private PonteApi afr_ponte = new PonteApi();
 
         // -------------------------------------------------------------
         // O aluno concluiu uma aula.
@@ -1313,6 +1663,25 @@ namespace PlataformaCursos
         // -------------------------------------------------------------
         public Pontuacao ObterPontuacao(int afr_usuarioId)
         {
+            // VERSAO 4 - modo API: o proprio aluno pela rota /me (com as
+            // medalhas); outro aluno pelo ranking (sem as medalhas)
+            if (afr_ponte.Ativa())
+            {
+                if (afr_usuarioId == Sessao.ObterUsuarioId())
+                {
+                    if (Sessao.EhAdministrador() || Sessao.EhProfessor())
+                    {
+                        Pontuacao afr_vazia = new Pontuacao();
+                        afr_vazia.afr_UsuarioId = afr_usuarioId;
+                        return afr_vazia;
+                    }
+
+                    return afr_ponte.MinhaPontuacao();
+                }
+
+                return afr_ponte.PontuacaoDoAluno(afr_usuarioId);
+            }
+
             return afr_bancoService.ObterPontuacao(afr_usuarioId);
         }
 
@@ -1334,6 +1703,18 @@ namespace PlataformaCursos
                 return new List<LinhaRanking>();
             }
 
+            if (afr_ponte.Ativa())
+            {
+                List<LinhaRanking> afr_lista = afr_ponte.Ranking();
+
+                if (afr_lista.Count > afr_limite)
+                {
+                    afr_lista = afr_lista.GetRange(0, afr_limite);
+                }
+
+                return afr_lista;
+            }
+
             return afr_bancoService.ListarRanking(afr_limite);
         }
 
@@ -1342,6 +1723,9 @@ namespace PlataformaCursos
         // -------------------------------------------------------------
         public List<RegistroXP> ListarExtrato(int afr_usuarioId, int afr_limite)
         {
+            // A API nao devolve o extrato de XP
+            if (afr_ponte.Ativa()) return new List<RegistroXP>();
+
             return afr_bancoService.ListarHistoricoXp(afr_usuarioId, afr_limite);
         }
     }

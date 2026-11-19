@@ -234,7 +234,7 @@ namespace PlataformaCursos
             afr_lblDados.Text = "Aluno: " + afr_aluno.afr_Nome
                               + "   |   Email: " + afr_aluno.afr_Email
                               + "   |   Cadastro: "
-                              + afr_aluno.afr_DataCadastro.ToString("dd/MM/yyyy");
+                              + afr_aluno.ObterDataCadastro("dd/MM/yyyy");
 
             // VERSAO 3.2 - XP, nivel e conquistas deste aluno, na
             // segunda linha. O professor so tinha o progresso por
@@ -290,7 +290,13 @@ namespace PlataformaCursos
             if (afr_dados.Count == 0)
             {
                 afr_lblResumo.ForeColor = System.Drawing.Color.Chocolate;
-                afr_lblResumo.Text = "Nao existe nenhum curso ativo cadastrado no sistema.";
+
+                // VERSAO 4 - no modo API a lista vazia nao quer dizer que
+                // nao ha cursos, e sim que a rota ainda nao existe
+                afr_lblResumo.Text = afr_progressoService.ProgressoDeOutrosDisponivel()
+                    ? "Nao existe nenhum curso ativo cadastrado no sistema."
+                    : "Pela API ainda nao da para ver o progresso de cada curso deste " +
+                      "aluno: a rota nao existe. O XP e a sequencia aparecem acima.";
                 return;
             }
 

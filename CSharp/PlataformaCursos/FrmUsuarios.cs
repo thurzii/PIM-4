@@ -37,6 +37,9 @@ namespace PlataformaCursos
         private UsuarioService afr_usuarioService = new UsuarioService();
         private BancoService afr_bancoService = new BancoService();
 
+        // VERSAO 4 - no modo API a conexao testada e descrita e a da API
+        private PonteApi afr_ponte = new PonteApi();
+
         // afr_idSelecionado = 0 -> modo NOVO;  > 0 -> modo EDICAO
         private int afr_idSelecionado = 0;
 
@@ -335,7 +338,7 @@ namespace PlataformaCursos
                 }
 
                 // DS12 - dataCadastro faz parte dos dados do usuario
-                afr_item.SubItems.Add(afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy"));
+                afr_item.SubItems.Add(afr_usuario.ObterDataCadastro("dd/MM/yyyy"));
 
                 // Cada perfil ganha a sua cor, so para ficar facil de ler
                 if (afr_usuario.afr_Ativo)
@@ -370,7 +373,7 @@ namespace PlataformaCursos
             afr_lblStatus.Text = afr_listaAtual.Count + " usuario(s) em dbo.Usuarios  |  "
                                + afr_admins + " admin, " + afr_professores + " professor, "
                                + afr_alunos + " aluno  |  "
-                               + afr_bancoService.ObterDescricao();
+                               + (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
 
             afr_carregandoLista = false;
         }
@@ -410,7 +413,7 @@ namespace PlataformaCursos
                                 Environment.NewLine +
                                 "O botao Novo cancela a edicao." + Environment.NewLine +
                                 "Cadastro em " +
-                                afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm") +
+                                afr_usuario.ObterDataCadastro("dd/MM/yyyy HH:mm") +
                                 Environment.NewLine +
                                 afr_usuario.ObterResumo();
         }

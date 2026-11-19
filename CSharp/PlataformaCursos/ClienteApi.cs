@@ -152,6 +152,26 @@ namespace PlataformaCursos
         }
 
         // -------------------------------------------------------------
+        // VERSAO 4 - o token entra e sai do cliente.
+        //
+        // Na web cada requisicao do navegador cria o seu ClienteApi, e o
+        // objeto morre no fim dela. O token obtido no login precisa
+        // sobreviver de um clique para o outro, entao ele vai para o
+        // cookie da pessoa (ver ContaController) e volta para ca a cada
+        // requisicao. No desktop o cliente e um so para o programa
+        // inteiro e o token fica dentro dele.
+        // -------------------------------------------------------------
+        public void UsarToken(string afr_novoToken)
+        {
+            afr_token = afr_novoToken ?? "";
+        }
+
+        public string ObterToken()
+        {
+            return afr_token;
+        }
+
+        // -------------------------------------------------------------
         // GET /api/health
         // Serve para a tela "testar conexao": responde se a API esta no
         // ar E se ela conseguiu falar com o banco.
@@ -384,6 +404,63 @@ namespace PlataformaCursos
         public RespostaApi ExcluirAula(int afr_aulaId)
         {
             return Chamar(HttpMethod.Delete, "/api/admin/aulas/" + afr_aulaId, null);
+        }
+
+        // -------------------------------------------------------------
+        // VERSAO 4 - rotas do PROFESSOR (professorRoutes.js)
+        //
+        // Todas sao professorOnly e so enxergam os cursos em que
+        // Cursos.ProfessorId e o professor logado. As de admin acima sao
+        // adminOnly. Por isso o mesmo botao da tela chama uma ou outra,
+        // conforme o perfil (quem escolhe e a PonteApi).
+        //
+        // Diferencas que importam: o professor NAO tem rota para excluir
+        // curso, e criar/editar curso nao recebe "ativo".
+        // -------------------------------------------------------------
+        public RespostaApi ListarCursosProfessor()
+        {
+            return Chamar(HttpMethod.Get, "/api/professor/cursos", null);
+        }
+
+        public RespostaApi CriarCursoProfessor(string afr_titulo, string afr_descricao,
+                                               int afr_cargaHoraria)
+        {
+            Dictionary<string, object> afr_corpo = new Dictionary<string, object>();
+
+            afr_corpo["titulo"] = afr_titulo ?? "";
+            afr_corpo["descricao"] = afr_descricao ?? "";
+            afr_corpo["cargaHoraria"] = afr_cargaHoraria;
+
+            return Chamar(HttpMethod.Post, "/api/professor/cursos", afr_corpo);
+        }
+
+        public RespostaApi AlterarCursoProfessor(int afr_cursoId, string afr_titulo,
+                                                 string afr_descricao, int afr_cargaHoraria)
+        {
+            Dictionary<string, object> afr_corpo = new Dictionary<string, object>();
+
+            afr_corpo["titulo"] = afr_titulo ?? "";
+            afr_corpo["descricao"] = afr_descricao ?? "";
+            afr_corpo["cargaHoraria"] = afr_cargaHoraria;
+
+            return Chamar(HttpMethod.Put, "/api/professor/cursos/" + afr_cursoId, afr_corpo);
+        }
+
+        public RespostaApi CriarAulaProfessor(int afr_cursoId, string afr_titulo, int afr_duracaoMin)
+        {
+            Dictionary<string, object> afr_corpo = new Dictionary<string, object>();
+
+            afr_corpo["titulo"] = afr_titulo ?? "";
+            afr_corpo["duracaoMin"] = afr_duracaoMin;
+
+            return Chamar(HttpMethod.Post,
+                          "/api/professor/cursos/" + afr_cursoId + "/aulas",
+                          afr_corpo);
+        }
+
+        public RespostaApi ExcluirAulaProfessor(int afr_aulaId)
+        {
+            return Chamar(HttpMethod.Delete, "/api/professor/aulas/" + afr_aulaId, null);
         }
 
         // -------------------------------------------------------------
@@ -739,6 +816,46 @@ namespace PlataformaCursos
             }
 
             return afr_ganho;
+        }
+    }
+
+    // VERSAO 4 - GET /api/gamificacao/me (so aluno)
+    public class PontuacaoApi
+    {
+        [JsonPropertyName("xp")]
+        public int afr_Xp { get; set; }
+
+        [JsonPropertyName("sequenciaAtual")]
+        public int afr_SequenciaAtual { get; set; }
+
+        [JsonPropertyName("melhorSequencia")]
+        public int afr_MelhorSequencia { get; set; }
+
+        [JsonPropertyName("aulasConcluidas")]
+        public int afr_AulasConcluidas { get; set; }
+
+        [JsonPropertyName("conquistas")]
+        public List<ConquistaApi> afr_Conquistas { get; set; } = new List<ConquistaApi>();
+
+        // "nivel" tambem vem no JSON e nao e lido: a Pontuacao calcula o
+        // nivel pela mesma formula (XP / 100 + 1). Guardar os dois daria
+        // espaco para divergirem - mesmo motivo do RankingApi.
+        public Pontuacao ParaPontuacao(int afr_usuarioId)
+        {
+            Pontuacao afr_pontuacao = new Pontuacao();
+
+            afr_pontuacao.afr_UsuarioId = afr_usuarioId;
+            afr_pontuacao.afr_XpTotal = afr_Xp;
+            afr_pontuacao.afr_SequenciaAtual = afr_SequenciaAtual;
+            afr_pontuacao.afr_MelhorSequencia = afr_MelhorSequencia;
+            afr_pontuacao.afr_AulasConcluidas = afr_AulasConcluidas;
+
+            foreach (ConquistaApi afr_item in afr_Conquistas)
+            {
+                afr_pontuacao.afr_Conquistas.Add(afr_item.ParaConquista());
+            }
+
+            return afr_pontuacao;
         }
     }
 

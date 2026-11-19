@@ -89,6 +89,23 @@ namespace PlataformaCursosWeb.Models
         }
 
         // -------------------------------------------------------------
+        // VERSAO 4 - a data de cadastro como texto.
+        //
+        // A API nao devolve a data de cadastro (o SELECT dela nao traz a
+        // coluna). Sem esta conferencia a tela mostraria 01/01/0001, que
+        // parece defeito; com ela, aparece um travessao.
+        // -------------------------------------------------------------
+        public string ObterDataCadastro(string afr_formato)
+        {
+            if (afr_DataCadastro > DateTime.MinValue)
+            {
+                return afr_DataCadastro.ToString(afr_formato);
+            }
+
+            return "-";
+        }
+
+        // -------------------------------------------------------------
         // PERMISSOES
         // Em vez de espalhar "if perfil == ..." pelas telas, cada
         // permissao vira um metodo com nome proprio.
