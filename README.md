@@ -147,12 +147,14 @@ No Visual Studio: **Git → Buscar** e depois **Puxar**. Trabalhar o dia inteiro
 
 Dois integrantes no mesmo arquivo ao mesmo tempo gera conflito, e alguém perde trabalho.
 
-| Integrante | Responsável por |
-|---|---|
-| *(preencher)* | *(ex.: api/ e mobile/)* |
-| *(preencher)* | *(ex.: Web/Views e Web/Controllers)* |
-| *(preencher)* | *(ex.: CSharp/ — formulários)* |
-| *(preencher)* | *(ex.: Modelagem e Documentacao)* |
+| Integrante | Responsável por | Onde fica |
+|---|---|---|
+| **Arthur Fernandes Reis** | Sistema desktop e web, em C# | `CSharp/`, `Web/` (branch `master`) |
+| **Guilherme Alves Martins dos Santos** | Aplicativo mobile e API | `api/`, `mobile/` (branch `main`) |
+| **Maria Clara Vilas Boas de Souza** | Banco de dados | `sql/` (branch `main`), `CSharp/Banco_CursosDB.sql` |
+| **Leonardo Alves Fudoli** | Modelagem UML e gestão ágil | `Modelagem/` |
+| **Lucas Matheus Marques Gonçalves** | Documentação das disciplinas a distância | `Documentacao/` |
+| **Nícolas Gramani Machado França** | Documentação das disciplinas a distância | `Documentacao/` |
 
 Os arquivos mais sensíveis são os **`.Designer.cs`** do projeto desktop: quando alguém arrasta um controle na tela, o Visual Studio reescreve o arquivo quase inteiro, e o Git não consegue juntar duas versões dessas. As views `.cshtml` não têm esse problema, por serem texto escrito à mão.
 
@@ -168,10 +170,12 @@ Os arquivos mais sensíveis são os **`.Designer.cs`** do projeto desktop: quand
 
 ## Integrantes
 
-- *(preencher)*
-- *(preencher)*
-- *(preencher)*
-- *(preencher)*
+- Arthur Fernandes Reis
+- Guilherme Alves Martins dos Santos
+- Leonardo Alves Fudoli
+- Lucas Matheus Marques Gonçalves
+- Maria Clara Vilas Boas de Souza
+- Nícolas Gramani Machado França
 
 ---
 
