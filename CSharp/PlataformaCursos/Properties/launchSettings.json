@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "PlataformaCursos": {
+      "commandName": "Project"
+    },
+    "API (Azure)": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "API_ATIVA": "true",
+        "API_URL": "http://localhost:3000"
+      }
+    }
+  }
+}

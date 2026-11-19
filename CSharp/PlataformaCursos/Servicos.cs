@@ -17,7 +17,7 @@
    7) ProgressoService ..... DS05, DS07, DS08
 
    VERSAO 4 - MODO API
-   Com a API ligada (ConfiguracaoApi.ATIVA = true), cada metodo abaixo
+   Com a API ligada (perfil "API (Azure)"), cada metodo abaixo
    pergunta a API pela PonteApi em vez de ir ao banco local. O bloco
    "if (afr_ponte.Ativa())" no comeco de cada metodo e esse desvio; o
    resto do metodo e o modo local, mantido para os testes enquanto a API

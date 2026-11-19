@@ -18,6 +18,17 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "API (Azure)": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Api__Ativa": "true",
+        "Api__UrlBase": "http://localhost:3000"
+      }
+    },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,

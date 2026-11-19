@@ -18,7 +18,7 @@
    muda.
 
    QUANDO E USADA
-   So com a API ligada (ConfiguracaoApi.ATIVA = true). Com ela
+   So com a API ligada (perfil "API (Azure)", ver ConfiguracaoApi). Com ela
    desligada o programa usa o banco local, como antes - o modo de
    testes combinado pelo grupo enquanto a API nao estiver no Azure.
 
@@ -86,8 +86,44 @@ namespace PlataformaCursos
                 return true;
             }
 
-            afr_mensagem = "A API nao respondeu: " + afr_resposta.afr_Mensagem;
+            // Sem resposta nenhuma, a mensagem do ClienteApi comeca com
+            // "Nao foi possivel falar com a API" - o AguardarApi usa isso.
+            // Com resposta, e a API dizendo que o banco nao respondeu.
+            afr_mensagem = afr_resposta.afr_CodigoHttp == 0
+                ? afr_resposta.afr_Mensagem
+                : "A API respondeu, mas o banco nao: " + afr_resposta.afr_Mensagem;
             return false;
+        }
+
+        // -------------------------------------------------------------
+        // VERSAO 6 - espera a API ficar pronta.
+        //
+        // Pelo perfil "API + ..." o Visual Studio sobe a API e o programa
+        // ao mesmo tempo, e o programa costuma ficar pronto primeiro.
+        // Em vez de acusar "a API nao respondeu", tenta de novo por alguns
+        // segundos. Quando a API ja esta no ar, responde na primeira.
+        // -------------------------------------------------------------
+        public bool AguardarApi(int afr_segundos, out string afr_mensagem)
+        {
+            DateTime afr_limite = DateTime.Now.AddSeconds(afr_segundos);
+
+            while (true)
+            {
+                if (TestarConexao(out afr_mensagem))
+                {
+                    return true;
+                }
+
+                // Se a API respondeu mas o banco nao (firewall do Azure,
+                // por exemplo), esperar nao adianta
+                if (!afr_mensagem.Contains("Nao foi possivel falar com a API") ||
+                    DateTime.Now >= afr_limite)
+                {
+                    return false;
+                }
+
+                System.Threading.Thread.Sleep(500);
+            }
         }
 
         // POST /api/auth/login. Devolve o usuario e, por fora, o token.

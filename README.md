@@ -66,7 +66,7 @@ Ao desmarcar uma aula, o desktop e a web estornam o XP daquela aula, para o tota
                            Azure SQL (o mesmo banco)
 ```
 
-Cada projeto tem a sua API, e as duas gravam no **mesmo banco do Azure**. Por isso a nossa segue as rotas, os formatos e as regras da API do aplicativo: mesmo hash de senha, mesmo token, mesma regra de XP. O desktop e a web ligam na API por uma chave (`Api:Ativa` na web, `ConfiguracaoApi.ATIVA` no desktop); com a chave desligada, usam o banco local, para testes. Detalhes em [Api/README.md](Api/README.md).
+Cada projeto tem a sua API, e as duas gravam no **mesmo banco do Azure**. Por isso a nossa segue as rotas, os formatos e as regras da API do aplicativo: mesmo hash de senha, mesmo token, mesma regra de XP. No Visual Studio, o perfil **API + Web** / **API + Desktop** sobe a API junto com o programa, já em modo API. O perfil normal abre só o programa, com o banco local, para testes. Não há chave para editar no código. Detalhes em [Api/README.md](Api/README.md).
 
 **O banco de dados é o mesmo para todas as interfaces.** Quem concluir uma aula no celular vê o mesmo XP no desktop, porque a regra e os dados estão num lugar só.
 

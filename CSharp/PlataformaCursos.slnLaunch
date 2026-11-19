@@ -8,7 +8,8 @@
       },
       {
         "Path": "PlataformaCursos\\PlataformaCursos.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "API (Azure)"
       }
     ]
   }

@@ -62,7 +62,7 @@ namespace PlataformaCursosWeb.Controllers
             string afr_mensagemBanco;
 
             bool afr_conectou = afr_ponte.Ativa()
-                ? afr_ponte.TestarConexao(out afr_mensagemBanco)
+                ? afr_ponte.AguardarApi(15, out afr_mensagemBanco)
                 : afr_bancoService.TestarConexao(out afr_mensagemBanco);
 
             if (!afr_conectou)

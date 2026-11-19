@@ -32,12 +32,16 @@ Ele tem o usuário e a senha do banco do Azure. Está no `.gitignore` do reposit
 
 ## Ligando o desktop e a web nesta API
 
-| Programa | Onde | O que mudar |
-|---|---|---|
-| Web | `Web/PlataformaCursosWeb/appsettings.json` | `"Ativa": true` e `"UrlBase"` com o endereço da API |
-| Desktop | `CSharp/PlataformaCursos/ClienteApi.cs` | `ATIVA = true` e `URL_BASE` com o endereço da API |
+**Não há nada para editar.** Quem liga a API é o perfil escolhido no botão ▶ do Visual Studio:
 
-Com a chave ligada, os dois programas **não abrem conexão com banco nenhum**: tudo passa pela API. Com ela desligada, usam o banco local, para testes.
+| Perfil | O que sobe | Modo |
+|---|---|---|
+| **API + Web** (solução da web) / **API + Desktop** (solução do desktop) | A API e o programa juntos | API: tudo pelo banco do Azure |
+| O perfil normal do programa | Só o programa | Local: banco do computador, para testes |
+
+O perfil "API + ..." abre o programa no perfil **API (Azure)**, que liga a chave por variável de ambiente (`Api__Ativa` na web, `API_ATIVA` no desktop). Como a chave nunca fica gravada no código, não existe o risco de um commit ligar a API para o grupo inteiro. Os perfis estão no repositório (`*.slnLaunch` e `Properties/launchSettings.json`); o `.slnLaunch` precisa do Visual Studio 2022 17.11 ou mais novo.
+
+No modo API, os dois programas **não abrem conexão com banco nenhum**: tudo passa pela API. Como a API e o programa sobem ao mesmo tempo, o login espera até 15 segundos pela API antes de avisar que ela não respondeu.
 
 ## Rotas
 

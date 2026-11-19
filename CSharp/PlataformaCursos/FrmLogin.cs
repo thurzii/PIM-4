@@ -38,7 +38,7 @@ namespace PlataformaCursos
             // que o aplicativo ja usa, isso estragaria o esquema dele. No
             // modo API o que se testa aqui e se a API responde.
             bool afr_pronto = afr_ponte.Ativa()
-                ? afr_ponte.TestarConexao(out afr_mensagem)
+                ? afr_ponte.AguardarApi(15, out afr_mensagem)
                 : afr_bancoService.PrepararBanco(out afr_mensagem);
 
             if (afr_pronto)

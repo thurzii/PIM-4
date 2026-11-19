@@ -58,13 +58,37 @@ namespace PlataformaCursos
     // =================================================================
     public static class ConfiguracaoApi
     {
-        // MUDE AQUI quando a API estiver no ar
-        public const bool ATIVA = false;
+        // -------------------------------------------------------------
+        // VERSAO 6 - QUEM LIGA A API E O PERFIL DE INICIALIZACAO
+        //
+        // Antes era uma constante: para testar com a API era preciso
+        // mudar o codigo, e um commit esquecido ligaria a API para o
+        // grupo inteiro. Agora o valor vem de uma variavel de ambiente
+        // que so o perfil "API (Azure)" define (Properties/
+        // launchSettings.json). Rodando pelo perfil normal, ou fora do
+        // Visual Studio, a API fica desligada e o programa usa o banco
+        // local. Nada para editar, nada para lembrar de desfazer.
+        //
+        //   API_ATIVA = true ............. liga a API
+        //   API_URL = http://...:3000 .... endereco (padrao: localhost:3000)
+        // -------------------------------------------------------------
+        public static readonly bool ATIVA = LerAtiva();
 
-        // A API sobe em http://localhost:3000 por padrao (PORT no
-        // server.js). localhost so vale se ela estiver rodando NESTA
-        // maquina; em outra, troque pelo IP dela.
-        public const string URL_BASE = "http://localhost:3000";
+        public static readonly string URL_BASE = LerUrl();
+
+        private static bool LerAtiva()
+        {
+            string afr_valor = Environment.GetEnvironmentVariable("API_ATIVA") ?? "";
+
+            return afr_valor.Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string LerUrl()
+        {
+            string afr_valor = Environment.GetEnvironmentVariable("API_URL");
+
+            return string.IsNullOrWhiteSpace(afr_valor) ? "http://localhost:3000" : afr_valor.Trim();
+        }
 
         private static ClienteApi afr_cliente = null;
 
