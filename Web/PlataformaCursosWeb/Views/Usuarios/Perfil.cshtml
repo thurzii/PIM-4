@@ -60,25 +60,25 @@
         <span class="etiqueta etiqueta-inativo">Inativo</span>
     }
     &middot;
-    cadastro em @Model.afr_Usuario.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm")
+    cadastro em <time datetime="@Model.afr_Usuario.afr_DataCadastro.ToString("yyyy-MM-ddTHH:mm")">@Model.afr_Usuario.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm")</time>
 </p>
 
-<div class="grade grade-3" style="margin-bottom:24px;">
+<dl class="grade grade-3 numeros" style="margin-bottom:24px;">
     <div class="cartao">
-        <div class="numero">@Model.afr_LoginLog.Count</div>
-        <div class="numero-rotulo">acesso(s) registrado(s)</div>
+        <dt class="numero-rotulo">acesso(s) registrado(s)</dt>
+        <dd class="numero">@Model.afr_LoginLog.Count</dd>
     </div>
 
     <div class="cartao">
-        <div class="numero">@Model.afr_AcoesCrud.Count</div>
-        <div class="numero-rotulo">cadastro(s) feito(s)</div>
+        <dt class="numero-rotulo">cadastro(s) feito(s)</dt>
+        <dd class="numero">@Model.afr_AcoesCrud.Count</dd>
     </div>
 
     <div class="cartao">
-        <div class="numero">@Model.afr_CursosRelacionados.Count</div>
-        <div class="numero-rotulo">acao(oes) em cursos</div>
+        <dt class="numero-rotulo">acao(oes) em cursos</dt>
+        <dd class="numero">@Model.afr_CursosRelacionados.Count</dd>
     </div>
-</div>
+</dl>
 
 @* ---------------------------------------------------------------- *@
 @* DS12 - historicoAcoes(loginLog, acoesCrud, cursosRelacionados)    *@
@@ -99,7 +99,7 @@ else
     <div class="historico">
 
         @* -------- loginLog -------- *@
-        <div class="cartao">
+        <section class="cartao">
             <h3>Acessos <span class="ajuda">(loginLog)</span></h3>
 
             @if (Model.afr_LoginLog.Count == 0)
@@ -112,18 +112,16 @@ else
                     @foreach (LogAcao afr_registro in Model.afr_LoginLog)
                     {
                         <li>
-                            <span class="quando">
-                                @afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")
-                            </span>
+                            <time class="quando" datetime="@afr_registro.afr_DataHora.ToString("yyyy-MM-ddTHH:mm")">@afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")</time>
                             @afr_registro.afr_Descricao
                         </li>
                     }
                 </ul>
             }
-        </div>
+        </section>
 
         @* -------- acoesCrud -------- *@
-        <div class="cartao">
+        <section class="cartao">
             <h3>Cadastros <span class="ajuda">(acoesCrud)</span></h3>
 
             @if (Model.afr_AcoesCrud.Count == 0)
@@ -136,18 +134,16 @@ else
                     @foreach (LogAcao afr_registro in Model.afr_AcoesCrud)
                     {
                         <li>
-                            <span class="quando">
-                                @afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")
-                            </span>
+                            <time class="quando" datetime="@afr_registro.afr_DataHora.ToString("yyyy-MM-ddTHH:mm")">@afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")</time>
                             @afr_registro.afr_Descricao
                         </li>
                     }
                 </ul>
             }
-        </div>
+        </section>
 
         @* -------- cursosRelacionados -------- *@
-        <div class="cartao">
+        <section class="cartao">
             <h3>Cursos <span class="ajuda">(cursosRelacionados)</span></h3>
 
             @if (Model.afr_CursosRelacionados.Count == 0)
@@ -160,15 +156,13 @@ else
                     @foreach (LogAcao afr_registro in Model.afr_CursosRelacionados)
                     {
                         <li>
-                            <span class="quando">
-                                @afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")
-                            </span>
+                            <time class="quando" datetime="@afr_registro.afr_DataHora.ToString("yyyy-MM-ddTHH:mm")">@afr_registro.afr_DataHora.ToString("dd/MM/yyyy HH:mm")</time>
                             @afr_registro.afr_Descricao
                         </li>
                     }
                 </ul>
             }
-        </div>
+        </section>
 
     </div>
 }

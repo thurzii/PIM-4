@@ -32,14 +32,14 @@
 
 @if (ViewBag.Aviso != null)
 {
-    <div class="aviso aviso-info">@ViewBag.Aviso</div>
+    <p class="aviso aviso-info" role="status">@ViewBag.Aviso</p>
 }
 
 @* ---------------------------------------------------------------- *@
 @* DS07 - solicitarProgresso(aluno)                                  *@
 @* ---------------------------------------------------------------- *@
-<div class="cartao">
-    <form asp-controller="Progresso" asp-action="Index" method="get">
+<section class="cartao" aria-label="Buscar aluno">
+    <form role="search" asp-controller="Progresso" asp-action="Index" method="get">
         <div class="filtros">
             @*
                 O nome do campo e "termo" porque a acao do controller
@@ -61,14 +61,14 @@
             }
         </div>
     </form>
-</div>
+</section>
 
 @* ---------------------------------------------------------------- *@
 @* A LISTA DE ALUNOS                                                 *@
 @* ---------------------------------------------------------------- *@
 @if (Model.afr_Alunos.Count > 0)
 {
-    <div class="cartao">
+    <section class="cartao">
         <h3>Alunos</h3>
 
         <table>
@@ -86,7 +86,7 @@
                 <tr>
                     <td>@afr_aluno.afr_Nome</td>
                     <td>@afr_aluno.afr_Email</td>
-                    <td>@afr_aluno.afr_DataCadastro.ToString("dd/MM/yyyy")</td>
+                    <td><time datetime="@afr_aluno.afr_DataCadastro.ToString("yyyy-MM-dd")">@afr_aluno.afr_DataCadastro.ToString("dd/MM/yyyy")</time></td>
                     <td class="coluna-acoes">
                         <a class="botao botao-pequeno @(afr_aluno.afr_Id == Model.afr_AlunoId ? "botao-primario" : "")"
                            asp-controller="Progresso" asp-action="Index"
@@ -97,7 +97,7 @@
             }
             </tbody>
         </table>
-    </div>
+    </section>
 }
 
 @* ---------------------------------------------------------------- *@
@@ -108,7 +108,7 @@
     <h2>@Model.afr_Aluno.afr_Nome</h2>
     <p class="subtitulo">
         @Model.afr_Aluno.afr_Email &middot;
-        cadastro em @Model.afr_Aluno.afr_DataCadastro.ToString("dd/MM/yyyy")
+        cadastro em <time datetime="@Model.afr_Aluno.afr_DataCadastro.ToString("yyyy-MM-dd")">@Model.afr_Aluno.afr_DataCadastro.ToString("dd/MM/yyyy")</time>
     </p>
 
     @* ------------------------------------------------------------- *@
@@ -120,43 +120,42 @@
     @* Sem @{ } aqui: dentro do @if o Razor ja esta em modo codigo, e     *@
     @* chaves comuns criariam um escopo que esconderia afr_pont abaixo.   *@
     var afr_pont = Model.afr_Pontuacao;
-    string afr_barraAluno = afr_pont.ObterPercentualDoNivel() + "%";
+    int afr_percentualAluno = afr_pont.ObterPercentualDoNivel();
 
-    <div class="cartao painel-xp" style="margin-bottom:20px;">
-        <div class="xp-topo">
+    <section class="cartao painel-xp" style="margin-bottom:20px;" aria-label="Pontuacao do aluno">
+        <header class="xp-topo">
             <div>
-                <div class="xp-nivel">
+                <p class="xp-nivel">
                     Nivel @afr_pont.ObterNivel() &mdash; @afr_pont.ObterTituloDoNivel()
-                </div>
-                <div class="xp-detalhe">
+                </p>
+                <p class="xp-detalhe">
                     @afr_pont.afr_XpTotal XP &nbsp;|&nbsp;
                     @afr_pont.ContarConquistadas() de
                     @afr_pont.afr_Conquistas.Count conquista(s)
-                </div>
+                </p>
 
                 @if (afr_pont.afr_SequenciaAtual >= 2)
                 {
-                    <div class="xp-sequencia">
+                    <p class="xp-sequencia">
                         @afr_pont.afr_SequenciaAtual dias seguidos
                         <span class="xp-recorde">
                             (recorde: @afr_pont.afr_MelhorSequencia)
                         </span>
-                    </div>
+                    </p>
                 }
             </div>
 
-            <div class="xp-contagem">
+            <p class="xp-contagem">
                 @afr_pont.afr_AulasConcluidas aula(s) concluida(s)
-            </div>
-        </div>
+            </p>
+        </header>
 
-        <div class="xp-barra">
-            <div class="xp-barra-cheia" style="width:@afr_barraAluno"></div>
-        </div>
+        <progress class="xp-barra" max="100" value="@afr_percentualAluno"
+                  aria-label="Progresso ate o proximo nivel">@afr_percentualAluno%</progress>
 
         @if (afr_pont.afr_Conquistas.Count > 0)
         {
-            <div class="xp-conquistas">
+            <ul class="xp-conquistas">
                 @foreach (var afr_medalha in afr_pont.afr_Conquistas)
                 {
                     string afr_classe = afr_medalha.afr_Conquistada
@@ -166,13 +165,13 @@
                     string afr_dica = afr_medalha.afr_Descricao +
                                       " (+" + afr_medalha.afr_XpBonus + " XP)";
 
-                    <span class="@afr_classe" title="@afr_dica">
+                    <li class="@afr_classe" title="@afr_dica">
                         @afr_medalha.afr_Icone @afr_medalha.afr_Nome
-                    </span>
+                    </li>
                 }
-            </div>
+            </ul>
         }
-    </div>
+    </section>
 
     @if (Model.afr_Progresso.Count == 0)
     {
@@ -182,24 +181,24 @@
     }
     else
     {
-        <div class="grade grade-3" style="margin-bottom:20px;">
+        <dl class="grade grade-3 numeros" style="margin-bottom:20px;">
             <div class="cartao">
-                <div class="numero">@Model.afr_Progresso.Count</div>
-                <div class="numero-rotulo">curso(s) acompanhado(s)</div>
+                <dt class="numero-rotulo">curso(s) acompanhado(s)</dt>
+                <dd class="numero">@Model.afr_Progresso.Count</dd>
             </div>
 
             <div class="cartao">
-                <div class="numero">@Model.ContarConcluidos()</div>
-                <div class="numero-rotulo">curso(s) concluido(s)</div>
+                <dt class="numero-rotulo">curso(s) concluido(s)</dt>
+                <dd class="numero">@Model.ContarConcluidos()</dd>
             </div>
 
             <div class="cartao">
-                <div class="numero">@Model.CalcularMedia()%</div>
-                <div class="numero-rotulo">media geral de conclusao</div>
+                <dt class="numero-rotulo">media geral de conclusao</dt>
+                <dd class="numero">@Model.CalcularMedia()%</dd>
             </div>
-        </div>
+        </dl>
 
-        <div class="cartao">
+        <section class="cartao" aria-label="Progresso por curso">
             <table>
                 <thead>
                     <tr>
@@ -234,10 +233,9 @@
                         <td>@afr_r.afr_Concluidas de @afr_r.afr_Total</td>
 
                         <td>
-                            <span class="barra-pequena">
-                                <span class="@(afr_r.afr_Aprovado ? "completo" : "")"
-                                      style="width:@(afr_r.afr_Percentual)%"></span>
-                            </span>
+                            <progress class="barra-pequena @(afr_r.afr_Aprovado ? "completo" : "")"
+                                      max="100" value="@(afr_r.afr_Percentual)"
+                                      aria-label="Progresso no curso">@(afr_r.afr_Percentual)%</progress>
                             @afr_r.afr_Percentual%
                         </td>
 
@@ -248,7 +246,7 @@
                 }
                 </tbody>
             </table>
-        </div>
+        </section>
     }
 }
 
@@ -269,7 +267,7 @@
         mesma no celular e aqui.
     </p>
 
-    <div class="cartao">
+    <section class="cartao" aria-label="Classificacao por XP">
         <table>
             <thead>
                 <tr>
@@ -317,5 +315,5 @@
             }
             </tbody>
         </table>
-    </div>
+    </section>
 }

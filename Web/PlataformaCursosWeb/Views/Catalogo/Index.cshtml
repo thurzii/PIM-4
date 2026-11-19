@@ -26,8 +26,8 @@
 @* ---------------------------------------------------------------- *@
 @* BUSCA COM FILTROS (DS04)                                          *@
 @* ---------------------------------------------------------------- *@
-<div class="cartao">
-    <form asp-controller="Catalogo" asp-action="Index" method="get">
+<section class="cartao" aria-label="Buscar cursos">
+    <form role="search" asp-controller="Catalogo" asp-action="Index" method="get">
 
         <div class="filtros">
             <div class="campo campo-largo">
@@ -67,7 +67,7 @@
     {
         <p class="resumo-filtro">@ViewBag.Resumo</p>
     }
-</div>
+</section>
 
 @* ---------------------------------------------------------------- *@
 @* LISTA DE CURSOS (DS03)                                           *@
@@ -108,30 +108,33 @@ else
                 afr_classeStatus = "situacao-andamento";
             }
 
-            <a class="curso-cartao"
-               asp-controller="Catalogo" asp-action="Detalhes" asp-route-id="@afr_curso.afr_Id">
+            @* O <article> fica POR FORA do link: o cartao inteiro continua
+               clicavel, e o link estica ate a altura da linha da grade. *@
+            <article>
+                <a class="curso-cartao"
+                   asp-controller="Catalogo" asp-action="Detalhes" asp-route-id="@afr_curso.afr_Id">
 
-                <h3>@afr_curso.afr_Titulo</h3>
+                    <h3>@afr_curso.afr_Titulo</h3>
 
-                <div class="descricao">@afr_curso.afr_Descricao</div>
+                    <p class="descricao">@afr_curso.afr_Descricao</p>
 
-                <div class="progresso-trilha">
-                    <div class="progresso-barra @(afr_resultado.afr_Aprovado ? "completo" : "")"
-                         style="width:@(afr_resultado.afr_Percentual)%"></div>
-                </div>
+                    <progress class="progresso-trilha @(afr_resultado.afr_Aprovado ? "completo" : "")"
+                              max="100" value="@(afr_resultado.afr_Percentual)"
+                              aria-label="Progresso no curso">@(afr_resultado.afr_Percentual)%</progress>
 
-                <div class="rodape">
-                    <span>@afr_curso.afr_CargaHoraria h</span>
-                    <span>@afr_curso.afr_TotalAulas aula(s)</span>
-                    <span>min. @afr_curso.afr_PercentualMinimo%</span>
-                </div>
+                    <footer class="rodape">
+                        <span>@afr_curso.afr_CargaHoraria h</span>
+                        <span>@afr_curso.afr_TotalAulas aula(s)</span>
+                        <span>min. @afr_curso.afr_PercentualMinimo%</span>
+                    </footer>
 
-                <div class="rodape">
-                    <span class="@afr_classeStatus">
-                        @afr_resultado.ObterStatus() &middot; @afr_resultado.afr_Percentual%
-                    </span>
-                </div>
-            </a>
+                    <footer class="rodape">
+                        <span class="@afr_classeStatus">
+                            @afr_resultado.ObterStatus() &middot; @afr_resultado.afr_Percentual%
+                        </span>
+                    </footer>
+                </a>
+            </article>
         }
     </div>
 }

@@ -31,27 +31,29 @@
 </head>
 <body>
 
-<div class="tela-acesso">
-    <div class="caixa-acesso">
+<main class="tela-acesso">
+    <section class="caixa-acesso">
 
-        <div class="marca-grande">Recuperar senha</div>
-        <div class="marca-sub">Plataforma de Cursos</div>
+        <header>
+            <h1 class="marca-grande">Recuperar senha</h1>
+            <p class="marca-sub">Plataforma de Cursos</p>
+        </header>
 
         @* O indicador das tres etapas *@
-        <div class="passos">
-            <div class="passo @(Model.afr_Etapa == 1 ? "atual" : "pronto")">1. Email</div>
-            <div class="passo @(Model.afr_Etapa == 2 ? "atual" : (Model.afr_Etapa > 2 ? "pronto" : ""))">2. Codigo</div>
-            <div class="passo @(Model.afr_Etapa == 3 ? "atual" : "")">3. Nova senha</div>
-        </div>
+        <ol class="passos">
+            <li class="passo @(Model.afr_Etapa == 1 ? "atual" : "pronto")">1. Email</li>
+            <li class="passo @(Model.afr_Etapa == 2 ? "atual" : (Model.afr_Etapa > 2 ? "pronto" : ""))">2. Codigo</li>
+            <li class="passo @(Model.afr_Etapa == 3 ? "atual" : "")">3. Nova senha</li>
+        </ol>
 
         @if (ViewBag.Sucesso != null)
         {
-            <div class="aviso aviso-sucesso">@ViewBag.Sucesso</div>
+            <p class="aviso aviso-sucesso" role="status">@ViewBag.Sucesso</p>
         }
 
         @if (ViewBag.Erro != null)
         {
-            <div class="aviso aviso-erro">@ViewBag.Erro</div>
+            <p class="aviso aviso-erro" role="alert">@ViewBag.Erro</p>
         }
 
         <div class="cartao">
@@ -141,8 +143,8 @@
             </p>
         </div>
 
-    </div>
-</div>
+    </section>
+</main>
 
 </body>
 </html>

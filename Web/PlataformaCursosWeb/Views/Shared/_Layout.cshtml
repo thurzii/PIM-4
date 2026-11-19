@@ -62,7 +62,7 @@
     <header class="topo">
         <a class="marca" asp-controller="Home" asp-action="Index">Plataforma de Cursos</a>
 
-        <nav>
+        <nav aria-label="Menu principal">
             <a asp-controller="Home" asp-action="Index"
                class="@(afr_controller == "Home" ? "ativo" : "")">Painel</a>
 
@@ -100,7 +100,7 @@
     @* Faixas de aviso: TempData sobrevive a um redirecionamento *@
     @if (TempData["Sucesso"] != null)
     {
-        <div class="aviso aviso-sucesso">@TempData["Sucesso"]</div>
+        <p class="aviso aviso-sucesso" role="status">@TempData["Sucesso"]</p>
     }
 
     @* VERSAO 3 - faixa do XP e das conquistas, em roxo, separada do
@@ -108,17 +108,17 @@
        com "voce ganhou pontos". So aparece quando houve ganho. *@
     @if (TempData["Ganho"] != null)
     {
-        <div class="aviso aviso-ganho">@TempData["Ganho"]</div>
+        <p class="aviso aviso-ganho" role="status">@TempData["Ganho"]</p>
     }
 
     @if (TempData["Erro"] != null)
     {
-        <div class="aviso aviso-erro">@TempData["Erro"]</div>
+        <p class="aviso aviso-erro" role="alert">@TempData["Erro"]</p>
     }
 
     @if (ViewBag.Erro != null)
     {
-        <div class="aviso aviso-erro">@ViewBag.Erro</div>
+        <p class="aviso aviso-erro" role="alert">@ViewBag.Erro</p>
     }
 
     @RenderBody()

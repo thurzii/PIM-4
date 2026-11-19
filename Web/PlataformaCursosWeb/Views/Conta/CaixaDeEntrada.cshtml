@@ -36,13 +36,13 @@
         A mensagem mais recente aparece primeiro.
     </p>
 
-    <div class="aviso aviso-info">
+    <p class="aviso aviso-info" role="status">
         Esta pagina existe porque o trabalho nao tem servidor de email.
         O diagrama DS02 tem a linha de vida <strong>Email</strong>, com a
         mensagem <code>enviarCodigo(email)</code>; aqui o "email" e um
         arquivo de texto no servidor. Num sistema de verdade, o codigo
         chegaria na caixa de entrada da pessoa e esta pagina nao existiria.
-    </div>
+    </p>
 
     @if (string.IsNullOrWhiteSpace(afr_conteudo))
     {
@@ -55,7 +55,7 @@
     }
     else
     {
-        <div class="caixa-entrada">@afr_conteudo</div>
+        <article class="caixa-entrada" aria-label="Mensagem mais recente">@afr_conteudo</article>
     }
 
     <p class="caminho-arquivo">Arquivo no servidor: @afr_caminho</p>

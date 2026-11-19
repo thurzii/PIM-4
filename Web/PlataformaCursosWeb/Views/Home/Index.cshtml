@@ -35,34 +35,34 @@
     <span class="etiqueta @afr_classeEtiqueta">@Model.afr_Perfil</span>
     @if (Model.afr_DataCadastro > DateTime.MinValue)
     {
-        <text>&middot; cadastro em @Model.afr_DataCadastro.ToString("dd/MM/yyyy")</text>
+        <text>&middot; cadastro em <time datetime="@Model.afr_DataCadastro.ToString("yyyy-MM-dd")">@Model.afr_DataCadastro.ToString("dd/MM/yyyy")</time></text>
     }
 </p>
 
-<div class="aviso aviso-info">@Model.DescreverPerfil()</div>
+<p class="aviso aviso-info" role="status">@Model.DescreverPerfil()</p>
 
 @* ---------------------------------------------------------------- *@
 @* NUMEROS DO SISTEMA                                                *@
 @* ---------------------------------------------------------------- *@
-<div class="grade grade-3" style="margin-bottom:24px;">
+<dl class="grade grade-3 numeros" style="margin-bottom:24px;">
     <div class="cartao">
-        <div class="numero">@Model.afr_TotalCursos</div>
-        <div class="numero-rotulo">curso(s) disponivel(is)</div>
+        <dt class="numero-rotulo">curso(s) disponivel(is)</dt>
+        <dd class="numero">@Model.afr_TotalCursos</dd>
     </div>
 
     <div class="cartao">
-        <div class="numero">@Model.afr_MeusConcluidos / @Model.afr_MeusCursos</div>
-        <div class="numero-rotulo">cursos que voce concluiu</div>
+        <dt class="numero-rotulo">cursos que voce concluiu</dt>
+        <dd class="numero">@Model.afr_MeusConcluidos / @Model.afr_MeusCursos</dd>
     </div>
 
     @if (Model.afr_PodeGerenciarUsuarios)
     {
         <div class="cartao">
-            <div class="numero">@Model.afr_TotalUsuarios</div>
-            <div class="numero-rotulo">usuario(s) cadastrado(s)</div>
+            <dt class="numero-rotulo">usuario(s) cadastrado(s)</dt>
+            <dd class="numero">@Model.afr_TotalUsuarios</dd>
         </div>
     }
-</div>
+</dl>
 
 @* ---------------------------------------------------------------- *@
 @* VERSAO 3 - PAINEL DE GAMIFICACAO                                  *@
@@ -78,51 +78,49 @@
 @{
     var afr_pontuacao = Model.afr_Pontuacao;
     int afr_percentual = afr_pontuacao.ObterPercentualDoNivel();
-    string afr_larguraBarra = afr_percentual + "%";
 
     // VERSAO 3.1 - a lista ja vem do banco com o CATALOGO inteiro e a
     // marca de quais o aluno tem, entao nao ha mais o que montar aqui.
     var afr_todasConquistas = afr_pontuacao.afr_Conquistas;
 }
 
-<div class="cartao painel-xp" style="margin-bottom:24px;">
-    <div class="xp-topo">
+<section class="cartao painel-xp" style="margin-bottom:24px;" aria-label="Sua pontuacao">
+    <header class="xp-topo">
         <div>
-            <div class="xp-nivel">
+            <p class="xp-nivel">
                 Nivel @afr_pontuacao.ObterNivel() &mdash; @afr_pontuacao.ObterTituloDoNivel()
-            </div>
-            <div class="xp-detalhe">
+            </p>
+            <p class="xp-detalhe">
                 @afr_pontuacao.afr_XpTotal XP &nbsp;|&nbsp;
                 faltam @afr_pontuacao.ObterXpParaProximoNivel()
                 para o nivel @(afr_pontuacao.ObterNivel() + 1)
-            </div>
+            </p>
 
             @* VERSAO 3.1 - sequencia de dias seguidos, vinda da API.
                So a partir de 2 dias: "1 dia seguido" nao e sequencia. *@
             @if (afr_pontuacao.afr_SequenciaAtual >= 2)
             {
-                <div class="xp-sequencia">
+                <p class="xp-sequencia">
                     @afr_pontuacao.afr_SequenciaAtual dias seguidos
                     <span class="xp-recorde">
                         (recorde: @afr_pontuacao.afr_MelhorSequencia)
                     </span>
-                </div>
+                </p>
             }
         </div>
 
-        <div class="xp-contagem">
+        <p class="xp-contagem">
             @afr_pontuacao.afr_AulasConcluidas aula(s) &middot;
             @afr_pontuacao.afr_CursosConcluidos curso(s)
-        </div>
-    </div>
+        </p>
+    </header>
 
-    <div class="xp-barra">
-        <div class="xp-barra-cheia" style="width:@afr_larguraBarra"></div>
-    </div>
+    <progress class="xp-barra" max="100" value="@afr_percentual"
+              aria-label="Progresso ate o proximo nivel">@afr_percentual%</progress>
 
     @* As conquistas que faltam aparecem apagadas, nao escondidas:   *@
     @* saber o que da para ganhar e metade da graca.                 *@
-    <div class="xp-conquistas">
+    <ul class="xp-conquistas">
         @foreach (var afr_medalha in afr_todasConquistas)
         {
             @* O titulo mostra a descricao e quanto XP a medalha vale,
@@ -134,19 +132,19 @@
             string afr_dica = afr_medalha.afr_Descricao +
                               " (+" + afr_medalha.afr_XpBonus + " XP)";
 
-            <span class="@afr_classe" title="@afr_dica">
+            <li class="@afr_classe" title="@afr_dica">
                 @afr_medalha.afr_Icone @afr_medalha.afr_Nome
-            </span>
+            </li>
         }
-    </div>
-</div>
+    </ul>
+</section>
 
 <div class="grade grade-2">
 
     @* ------------------------------------------------------------ *@
     @* AREA DO ALUNO - todo mundo tem                                *@
     @* ------------------------------------------------------------ *@
-    <div class="cartao">
+    <section class="cartao">
         <h3>Area do Aluno</h3>
         <p class="ajuda">
             Veja os cursos, use os filtros da busca, abra o conteudo das
@@ -156,7 +154,7 @@
             <a asp-controller="Catalogo" asp-action="Index"
                class="botao botao-primario">Abrir o catalogo</a>
         </div>
-    </div>
+    </section>
 
     @* ------------------------------------------------------------ *@
     @* AREA DO PROFESSOR - professor e admin                                 *@
@@ -164,7 +162,7 @@
     @* ------------------------------------------------------------ *@
     @if (Model.afr_PodeGerenciarCursos)
     {
-        <div class="cartao">
+        <section class="cartao">
             <h3>Area do Professor</h3>
             <p class="ajuda">
                 Cadastre cursos e aulas, escreva o conteudo de cada aula
@@ -180,7 +178,7 @@
                        class="botao">Progresso dos alunos</a>
                 }
             </div>
-        </div>
+        </section>
     }
 
     @* ------------------------------------------------------------ *@
@@ -188,7 +186,7 @@
     @* ------------------------------------------------------------ *@
     @if (Model.afr_PodeGerenciarUsuarios)
     {
-        <div class="cartao">
+        <section class="cartao">
             <h3>Administracao</h3>
             <p class="ajuda">
                 Cadastre, edite e exclua usuarios, e consulte o perfil de
@@ -198,7 +196,7 @@
                 <a asp-controller="Usuarios" asp-action="Index"
                    class="botao botao-primario">Usuarios</a>
             </div>
-        </div>
+        </section>
     }
 
 </div>
@@ -206,7 +204,7 @@
 @* ---------------------------------------------------------------- *@
 @* SITUACAO DO BANCO DE DADOS                                        *@
 @* ---------------------------------------------------------------- *@
-<div class="cartao" style="margin-top:18px;">
+<section class="cartao" style="margin-top:18px;">
     <h3>Banco de dados</h3>
     <p class="ajuda">@Model.afr_StatusBanco</p>
     <p class="ajuda">
@@ -219,4 +217,4 @@
             <button type="submit" class="botao botao-pequeno">Testar conexao</button>
         </form>
     </div>
-</div>
+</section>

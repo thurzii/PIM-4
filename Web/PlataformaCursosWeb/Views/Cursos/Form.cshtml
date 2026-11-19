@@ -38,7 +38,7 @@
     }
 </p>
 
-<div class="cartao" style="max-width:640px;">
+<section class="cartao" style="max-width:640px;" aria-label="Dados do curso">
     <form asp-controller="Cursos" asp-action="Salvar" method="post">
         @Html.AntiForgeryToken()
 
@@ -96,4 +96,4 @@
             }
         </div>
     </form>
-</div>
+</section>

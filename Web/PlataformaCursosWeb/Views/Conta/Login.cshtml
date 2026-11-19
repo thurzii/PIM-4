@@ -20,25 +20,27 @@
 </head>
 <body>
 
-<div class="tela-acesso">
-    <div class="caixa-acesso">
+<main class="tela-acesso">
+    <section class="caixa-acesso">
 
-        <div class="marca-grande">Plataforma de Cursos</div>
-        <div class="marca-sub">Acesse com seu email e sua senha</div>
+        <header>
+            <h1 class="marca-grande">Plataforma de Cursos</h1>
+            <p class="marca-sub">Acesse com seu email e sua senha</p>
+        </header>
 
         @if (TempData["Sucesso"] != null)
         {
-            <div class="aviso aviso-sucesso">@TempData["Sucesso"]</div>
+            <p class="aviso aviso-sucesso" role="status">@TempData["Sucesso"]</p>
         }
 
         @if (ViewBag.Erro != null)
         {
-            <div class="aviso aviso-erro">@ViewBag.Erro</div>
+            <p class="aviso aviso-erro" role="alert">@ViewBag.Erro</p>
         }
 
         @if (ViewBag.ErroBanco != null)
         {
-            <div class="aviso aviso-erro">@ViewBag.ErroBanco</div>
+            <p class="aviso aviso-erro" role="alert">@ViewBag.ErroBanco</p>
         }
 
         <div class="cartao">
@@ -72,15 +74,15 @@
             Sao os tres perfis dos diagramas de sequencia - o PROFESSOR
             entrou nesta versao, por causa dos diagramas DS07 a DS10.
         *@
-        <div class="credenciais">
+        <aside class="credenciais" aria-label="Contas de teste">
             <strong>Usuarios para teste</strong><br />
             Administrador: <code>admin@@escola.com</code> / <code>admin123</code><br />
             Professor: <code>carla@@escola.com</code> / <code>professor123</code><br />
             Aluno: <code>maria@@escola.com</code> / <code>aluno123</code>
-        </div>
+        </aside>
 
-    </div>
-</div>
+    </section>
+</main>
 
 </body>
 </html>

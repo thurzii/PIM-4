@@ -30,7 +30,7 @@
         {
             <text>
                 &middot; cadastro em
-                @Model.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm")
+                <time datetime="@Model.afr_DataCadastro.ToString("yyyy-MM-ddTHH:mm")"><time datetime="@Model.afr_DataCadastro.ToString("yyyy-MM-ddTHH:mm")">@Model.afr_DataCadastro.ToString("dd/MM/yyyy HH:mm")</time></time>
             </text>
         }
     }
@@ -40,7 +40,7 @@
     }
 </p>
 
-<div class="cartao" style="max-width:640px;">
+<section class="cartao" style="max-width:640px;" aria-label="Dados do usuario">
     <form asp-controller="Usuarios" asp-action="Salvar" method="post">
         @Html.AntiForgeryToken()
 
@@ -126,7 +126,7 @@
             }
         </div>
     </form>
-</div>
+</section>
 
 <p class="ajuda" style="max-width:640px;">
     Observacao: a senha e gravada como texto simples para facilitar a

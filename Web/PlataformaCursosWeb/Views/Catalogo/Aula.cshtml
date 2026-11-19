@@ -57,7 +57,7 @@
 @* ---------------------------------------------------------------- *@
 @if (Model.TemConteudo())
 {
-    <div class="conteudo-aula">@Model.afr_Aula.afr_Conteudo</div>
+    <article class="conteudo-aula">@Model.afr_Aula.afr_Conteudo</article>
 }
 else
 {
@@ -101,7 +101,7 @@ else
 @* ---------------------------------------------------------------- *@
 @* DS05 - exibirConclusao(): como esta o curso inteiro               *@
 @* ---------------------------------------------------------------- *@
-<div class="cartao" style="margin-top:22px;">
+<section class="cartao" style="margin-top:22px;">
     <h3>Andamento do curso</h3>
 
     <p style="margin:0;">
@@ -113,20 +113,19 @@ else
         </span>
     </p>
 
-    <div class="progresso-trilha">
-        <div class="progresso-barra @(Model.afr_Resultado.afr_Aprovado ? "completo" : "")"
-             style="width:@(Model.afr_Resultado.afr_Percentual)%;"></div>
-    </div>
+    <progress class="progresso-trilha @(Model.afr_Resultado.afr_Aprovado ? "completo" : "")"
+              max="100" value="@(Model.afr_Resultado.afr_Percentual)"
+              aria-label="Progresso no curso">@(Model.afr_Resultado.afr_Percentual)%</progress>
 
     <p class="@afr_classeCurso" style="margin:8px 0 0;">
         @Model.afr_Resultado.ObterResumo()
     </p>
-</div>
+</section>
 
 @* ---------------------------------------------------------------- *@
 @* NAVEGACAO ENTRE AS AULAS                                          *@
 @* ---------------------------------------------------------------- *@
-<div class="navegacao-aula">
+<nav class="navegacao-aula" aria-label="Navegacao entre aulas">
     @if (Model.afr_AulaAnterior > 0)
     {
         <a class="botao" asp-controller="Catalogo" asp-action="Aula"
@@ -142,4 +141,4 @@ else
         <a class="botao" asp-controller="Catalogo" asp-action="Aula"
            asp-route-id="@Model.afr_AulaSeguinte">Aula seguinte &rarr;</a>
     }
-</div>
+</nav>

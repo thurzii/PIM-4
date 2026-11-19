@@ -24,7 +24,7 @@
     gravar vai executar um <strong>UPDATE</strong> na tabela dbo.Aulas.
 </p>
 
-<div class="cartao" style="max-width:760px;">
+<section class="cartao" style="max-width:760px;" aria-label="Conteudo da aula">
     <form asp-controller="Cursos" asp-action="SalvarAula" method="post">
         @Html.AntiForgeryToken()
 
@@ -72,4 +72,4 @@
             </a>
         </div>
     </form>
-</div>
+</section>

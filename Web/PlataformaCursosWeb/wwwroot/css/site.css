@@ -129,7 +129,7 @@ h3 { font-size: 15px; margin: 0 0 8px; font-weight: 600; }
 .aviso {
     padding: 12px 16px;
     border-radius: var(--raio);
-    margin-bottom: 18px;
+    margin: 0 0 18px;             /* agora e <p>: zera a margem de cima do navegador */
     font-size: 14px;
     border: 1px solid transparent;
 }
@@ -267,16 +267,34 @@ tbody tr:hover { background: #fafbfc; }
 /* ---------------------------------------------------------------- */
 /* BARRA DE PROGRESSO                                                */
 /* ---------------------------------------------------------------- */
+/* As barras sao o elemento <progress> do HTML: o leitor de tela anuncia
+   "barra de progresso, 66%". appearance:none tira o visual do sistema
+   para valerem as cores do site. Chrome/Edge pintam o preenchimento com
+   ::-webkit-progress-value e o Firefox com ::-moz-progress-bar - e cada
+   um fica numa regra SEPARADA, porque um navegador descarta a regra
+   inteira quando nao reconhece um dos seletores dela. */
+progress {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    border: none;
+    overflow: hidden;
+}
+
+progress::-webkit-progress-bar { background: transparent; }
+
 .progresso-trilha {
     height: 10px;
     background: #e4e6ea;
     border-radius: 20px;
-    overflow: hidden;
     margin: 8px 0;
 }
 
-.progresso-barra { height: 100%; background: var(--cor-primaria); border-radius: 20px; }
-.progresso-barra.completo { background: var(--cor-sucesso); }
+.progresso-trilha::-webkit-progress-value { background: var(--cor-primaria); border-radius: 20px; }
+.progresso-trilha::-moz-progress-bar      { background: var(--cor-primaria); border-radius: 20px; }
+.progresso-trilha.completo::-webkit-progress-value { background: var(--cor-sucesso); }
+.progresso-trilha.completo::-moz-progress-bar      { background: var(--cor-sucesso); }
 
 .situacao-aprovado  { color: var(--cor-sucesso); font-weight: 600; }
 .situacao-andamento { color: var(--cor-alerta);  font-weight: 600; }
@@ -285,6 +303,10 @@ tbody tr:hover { background: #fafbfc; }
 /* ---------------------------------------------------------------- */
 /* LISTA DE AULAS                                                    */
 /* ---------------------------------------------------------------- */
+/* A lista em si e uma <ol>: as aulas tem ordem. O numero ja aparece
+   no circulo de cada aula, entao o do navegador sai. */
+.lista-aulas { list-style: none; margin: 0; padding: 0; }
+
 .aula {
     display: flex;
     align-items: center;
@@ -324,6 +346,11 @@ tbody tr:hover { background: #fafbfc; }
     color: inherit;
 }
 
+/* O cartao e um link dentro de um <article>; o article e quem fica na
+   grade, entao o link precisa ocupar a altura toda dele para os cartoes
+   da mesma linha continuarem do mesmo tamanho. */
+article > .curso-cartao { height: 100%; }
+
 .curso-cartao:hover { border-color: var(--cor-primaria); }
 .curso-cartao .descricao { color: var(--cor-texto-suave); font-size: 14px; flex: 1; margin: 6px 0 14px; }
 .curso-cartao .rodape { display: flex; gap: 14px; font-size: 13px; color: var(--cor-texto-suave); }
@@ -331,6 +358,13 @@ tbody tr:hover { background: #fafbfc; }
 /* ---------------------------------------------------------------- */
 /* NUMEROS DO PAINEL                                                 */
 /* ---------------------------------------------------------------- */
+/* Os numeros sao uma lista de definicoes (<dl>): o rotulo e o termo (<dt>)
+   e o numero e o valor (<dd>). O HTML exige o termo antes do valor, mas
+   o numero aparece em cima: o order:-1 so troca a ordem na tela. */
+dl, dd { margin: 0; }
+.numeros .cartao { display: flex; flex-direction: column; }
+.numeros .numero { order: -1; }
+
 .numero { font-size: 30px; font-weight: 600; color: var(--cor-primaria); line-height: 1.1; }
 .numero-rotulo { font-size: 13px; color: var(--cor-texto-suave); }
 
@@ -345,6 +379,10 @@ tbody tr:hover { background: #fafbfc; }
     padding: 24px;
 }
 
+/* Nas telas sem o layout (login, recuperacao, erro) o <main> e a propria
+   .tela-acesso. Desfaz o main {} geral, que centraliza com largura maxima. */
+main.tela-acesso { max-width: none; margin: 0; padding: 24px; }
+
 .caixa-acesso { width: 100%; max-width: 420px; }
 
 .caixa-acesso .marca-grande {
@@ -352,14 +390,14 @@ tbody tr:hover { background: #fafbfc; }
     font-size: 21px;
     font-weight: 600;
     color: var(--cor-primaria);
-    margin-bottom: 4px;
+    margin: 0 0 4px;              /* agora e <h1> */
 }
 
 .caixa-acesso .marca-sub {
     text-align: center;
     color: var(--cor-texto-suave);
     font-size: 14px;
-    margin-bottom: 22px;
+    margin: 0 0 22px;             /* agora e <p> */
 }
 
 .credenciais {
@@ -420,6 +458,8 @@ tbody tr:hover { background: #fafbfc; }
     display: flex;
     gap: 8px;
     margin: 0 0 18px;
+    padding: 0;                   /* e uma <ol>: sem recuo nem numero do navegador */
+    list-style: none;
     font-size: 12px;
 }
 
@@ -611,19 +651,15 @@ tbody tr:hover { background: #fafbfc; }
     width: 90px;
     background: #e4e6ea;
     border-radius: 20px;
-    overflow: hidden;
     display: inline-block;
     vertical-align: middle;
     margin-right: 8px;
 }
 
-.barra-pequena span {
-    display: block;
-    height: 100%;
-    background: var(--cor-primaria);
-}
-
-.barra-pequena span.completo { background: var(--cor-sucesso); }
+.barra-pequena::-webkit-progress-value { background: var(--cor-primaria); }
+.barra-pequena::-moz-progress-bar      { background: var(--cor-primaria); }
+.barra-pequena.completo::-webkit-progress-value { background: var(--cor-sucesso); }
+.barra-pequena.completo::-moz-progress-bar      { background: var(--cor-sucesso); }
 
 @media (max-width: 640px) {
     .filtros .campo-estreito { width: 100%; }
@@ -651,6 +687,7 @@ tbody tr:hover { background: #fafbfc; }
 }
 
 .xp-nivel {
+    margin: 0;                    /* xp-nivel, xp-detalhe, xp-sequencia e xp-contagem viraram <p> */
     font-size: 18px;
     font-weight: 700;
     color: var(--cor-ganho);
@@ -659,36 +696,33 @@ tbody tr:hover { background: #fafbfc; }
 .xp-detalhe {
     font-size: 13px;
     color: var(--cor-texto-suave);
-    margin-top: 2px;
+    margin: 2px 0 0;
 }
 
 .xp-contagem {
+    margin: 0;
     font-size: 13px;
     color: var(--cor-texto-suave);
     text-align: right;
 }
 
-/* A barra e so um retangulo cinza com outro roxo por cima; a largura
-   do de cima e o percentual do nivel, calculado no servidor. */
+/* <progress> com o percentual do nivel, calculado no servidor */
 .xp-barra {
     height: 10px;
     background: var(--cor-borda);
     border-radius: 999px;
-    overflow: hidden;
 }
 
-.xp-barra-cheia {
-    height: 100%;
-    background: var(--cor-ganho);
-    border-radius: 999px;
-    transition: width .3s ease;
-}
+.xp-barra::-webkit-progress-value { background: var(--cor-ganho); border-radius: 999px; }
+.xp-barra::-moz-progress-bar      { background: var(--cor-ganho); border-radius: 999px; }
 
 .xp-conquistas {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 14px;
+    margin: 14px 0 0;             /* e uma <ul>: sem margem, recuo e marcador do navegador */
+    padding: 0;
+    list-style: none;
 }
 
 .medalha {
@@ -726,7 +760,7 @@ tbody tr:hover { background: #fafbfc; }
     font-size: 13px;
     color: var(--cor-ganho);
     font-weight: 600;
-    margin-top: 4px;
+    margin: 4px 0 0;
 }
 
 .xp-recorde {

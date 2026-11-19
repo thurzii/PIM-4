@@ -21,8 +21,8 @@
 <h1>Usuarios</h1>
 <p class="subtitulo">Quem pode entrar no sistema e com qual nivel de acesso.</p>
 
-<div class="cartao">
-    <form asp-controller="Usuarios" asp-action="Index" method="get">
+<section class="cartao" aria-label="Buscar usuarios">
+    <form role="search" asp-controller="Usuarios" asp-action="Index" method="get">
         <div class="filtros">
             <div class="campo campo-largo">
                 <label for="termo">Buscar usuario</label>
@@ -42,7 +42,7 @@
     {
         <p class="resumo-filtro">@ViewBag.Resumo</p>
     }
-</div>
+</section>
 
 @if (Model.Count == 0)
 {
@@ -52,7 +52,7 @@
 }
 else
 {
-    <div class="cartao" style="padding:0; overflow-x:auto;">
+    <section class="cartao" style="padding:0; overflow-x:auto;" aria-label="Lista de usuarios">
         <table>
             <thead>
                 <tr>
@@ -102,7 +102,7 @@ else
                                 <span class="etiqueta etiqueta-inativo">Inativo</span>
                             }
                         </td>
-                        <td>@afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy")</td>
+                        <td><time datetime="@afr_usuario.afr_DataCadastro.ToString("yyyy-MM-dd")">@afr_usuario.afr_DataCadastro.ToString("dd/MM/yyyy")</time></td>
                         <td class="coluna-acoes">
                             <div class="acoes-linha" style="justify-content:flex-end;">
                                 @* DS12 - solicitarVisualizacaoPerfil(usuario) *@
@@ -128,7 +128,7 @@ else
                 }
             </tbody>
         </table>
-    </div>
+    </section>
 
     <p class="ajuda">
         @Model.Count usuario(s) na tabela dbo.Usuarios. @ViewBag.StatusBanco

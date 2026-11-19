@@ -40,7 +40,7 @@
     @* DESCRICAO E REQUISITOS DO CURSO                               *@
     @* DS08 - requisitosCurso(dados)                                 *@
     @* ------------------------------------------------------------ *@
-    <div class="cartao">
+    <section class="cartao">
         <h3>Sobre o curso</h3>
         <p>
             @if (string.IsNullOrWhiteSpace(Model.afr_Curso.afr_Descricao))
@@ -56,13 +56,13 @@
         <p class="ajuda" style="margin-top:12px;">
             <strong>Requisito:</strong> @Model.afr_Requisitos
         </p>
-    </div>
+    </section>
 
     @* ------------------------------------------------------------ *@
     @* PROGRESSO (DS08)                                              *@
     @* resultadoConclusao(status, percentual)                         *@
     @* ------------------------------------------------------------ *@
-    <div class="cartao">
+    <section class="cartao">
         <h3>Seu progresso</h3>
 
         <p style="margin:0;">
@@ -73,15 +73,14 @@
             </span>
         </p>
 
-        <div class="progresso-trilha">
-            <div class="progresso-barra @(Model.afr_Resultado.afr_Aprovado ? "completo" : "")"
-                 style="width:@(Model.afr_Resultado.afr_Percentual)%;"></div>
-        </div>
+        <progress class="progresso-trilha @(Model.afr_Resultado.afr_Aprovado ? "completo" : "")"
+                  max="100" value="@(Model.afr_Resultado.afr_Percentual)"
+                  aria-label="Progresso no curso">@(Model.afr_Resultado.afr_Percentual)%</progress>
 
         <p class="@Model.ObterClasseProgresso()" style="margin:8px 0 0;">
             @Model.ObterMensagemProgresso()
         </p>
-    </div>
+    </section>
 
     @* ------------------------------------------------------------ *@
     @* MATRICULA (VERSAO 3.3)                                        *@
@@ -91,7 +90,7 @@
     @* ------------------------------------------------------------ *@
     @if (Model.afr_PodeMatricular)
     {
-        <div class="cartao">
+        <section class="cartao">
             <h3>Matricula</h3>
 
             @if (Model.afr_Matriculado)
@@ -119,7 +118,7 @@
                     </button>
                 </form>
             }
-        </div>
+        </section>
     }
 
 </div>
@@ -152,50 +151,52 @@ else
         </p>
     }
 
-    foreach (Aula afr_aula in Model.afr_Aulas)
-    {
-        <div class="aula @(afr_aula.afr_Concluida ? "concluida" : "")">
+    <ol class="lista-aulas">
+        @foreach (Aula afr_aula in Model.afr_Aulas)
+        {
+            <li class="aula @(afr_aula.afr_Concluida ? "concluida" : "")">
 
-            <div class="ordem">@afr_aula.afr_Ordem</div>
+                <span class="ordem">@afr_aula.afr_Ordem</span>
 
-            @* DS05 - assistirAula(aula): o link abre a pagina da aula *@
-            <div class="titulo">
-                <a asp-controller="Catalogo" asp-action="Aula" asp-route-id="@afr_aula.afr_Id">
-                    @afr_aula.afr_Titulo
-                </a>
-            </div>
+                @* DS05 - assistirAula(aula): o link abre a pagina da aula *@
+                <span class="titulo">
+                    <a asp-controller="Catalogo" asp-action="Aula" asp-route-id="@afr_aula.afr_Id">
+                        @afr_aula.afr_Titulo
+                    </a>
+                </span>
 
-            <div class="duracao">@afr_aula.afr_DuracaoMin min</div>
+                <span class="duracao">@afr_aula.afr_DuracaoMin min</span>
 
-            @if (Model.afr_PodeMatricular && !Model.afr_Matriculado)
-            {
-                <span class="ajuda">Matricule-se para concluir</span>
-            }
-            else
-            {
-                <form asp-controller="Catalogo" asp-action="MarcarAula" method="post">
-                    @Html.AntiForgeryToken()
+                @if (Model.afr_PodeMatricular && !Model.afr_Matriculado)
+                {
+                    <span class="ajuda">Matricule-se para concluir</span>
+                }
+                else
+                {
+                    <form asp-controller="Catalogo" asp-action="MarcarAula" method="post">
+                        @Html.AntiForgeryToken()
 
-                    <input type="hidden" name="cursoId" value="@Model.afr_Curso.afr_Id" />
-                    <input type="hidden" name="aulaId" value="@afr_aula.afr_Id" />
+                        <input type="hidden" name="cursoId" value="@Model.afr_Curso.afr_Id" />
+                        <input type="hidden" name="aulaId" value="@afr_aula.afr_Id" />
 
-                    @* Inverte o estado atual: marcada vira desmarcada e vice-versa *@
-                    <input type="hidden" name="concluida"
-                           value="@((!afr_aula.afr_Concluida).ToString().ToLower())" />
+                        @* Inverte o estado atual: marcada vira desmarcada e vice-versa *@
+                        <input type="hidden" name="concluida"
+                               value="@((!afr_aula.afr_Concluida).ToString().ToLower())" />
 
-                    @if (afr_aula.afr_Concluida)
-                    {
-                        <button type="submit" class="botao botao-pequeno">Desmarcar</button>
-                    }
-                    else
-                    {
-                        <button type="submit" class="botao botao-primario botao-pequeno">
-                            Marcar como concluida
-                        </button>
-                    }
-                </form>
-            }
+                        @if (afr_aula.afr_Concluida)
+                        {
+                            <button type="submit" class="botao botao-pequeno">Desmarcar</button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="botao botao-primario botao-pequeno">
+                                Marcar como concluida
+                            </button>
+                        }
+                    </form>
+                }
 
-        </div>
-    }
+            </li>
+        }
+    </ol>
 }
