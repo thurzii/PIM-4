@@ -128,3 +128,15 @@ Api/**/*.nupkg
 #    trabalho de faculdade. O caminho certo e deixar o appsettings com
 #    valores de exemplo e guardar os reais fora do repositorio.
 # =====================================================================
+
+# ---------------------------------------------------------------------
+# Senhas e chaves - NUNCA vao para o GitHub
+#
+# O .env guarda o usuario e a senha do banco do Azure e a chave dos
+# tokens. Vale para o repositorio inteiro de proposito: um .env em
+# qualquer pasta e segredo. O modelo sem segredos e o .env.exemplo,
+# que sobe normalmente.
+# ---------------------------------------------------------------------
+.env
+**/.env
+!.env.exemplo
