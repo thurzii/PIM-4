@@ -87,7 +87,7 @@ CREATE TABLE dbo.Usuarios (
     Id           INT IDENTITY(1,1) PRIMARY KEY,
     Nome         VARCHAR(100) NOT NULL,
     Email        VARCHAR(100) NOT NULL UNIQUE,   -- nao pode repetir
-    Senha        VARCHAR(100) NOT NULL,
+    Senha        NVARCHAR(200) NOT NULL,
     Perfil       VARCHAR(10)  NOT NULL,          -- ALUNO, PROFESSOR ou ADMIN
     Ativo        BIT          NOT NULL DEFAULT 1,
     DataCadastro DATETIME     NOT NULL DEFAULT GETDATE()
@@ -346,6 +346,14 @@ GO
 -- gravado como TUTOR precisa ser convertido, senao fica sem permissao
 -- nenhuma: o valor no banco nao casaria com nenhuma constante do programa.
 UPDATE dbo.Usuarios SET Perfil = 'PROFESSOR' WHERE Perfil = 'TUTOR';
+GO
+
+-- A coluna Senha era VARCHAR(100), e um hash scrypt tem 168 caracteres:
+-- criar usuario dava "String or binary data would be truncated", e a
+-- conversao do texto puro para hash no login falhava em silencio. Fica
+-- igual ao esquema da API do grupo. COL_LENGTH mede em bytes.
+IF COL_LENGTH('dbo.Usuarios','Senha') < 400
+    ALTER TABLE dbo.Usuarios ALTER COLUMN Senha NVARCHAR(200) NOT NULL;
 GO
 
 -- =====================================================================

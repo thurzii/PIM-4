@@ -184,7 +184,7 @@ namespace PlataformaCursos
                 "  Id INT IDENTITY(1,1) PRIMARY KEY," +
                 "  Nome VARCHAR(100) NOT NULL," +
                 "  Email VARCHAR(100) NOT NULL UNIQUE," +
-                "  Senha VARCHAR(100) NOT NULL," +
+                "  Senha NVARCHAR(200) NOT NULL," +
                 "  Perfil VARCHAR(10) NOT NULL," +
                 "  Ativo BIT NOT NULL DEFAULT 1," +
                 "  DataCadastro DATETIME NOT NULL DEFAULT GETDATE());");
@@ -419,6 +419,19 @@ namespace PlataformaCursos
             // porque o perfil gravado no banco nao casa com nenhuma constante.
             ExecutarComando(afr_conexao,
                 "UPDATE dbo.Usuarios SET Perfil = 'PROFESSOR' WHERE Perfil = 'TUTOR';");
+
+            // VERSAO 6 - a coluna Senha nao cabia o hash.
+            //
+            // Um hash scrypt (scrypt:salt:hash) tem 168 caracteres, e a
+            // coluna era VARCHAR(100). Todo INSERT ou UPDATE de senha dava
+            // "String or binary data would be truncated": criar usuario
+            // falhava, e a conversao do texto puro para hash no login
+            // falhava EM SILENCIO - as senhas continuavam em texto. Fica
+            // NVARCHAR(200), o mesmo tamanho do esquema da API do grupo.
+            // COL_LENGTH mede em bytes: NVARCHAR(200) = 400.
+            ExecutarComando(afr_conexao,
+                "IF COL_LENGTH('dbo.Usuarios','Senha') < 400 " +
+                "ALTER TABLE dbo.Usuarios ALTER COLUMN Senha NVARCHAR(200) NOT NULL;");
         }
 
         // -------------------------------------------------------------
