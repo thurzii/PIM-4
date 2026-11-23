@@ -47,9 +47,9 @@ namespace PlataformaCursos
                 afr_lblStatus.Text = afr_mensagem + "  " +
                                      (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
 
-                // Facilita a demonstracao: ja deixa o email do admin preenchido
-                afr_txtEmail.Text = "admin@escola.com";
-                afr_txtSenha.Focus();
+                // A tela abre vazia: como no aplicativo, quem entra ja sabe
+                // a propria conta. Nenhuma conta fica sugerida na tela.
+                afr_txtEmail.Focus();
             }
             else
             {

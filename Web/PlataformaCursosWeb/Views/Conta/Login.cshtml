@@ -50,7 +50,7 @@
                 <div class="campo">
                     <label asp-for="afr_Email">Email</label>
                     <input asp-for="afr_Email" type="email" autocomplete="username"
-                           placeholder="admin@@escola.com" />
+                           placeholder="seu@@email.com" />
                     <span asp-validation-for="afr_Email" class="erro-validacao"></span>
                 </div>
 
@@ -68,18 +68,6 @@
                    asp-route-email="@Model.afr_Email">Esqueci minha senha</a>
             </p>
         </div>
-
-        @*
-            Credenciais de teste: facilita a correcao e a apresentacao.
-            Sao os tres perfis dos diagramas de sequencia - o PROFESSOR
-            entrou nesta versao, por causa dos diagramas DS07 a DS10.
-        *@
-        <aside class="credenciais" aria-label="Contas de teste">
-            <strong>Usuarios para teste</strong><br />
-            Administrador: <code>admin@@escola.com</code> / <code>admin123</code><br />
-            Professor: <code>carla@@escola.com</code> / <code>professor123</code><br />
-            Aluno: <code>maria@@escola.com</code> / <code>aluno123</code>
-        </aside>
 
     </section>
 </main>

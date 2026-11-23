@@ -126,7 +126,7 @@ As duas primeiras são correções conscientes. A terceira é a que precisa de d
 
 - **Senha mínima de 8 caracteres** (era 6). A API recusa menos que isso; com 6, um usuário criado no desktop seria rejeitado por ela depois.
 - **E-mail sempre em minúsculas**, no login, na criação e na edição. A API faz `email.trim().toLowerCase()`; sem normalizar, `Maria@Escola.com` e `maria@escola.com` viram dois usuários diferentes.
-- As contas de demonstração (`admin123`, `professor123`, `aluno123`) já têm 8 ou mais caracteres e continuam valendo.
+- As senhas das contas de demonstração já têm 8 ou mais caracteres e continuam valendo.
 
 ---
 

@@ -58,12 +58,7 @@ ao lado e escolha `http`.
 
 ## Entrar no sistema
 
-| Perfil | Email | Senha | O que pode fazer |
-|---|---|---|---|
-| Administrador | `admin@escola.com` | `admin123` | tudo |
-| Professor | `carla@escola.com` | `professor123` | cursos, aulas e progresso dos alunos |
-| Aluno | `maria@escola.com` | `aluno123` | catálogo e as próprias aulas |
-| Aluno | `joao@escola.com` | `aluno123` | catálogo e as próprias aulas |
+As contas são criadas pelo administrador, em *Usuários*. Não há contas nem senhas publicadas aqui.
 
 O menu do topo mostra só as áreas que o perfil alcança:
 
@@ -165,23 +160,23 @@ PlataformaCursosWeb/
 
 ## Como demonstrar as partes novas
 
-**Recuperação de senha (3 etapas).** Na tela de login, clique em *Esqueci minha senha*. Digite `maria@escola.com` → **Enviar código**. Clique em *abrir a caixa de entrada*: abre a página `/Conta/CaixaDeEntrada`, que é o arquivo `dados/emails.txt` do servidor — o trabalho não tem servidor de e-mail. Copie os 6 dígitos → **Conferir código** → escolha a nova senha → **Redefinir senha**. O código vale 15 minutos e serve uma vez só.
+**Recuperação de senha (3 etapas).** Na tela de login, clique em *Esqueci minha senha*. Digite o e-mail de uma conta de **aluno** → **Enviar código**. Clique em *abrir a caixa de entrada*: abre a página `/Conta/CaixaDeEntrada`, que é o arquivo `dados/emails.txt` do servidor — o trabalho não tem servidor de e-mail. Copie os 6 dígitos → **Conferir código** → escolha a nova senha → **Redefinir senha**. O código vale 15 minutos e serve uma vez só.
 
-**Conteúdo da aula.** Entre como `carla@escola.com` → *Cursos* → clique em *Aulas* de um curso → *Editar* numa aula. Escreva o conteúdo e salve. O botão *Ver como o aluno vê* abre a página da aula em outra aba.
+**Conteúdo da aula.** Entre com uma conta de **professor** → *Cursos* → clique em *Aulas* de um curso → *Editar* numa aula. Escreva o conteúdo e salve. O botão *Ver como o aluno vê* abre a página da aula em outra aba.
 
-**Abrir a aula como aluno.** Entre como `maria@escola.com` → *Catálogo* → um curso → clique no **título da aula**. A página mostra o conteúdo, o botão de concluir e o andamento do curso.
+**Abrir a aula como aluno.** Entre com uma conta de **aluno** → *Catálogo* → um curso → clique no **título da aula**. A página mostra o conteúdo, o botão de concluir e o andamento do curso.
 
 **Requisito de conclusão.** O curso *Banco de Dados com SQL Server* exige 75% das aulas, não 100% — o status vira `CONCLUÍDO` antes de o aluno fazer tudo. O de *Lógica* exige 100%.
 
 **Filtros da busca.** No catálogo, preencha `Carga de 50 até 0` → *Buscar*: sai só o curso de 60h. Marque *Somente os cursos que eu ainda não concluí* para esconder os concluídos.
 
-**Progresso dos alunos.** Entre como `carla@escola.com` → *Progresso* → *Ver progresso* num aluno. Sai uma linha por curso, com aulas feitas, percentual, mínimo exigido e status.
+**Progresso dos alunos.** Entre com uma conta de **professor** → *Progresso* → *Ver progresso* num aluno. Sai uma linha por curso, com aulas feitas, percentual, mínimo exigido e status.
 
-**Perfil e histórico.** Entre como `admin@escola.com` → *Usuários* → *Perfil* num usuário. As três listas são os acessos, os cadastros e as ações em cursos daquela pessoa — exatamente os três conjuntos que o DS12 nomeia.
+**Perfil e histórico.** Entre com uma conta de **administrador** → *Usuários* → *Perfil* num usuário. As três listas são os acessos, os cadastros e as ações em cursos daquela pessoa — exatamente os três conjuntos que o DS12 nomeia.
 
 **Exclusão em duas etapas.** Em *Usuários* ou em *Cursos*, clique em *Excluir*. Abre a página de confirmação, que lista o que será apagado junto e pede a **sua** senha. Tente excluir a própria conta de admin, ou o último administrador ativo: a página abre em modo aviso e explica por que não pode.
 
-**As duas camadas de permissão.** Entre como `maria@escola.com` e digite `/Usuarios` na barra de endereço. Você cai em *Acesso negado*: o `[Authorize(Roles = "ADMIN")]` barrou a requisição antes de qualquer código rodar.
+**As duas camadas de permissão.** Entre com uma conta de **aluno** e digite `/Usuarios` na barra de endereço. Você cai em *Acesso negado*: o `[Authorize(Roles = "ADMIN")]` barrou a requisição antes de qualquer código rodar.
 
 ---
 

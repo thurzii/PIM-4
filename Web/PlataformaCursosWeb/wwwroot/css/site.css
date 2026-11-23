@@ -400,17 +400,6 @@ main.tela-acesso { max-width: none; margin: 0; padding: 24px; }
     margin: 0 0 22px;             /* agora e <p> */
 }
 
-.credenciais {
-    margin-top: 18px;
-    padding: 14px 16px;
-    background: var(--cor-primaria-clara);
-    border-radius: var(--raio);
-    font-size: 13px;
-    color: var(--cor-primaria);
-}
-
-.credenciais code { font-family: Consolas, monospace; }
-
 /* ---------------------------------------------------------------- */
 /* RODAPE                                                            */
 /* ---------------------------------------------------------------- */

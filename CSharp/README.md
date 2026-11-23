@@ -54,14 +54,7 @@ Na primeira execução o programa cria o banco `CursosDB`, as seis tabelas e os 
 
 ## Entrar no sistema
 
-O sistema já vem com usuários cadastrados:
-
-| Perfil | Email | Senha | O que pode fazer |
-|---|---|---|---|
-| Administrador | `admin@escola.com` | `admin123` | tudo |
-| Professor | `carla@escola.com` | `professor123` | cursos, aulas e progresso dos alunos |
-| Aluno | `maria@escola.com` | `aluno123` | catálogo e as próprias aulas |
-| Aluno | `joao@escola.com` | `aluno123` | catálogo e as próprias aulas |
+As contas são criadas pelo administrador, em *Usuários*. Não há contas nem senhas publicadas aqui.
 
 O menu principal tem três áreas e mostra só as que o perfil alcança:
 
@@ -189,11 +182,11 @@ O detalhe **mensagem por mensagem** dos 14 diagramas de sequência está em [`RA
 
 ## Como demonstrar as partes novas
 
-**Recuperação de senha (3 etapas).** Na tela de login, clique em *Esqueci minha senha*. Digite `maria@escola.com` e clique em **1) Enviar código**. Clique em **Ver o código**: abre o arquivo `dados/emails.txt`, que faz o papel da caixa de entrada (o trabalho não tem servidor de e-mail). Copie os 6 dígitos, clique em **2) Conferir código**, escolha a nova senha e clique em **3) Redefinir senha**. O código vale 15 minutos e serve uma vez só.
+**Recuperação de senha (3 etapas).** Na tela de login, clique em *Esqueci minha senha*. Digite o e-mail de uma conta de **aluno** e clique em **1) Enviar código**. Clique em **Ver o código**: abre o arquivo `dados/emails.txt`, que faz o papel da caixa de entrada (o trabalho não tem servidor de e-mail). Copie os 6 dígitos, clique em **2) Conferir código**, escolha a nova senha e clique em **3) Redefinir senha**. O código vale 15 minutos e serve uma vez só.
 
-**Conteúdo da aula.** Entre como `carla@escola.com`, abra *Gerenciar Cursos e Aulas*, clique em um curso e em uma aula: o conteúdo dela aparece na caixa à direita. As aulas em laranja ainda estão sem conteúdo.
+**Conteúdo da aula.** Entre com uma conta de **professor**, abra *Gerenciar Cursos e Aulas*, clique em um curso e em uma aula: o conteúdo dela aparece na caixa à direita. As aulas em laranja ainda estão sem conteúdo.
 
-**Abrir a aula como aluno.** Entre como `maria@escola.com`, abra o catálogo, clique num curso, numa aula, e em **Abrir a aula selecionada** (ou dois cliques na aula).
+**Abrir a aula como aluno.** Entre com uma conta de **aluno**, abra o catálogo, clique num curso, numa aula, e em **Abrir a aula selecionada** (ou dois cliques na aula).
 
 **Requisito de conclusão.** O curso *Banco de Dados com SQL Server* exige 75% das aulas, não 100% — o status vira `CONCLUÍDO` antes de o aluno fazer tudo. O de *Lógica* exige 100%.
 

@@ -104,16 +104,9 @@ Nos dois casos, aguarde a restauração dos pacotes NuGet na primeira vez — pr
 
 ### 4. Entrar no sistema
 
-| Perfil | E-mail | Senha |
-|---|---|---|
-| **ADMIN** | `admin@escola.com` | `admin123` |
-| **PROFESSOR** | `carla@escola.com` | `professor123` |
-| **ALUNO** | `maria@escola.com` | `aluno123` |
-| **ALUNO** | `joao@escola.com` | `aluno123` |
+Não existe cadastro aberto: as contas são criadas pelo **administrador**, em *Usuários*, com o perfil de cada pessoa (aluno, professor ou administrador). Peça a sua conta a quem administra o sistema.
 
-**Atenção:** em bancos criados antes da renomeação do perfil, a senha da Carla é `tutor123`. A senha mínima passou a ser de **8 caracteres**, para casar com a validação da API.
-
-As senhas são convertidas para `scrypt` no primeiro login correto de cada conta. Por isso os scripts ainda trazem senhas legíveis: elas são o ponto de partida, não o estado final.
+A senha precisa ter pelo menos **8 caracteres**, a mesma regra da API, e é guardada em `scrypt`, nunca como texto.
 
 ## Banco de dados
 
