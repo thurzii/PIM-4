@@ -82,10 +82,23 @@ namespace PlataformaCursosApi.Controllers
                 // Senha que ainda estava em texto: aproveita o login para
                 // gravar em scrypt. A API do Gui le scrypt, entao o
                 // aplicativo continua entrando com a mesma senha.
+                //
+                // A conversao e um extra: se falhar, o login segue. Num banco
+                // com a coluna Senha pequena demais para o hash (168
+                // caracteres), o UPDATE da erro - e sem este try a pessoa nao
+                // conseguiria entrar por causa de uma melhoria opcional.
                 if (afr_eraTexto)
                 {
-                    afr_banco.Executar("UPDATE dbo.Usuarios SET Senha = @senha WHERE Id = @id",
-                                       Parametros("@senha", SenhaHash.Gerar(afr_senha), "@id", afr_id));
+                    try
+                    {
+                        afr_banco.Executar("UPDATE dbo.Usuarios SET Senha = @senha WHERE Id = @id",
+                                           Parametros("@senha", SenhaHash.Gerar(afr_senha), "@id", afr_id));
+                    }
+                    catch (Exception afr_erroConversao)
+                    {
+                        Console.WriteLine("[API] Senha de " + afr_id + " continua em texto: " +
+                                          afr_erroConversao.Message);
+                    }
                 }
 
                 string afr_nome = Convert.ToString(afr_usuario["Nome"]);
