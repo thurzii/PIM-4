@@ -32,17 +32,13 @@ namespace PlataformaCursosWeb.Controllers
     public class ContaController : Controller
     {
         private readonly AutenticacaoService afr_autenticacaoService;
-        private readonly BancoService afr_bancoService;
-
-        // VERSAO 4 - no modo API a conexao testada e descrita e a da API
+        // A conexao testada e descrita e a da API do grupo
         private readonly PonteApi afr_ponte;
 
         // Os servicos chegam prontos pela INJECAO DE DEPENDENCIA
-        public ContaController(AutenticacaoService afr_autenticacao, BancoService afr_banco,
-                               PonteApi afr_ponteApi)
+        public ContaController(AutenticacaoService afr_autenticacao, PonteApi afr_ponteApi)
         {
             afr_autenticacaoService = afr_autenticacao;
-            afr_bancoService = afr_banco;
             afr_ponte = afr_ponteApi;
         }
 
@@ -58,12 +54,10 @@ namespace PlataformaCursosWeb.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Avisa na tela se o banco nao respondeu
+            // Avisa na tela se a API (ou o banco dela) nao respondeu
             string afr_mensagemBanco;
 
-            bool afr_conectou = afr_ponte.Ativa()
-                ? afr_ponte.AguardarApi(15, out afr_mensagemBanco)
-                : afr_bancoService.TestarConexao(out afr_mensagemBanco);
+            bool afr_conectou = afr_ponte.AguardarApi(15, out afr_mensagemBanco);
 
             if (!afr_conectou)
             {
@@ -172,7 +166,6 @@ namespace PlataformaCursosWeb.Controllers
             var afr_dados = new RecuperarSenhaViewModel();
 
             afr_dados.afr_Etapa = 1;
-            afr_dados.afr_MinutosValidade = AutenticacaoService.MINUTOS_VALIDADE_CODIGO;
 
             // Aproveita o email que ja estava digitado no login
             if (!string.IsNullOrWhiteSpace(email))

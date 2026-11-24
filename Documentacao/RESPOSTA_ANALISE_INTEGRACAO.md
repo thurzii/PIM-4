@@ -4,6 +4,11 @@
 **Escopo:** programa desktop (C# / Windows Forms) e site (ASP.NET Core MVC)
 **Substitui:** a versão anterior deste documento, que foi escrita por suposição
 
+> **Registro histórico.** Este relato é de 18/11/2026. Depois dele o grupo unificou as
+> APIs numa só (a do Guilherme, hospedada no Render), e o desktop e a web deixaram de ter
+> banco próprio: tudo passa por essa API. O que está abaixo sobre `BancoService`, banco
+> local e chave liga/desliga descreve a etapa anterior.
+
 ---
 
 ## Antes de tudo: os dois branches

@@ -21,7 +21,7 @@
 <h1>Aula @Model.afr_Ordem: @Model.afr_Titulo</h1>
 <p class="subtitulo">
     Curso: @Model.afr_CursoTitulo &middot;
-    gravar vai executar um <strong>UPDATE</strong> na tabela dbo.Aulas.
+    salvar envia as alteracoes para a API.
 </p>
 
 <section class="cartao" style="max-width:760px;" aria-label="Conteudo da aula">
@@ -60,7 +60,7 @@
 
         <div class="acoes">
             <button type="submit" class="botao botao-primario">
-                Salvar a aula (UPDATE)
+                Salvar a aula
             </button>
 
             <a class="botao" asp-controller="Cursos" asp-action="Aulas"

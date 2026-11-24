@@ -29,7 +29,6 @@ namespace PlataformaCursos
 {
     public partial class FrmPrincipal : Form
     {
-        private BancoService afr_bancoService = new BancoService();
 
         // VERSAO 4 - no modo API a conexao testada e descrita e a da API
         private PonteApi afr_ponte = new PonteApi();
@@ -105,17 +104,17 @@ namespace PlataformaCursos
             if (Sessao.EhAdministrador())
             {
                 afr_lblStatus.Text = "Perfil ADMIN: catalogo, cursos, progresso dos alunos e usuarios.  "
-                                   + (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
+                                   + afr_ponte.ObterDescricao();
             }
             else if (Sessao.EhProfessor())
             {
                 afr_lblStatus.Text = "Perfil PROFESSOR: catalogo, cursos e aulas, e progresso dos alunos.  "
-                                   + (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
+                                   + afr_ponte.ObterDescricao();
             }
             else
             {
                 afr_lblStatus.Text = "Perfil ALUNO: catalogo de cursos e as suas aulas.  "
-                                   + (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
+                                   + afr_ponte.ObterDescricao();
             }
 
             // VERSAO 3 - painel de XP, nivel e conquistas
@@ -331,9 +330,7 @@ namespace PlataformaCursos
         {
             string afr_mensagem;
 
-            bool afr_ok = afr_ponte.Ativa()
-                ? afr_ponte.TestarConexao(out afr_mensagem)
-                : afr_bancoService.TestarConexao(out afr_mensagem);
+            bool afr_ok = afr_ponte.TestarConexao(out afr_mensagem);
 
             if (afr_ok)
             {
@@ -346,7 +343,7 @@ namespace PlataformaCursos
 
             afr_lblStatus.Text = afr_mensagem;
 
-            MessageBox.Show((afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao()) + Environment.NewLine + afr_mensagem,
+            MessageBox.Show(afr_ponte.ObterDescricao() + Environment.NewLine + afr_mensagem,
                             "Conexao", MessageBoxButtons.OK,
                             afr_ok ? MessageBoxIcon.Information : MessageBoxIcon.Error);
         }

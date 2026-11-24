@@ -17,23 +17,14 @@
    telas e os servicos continuam iguais: so o lugar de onde vem o dado
    muda.
 
-   QUANDO E USADA
-   So com a API ligada (Api:Ativa = true no appsettings.json). Com ela
-   desligada o programa usa o banco local, como antes - o modo de
-   testes combinado pelo grupo enquanto a API nao estiver no Azure.
-
-   VERSAO 5 - A API E A NOSSA (Api/PlataformaCursosApi)
-   Cada projeto do grupo tem a sua API, e as duas gravam no mesmo banco
-   do Azure. A nossa segue as rotas e as regras da API do Gui e tem
-   rotas a mais para as telas daqui (editar e excluir usuario, editar
-   aula, progresso e XP de um aluno).
+   O SITE SO FALA COM A API
+   Nao existe mais banco local. A API e a do grupo, unificada pelo
+   Guilherme e hospedada no Render (endereco em Api:UrlBase, no
+   appsettings.json); o aplicativo e o desktop usam a mesma.
 
    O QUE AINDA NAO DA
-   Historico de acoes, recuperacao de senha e o texto da aula precisam
-   de tabelas que o banco do Azure nao tem. Combinar com o grupo antes
-   de criar: o banco e compartilhado. Ate la, essas telas avisam em vez
-   de cair escondido no banco local - metade no banco e metade na API e
-   justamente o que o grupo quis evitar.
+   Historico de acoes: a API nao tem a rota. A tela de perfil mostra as
+   listas vazias ate a rota existir.
    ===================================================================== */
 
 using System;
@@ -55,11 +46,6 @@ namespace PlataformaCursosWeb.Services
         {
             this.afr_configuracao = afr_config;
             this.afr_sessao = afr_sessaoAtual;
-        }
-
-        public bool Ativa()
-        {
-            return afr_configuracao.EstaAtiva();
         }
 
         public string ObterDescricao()
@@ -726,9 +712,9 @@ namespace PlataformaCursosWeb.Services
             return afr_lista;
         }
 
-        // A mesma conta do BancoService.MontarResultado, com o minimo
-        // fixo em 100 (ver ListarCursos)
-        private ResultadoConclusao MontarResultado(int afr_concluidas, int afr_total)
+        // Percentual e aprovacao de um curso, com o minimo fixo em 100
+        // (para a API, curso concluido e curso com todas as aulas feitas)
+        public static ResultadoConclusao MontarResultado(int afr_concluidas, int afr_total)
         {
             ResultadoConclusao afr_resultado = new ResultadoConclusao();
 

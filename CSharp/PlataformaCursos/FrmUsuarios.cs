@@ -35,7 +35,6 @@ namespace PlataformaCursos
     public partial class FrmUsuarios : Form
     {
         private UsuarioService afr_usuarioService = new UsuarioService();
-        private BancoService afr_bancoService = new BancoService();
 
         // VERSAO 4 - no modo API a conexao testada e descrita e a da API
         private PonteApi afr_ponte = new PonteApi();
@@ -373,7 +372,7 @@ namespace PlataformaCursos
             afr_lblStatus.Text = afr_listaAtual.Count + " usuario(s) em dbo.Usuarios  |  "
                                + afr_admins + " admin, " + afr_professores + " professor, "
                                + afr_alunos + " aluno  |  "
-                               + (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
+                               + afr_ponte.ObterDescricao();
 
             afr_carregandoLista = false;
         }

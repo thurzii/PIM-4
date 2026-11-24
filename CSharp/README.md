@@ -13,11 +13,9 @@
 
 Sistema desenvolvido a partir da modelagem UML do grupo ([`Modelagem/Projeto_UML.asta`](../Modelagem/)): uma plataforma de cursos com **três perfis de acesso** (aluno, professor e administrador), catálogo com filtros de busca, conteúdo de aula, requisito de conclusão por curso, recuperação de senha por código, histórico de ações e exclusão em duas etapas.
 
-**Windows Forms (.NET 8) + SQL Server.** O banco de dados é criado automaticamente na primeira execução — ninguém precisa rodar script nem configurar conexão.
+**Windows Forms (.NET 8).** O programa não tem banco próprio: todos os dados vêm da **API do grupo** (a mesma do aplicativo e da web), hospedada no Render, que guarda tudo no Azure SQL.
 
 > **Versão 2** — o programa foi revisado mensagem por mensagem contra os 14 diagramas de sequência do Astah. O mapa completo (cada mensagem do modelo → o método que a implementa) está em [`RASTREABILIDADE.md`](RASTREABILIDADE.md).
->
-> **Quem já rodou a versão 1 não precisa apagar o banco.** Na primeira execução desta versão o programa acrescenta sozinho as colunas e tabelas novas, sem perder dado nenhum (método `MigrarEstrutura`, em `BancoService.cs`).
 
 ---
 
@@ -26,17 +24,7 @@ Sistema desenvolvido a partir da modelagem UML do grupo ([`Modelagem/Projeto_UML
 ### 1. O que você precisa ter instalado
 
 - **Visual Studio 2022** com a carga de trabalho *Desenvolvimento para desktop com .NET*
-- **Um SQL Server** — o mais simples é o **LocalDB**, que já vem com o Visual Studio
-
-Para conferir se você tem o LocalDB, abra o Prompt de Comando e digite:
-
-```
-sqllocaldb info
-```
-
-Se aparecer `MSSQLLocalDB`, está tudo certo. Se o comando não for reconhecido, instale assim:
-
-> Visual Studio Installer → botão **Modificar** → aba **Componentes individuais** → busque por `LocalDB` → marque **SQL Server Express LocalDB** → **Modificar**
+- **Internet**: os dados vêm da API do grupo
 
 ### 2. Baixar o repositório
 
@@ -45,10 +33,9 @@ Pelo Visual Studio: **Git → Clonar Repositório**, cole o endereço do reposit
 ### 3. Abrir e executar
 
 1. Dentro da pasta baixada, abra `CSharp/PlataformaCursos.sln`
-2. Aguarde o Visual Studio restaurar o pacote `Microsoft.Data.SqlClient` (precisa de internet na primeira vez). Se não restaurar sozinho: **Ferramentas → Gerenciador de Pacotes NuGet → Restaurar pacotes NuGet**
-3. Pressione **Ctrl+F5**
+2. Pressione **Ctrl+F5**
 
-Na primeira execução o programa cria o banco `CursosDB`, as seis tabelas e os dados de exemplo. Não é preciso fazer mais nada.
+A tela de login confere se a API responde. Na primeira vez do dia o servidor gratuito pode levar alguns segundos para acordar: a tela espera antes de avisar.
 
 ---
 
@@ -70,35 +57,16 @@ Quem decide isso são os métodos `PodeGerenciarCursos`, `PodeVerProgressoDeOutr
 
 ---
 
-## Sobre a conexão com o banco
+## Sobre a conexão com a API
 
-**Você não precisa editar nada.** O sistema testa uma lista de servidores e usa o primeiro que responder:
+O endereço da API fica em `ConfiguracaoApi`, no início de `ClienteApi.cs`: por padrão, `https://pim-iv-api.onrender.com`. Para usar outro (uma cópia da API rodando no próprio computador, por exemplo), defina a variável de ambiente `API_URL` no perfil de inicialização (`Properties/launchSettings.json`).
 
-1. `(localdb)\MSSQLLocalDB` — LocalDB, acompanha o Visual Studio
-2. `.\SQLEXPRESS` — SQL Server Express
-3. `localhost` e `.` — instância padrão local
-
-O servidor em uso aparece na barra cinza do rodapé das telas, e o botão **Testar conexão** no menu principal confirma a comunicação.
-
-Se o seu SQL Server tiver outro nome, acrescente-o na lista `afr_SERVIDORES`, no início de `BancoService.cs` — mas **avise o grupo antes**, porque é um arquivo compartilhado.
-
-### Se aparecer erro de banco de dados
-
-O programa abre mesmo assim e mostra a mensagem na tela de login. As causas mais comuns:
+### Se aparecer erro de conexão
 
 | Mensagem | O que fazer |
 |---|---|
-| Nenhum SQL Server encontrado | Instalar o LocalDB (passo 1 acima) |
-| Erro de rede ou instância | Rodar `sqllocaldb start MSSQLLocalDB` no Prompt |
-| Falha ao restaurar pacote | Conferir a internet e restaurar o NuGet |
-
----
-
-## Ver os dados no banco
-
-Dentro do Visual Studio: **Exibir → Pesquisador de Objetos do SQL Server** → expanda até `CursosDB → Tabelas` → botão direito em uma tabela → **Exibir Dados**.
-
-O arquivo `Banco_CursosDB.sql` traz o script completo do banco e as consultas usadas pelo programa — útil para a apresentação e caso o professor peça o modelo físico.
+| Não foi possível falar com a API | Conferir a internet. Se for a primeira vez do dia, esperar o servidor acordar e tentar de novo |
+| A API respondeu, mas o banco não | O firewall do Azure bloqueou o IP. Quem administra o banco libera o IP no portal (servidor SQL → Rede) |
 
 ---
 
@@ -133,27 +101,17 @@ O arquivo `Banco_CursosDB.sql` traz o script completo do banco e as consultas us
 | `FiltroCurso` | os "filtros" do DS04 |
 | `ResultadoConclusao` | o "resultadoConclusao" do DS08 |
 | `ProgressoCurso` | o "dados" do DS07 |
-| `CodigoRecuperacao` | o código do DS02 |
 | `LogAcao` | o histórico do DS12 |
 | `ElegibilidadeExclusao` | os "dadosDetalhados" do DS10 e DS14 |
 | `Sessao` | estática; guarda quem está logado |
 
-**`BancoService.cs`** — a única classe que conhece SQL. Detecta o servidor, cria o banco, migra o banco da versão 1 e concentra todos os comandos. Todo valor vai por parâmetro `@`, nunca colado no texto do comando.
+**`ClienteApi.cs`** — a conversa HTTP com a API: uma função por rota, com o token do login. **`PonteApi.cs`** — sabe qual rota cada tela precisa e converte a resposta nas classes do `Modelo.cs`.
 
-**`Servicos.cs`** — as regras de negócio: `EmailService`, `LogService`, `AutenticacaoService`, `UsuarioService`, `CursoService`, `AulaService` e `ProgressoService`.
+**`Servicos.cs`** — as regras de tela (validar formulário, conferir perfil): `LogService`, `AutenticacaoService`, `UsuarioService`, `CursoService`, `AulaService`, `ProgressoService` e `GamificacaoService`. O que mexe em dados, e as regras de XP, matrícula e permissão, é da API.
 
 ### Banco de dados
 
-Banco `CursosDB`, com seis tabelas:
-
-```
-Cursos   1 ──── N  Aulas                 (uma aula pertence a um curso)
-Usuarios N ──── N  Aulas                 (pela tabela Progresso)
-Usuarios 1 ──── N  CodigosRecuperacao    (códigos de recuperação de senha)
-Usuarios 1 ──── N  LogAcoes              (histórico de ações)
-```
-
-Todas as chaves estrangeiras usam `ON DELETE CASCADE`: apagar o curso apaga as aulas, apagar o usuário apaga o progresso e o histórico dele. É por isso que a tela de confirmação mostra antes o que vai sair junto.
+O banco fica no **Azure SQL** e é o mesmo do aplicativo e da web. O desktop nunca fala com ele direto: tudo passa pela API.
 
 ---
 
@@ -182,15 +140,13 @@ O detalhe **mensagem por mensagem** dos 14 diagramas de sequência está em [`RA
 
 ## Como demonstrar as partes novas
 
-**Recuperação de senha (3 etapas).** Na tela de login, clique em *Esqueci minha senha*. Digite o e-mail de uma conta de **aluno** e clique em **1) Enviar código**. Clique em **Ver o código**: abre o arquivo `dados/emails.txt`, que faz o papel da caixa de entrada (o trabalho não tem servidor de e-mail). Copie os 6 dígitos, clique em **2) Conferir código**, escolha a nova senha e clique em **3) Redefinir senha**. O código vale 15 minutos e serve uma vez só.
+**Primeiro acesso.** O administrador cadastra um usuário em *Usuários* com uma senha temporária. Ao entrar com ela, o programa pede uma nova senha e mostra o **código de recuperação**, exibido uma vez só.
 
 **Conteúdo da aula.** Entre com uma conta de **professor**, abra *Gerenciar Cursos e Aulas*, clique em um curso e em uma aula: o conteúdo dela aparece na caixa à direita. As aulas em laranja ainda estão sem conteúdo.
 
 **Abrir a aula como aluno.** Entre com uma conta de **aluno**, abra o catálogo, clique num curso, numa aula, e em **Abrir a aula selecionada** (ou dois cliques na aula).
 
-**Requisito de conclusão.** O curso *Banco de Dados com SQL Server* exige 75% das aulas, não 100% — o status vira `CONCLUÍDO` antes de o aluno fazer tudo. O de *Lógica* exige 100%.
-
-**Filtros da busca.** No catálogo, preencha `Carga horária de 50 até 0` e clique em *Buscar cursos*: sai só o curso de 60h. Marque *Somente os cursos que eu ainda não concluí* para esconder os concluídos.
+**Filtros da busca.** No catálogo, preencha a carga horária mínima ou máxima e clique em *Buscar cursos*. Marque *Somente os cursos que eu ainda não concluí* para esconder os concluídos.
 
 **Exclusão em duas etapas.** Clique num registro e em *Excluir*: abre a tela de confirmação, que lista o que vai ser apagado junto e pede a **sua** senha. Tente excluir a própria conta de admin, ou o último administrador ativo: a tela abre em modo aviso e explica por que não pode.
 

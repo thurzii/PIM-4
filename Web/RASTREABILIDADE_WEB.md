@@ -3,6 +3,13 @@
 **Trabalho em grupo — Plataforma de Cursos Online (ASP.NET Core MVC)**
 Modelo: `Modelagem/Projeto_UML.asta`
 
+> **Atualização de 24/11/2026: o banco local saiu.** Os programas agora usam só a
+> API do grupo. Onde este mapa cita `BancoService` (ou o `EmailService` e a caixa de
+> entrada da recuperação de senha), o passo hoje é feito pela API: o serviço chama a
+> `PonteApi`, que chama a rota correspondente (`ClienteApi.cs`). Os nomes dos serviços
+> e das mensagens do diagrama continuam os mesmos. A recuperação de senha (DS02) passou
+> a ser pelo **código de recuperação** que a API entrega ao criar a conta.
+
 Este documento liga **cada mensagem** dos 14 diagramas de sequência ao lugar que a
 implementa na versão web. É o irmão do `RASTREABILIDADE.md` do projeto desktop: os
 mesmos diagramas, o mesmo nome de método nos serviços, mas com controller, action

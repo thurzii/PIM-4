@@ -24,7 +24,7 @@
 <p class="subtitulo">
     @if (afr_edicao)
     {
-        <text>Gravar vai executar um <strong>UPDATE</strong> no registro Id @Model.afr_Id.</text>
+        <text>Salvar envia as alteracoes do usuario Id @Model.afr_Id para a API.</text>
 
         if (Model.afr_DataCadastro > DateTime.MinValue)
         {
@@ -36,7 +36,7 @@
     }
     else
     {
-        <text>Gravar vai executar um <strong>INSERT</strong> na tabela dbo.Usuarios.</text>
+        <text>Salvar cadastra o usuario pela API.</text>
     }
 </p>
 
@@ -57,9 +57,9 @@
             <input asp-for="afr_Email" type="email" maxlength="100" />
             <span asp-validation-for="afr_Email" class="erro-validacao"></span>
             <div class="ajuda">
-                Nao pode repetir. O sistema confere em tres lugares: aqui, no
-                UsuarioService (DS11 - verificarDuplicidade) e no proprio
-                banco, que tem restricao UNIQUE nesta coluna.
+                Nao pode repetir. O sistema confere aqui, no UsuarioService
+                (DS11 - verificarDuplicidade), e a API confere de novo antes
+                de gravar.
             </div>
         </div>
 
@@ -129,7 +129,7 @@
 </section>
 
 <p class="ajuda" style="max-width:640px;">
-    A senha nunca e gravada como texto: vai para o banco como hash scrypt,
-    o mesmo formato da API do aplicativo. Nem o administrador consegue ve-la
+    A senha nunca e gravada como texto: a API guarda so o hash (scrypt).
+    Nem o administrador consegue ve-la
     depois de salva - por isso, na edicao, o campo em branco mantem a atual.
 </p>

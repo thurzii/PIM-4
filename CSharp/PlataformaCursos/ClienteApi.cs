@@ -27,16 +27,10 @@
    responde. As rotas de curso e de administracao que funcionam sao as
    escritas direto no server.js. Nada aqui chama rota nao montada.
 
-   VERSAO 5 - APONTA PARA A NOSSA API
-   O grupo combinou que cada projeto tem a sua API, as duas no mesmo
-   banco do Azure. A do desktop e da web esta em Api/PlataformaCursosApi:
-   mesmas rotas e formatos da API do Gui (por isso este cliente nao
-   precisou mudar) e algumas rotas a mais, marcadas "VERSAO 5" abaixo.
-
-   COMO ESTA HOJE
-   DESLIGADO por padrao (Api:Ativa = false). Os programas continuam
-   lendo e gravando no SQL Server. Este arquivo e o caminho pronto para
-   quando o grupo decidir virar a chave.
+   VERSAO 6 - A API UNICA DO GRUPO
+   O desktop, a web e o aplicativo usam a mesma API, unificada pelo
+   Guilherme e hospedada no Render. Nao ha mais banco local: este
+   cliente e o unico caminho para os dados.
    ===================================================================== */
 
 using System;
@@ -50,38 +44,17 @@ using System.Text.Json.Serialization;
 namespace PlataformaCursos
 {
     // =================================================================
-    // ConfiguracaoApi - a CHAVE DE LIGA/DESLIGA da integracao
+    // ConfiguracaoApi - o endereco da API
     //
-    // O desktop guarda configuracao em constantes (a lista
-    // afr_SERVIDORES do BancoService segue o mesmo padrao), entao a
-    // configuracao da API fica aqui, no mesmo estilo.
+    // O desktop nao tem banco proprio: todos os dados vem da API do
+    // grupo, a mesma do aplicativo e da web.
+    //
+    //   API_URL ..... endereco da API (variavel de ambiente, opcional).
+    //                 Sem ela, vale o endereco hospedado no Render.
     // =================================================================
     public static class ConfiguracaoApi
     {
-        // -------------------------------------------------------------
-        // VERSAO 6 - QUEM LIGA A API E O PERFIL DE INICIALIZACAO
-        //
-        // Antes era uma constante: para testar com a API era preciso
-        // mudar o codigo, e um commit esquecido ligaria a API para o
-        // grupo inteiro. Agora o valor vem de uma variavel de ambiente
-        // que so o perfil "API (Azure)" define (Properties/
-        // launchSettings.json). Rodando pelo perfil normal, ou fora do
-        // Visual Studio, a API fica desligada e o programa usa o banco
-        // local. Nada para editar, nada para lembrar de desfazer.
-        //
-        //   API_ATIVA = true ............. liga a API
-        //   API_URL = http://...:3000 .... endereco (padrao: localhost:3000)
-        // -------------------------------------------------------------
-        public static readonly bool ATIVA = LerAtiva();
-
         public static readonly string URL_BASE = LerUrl();
-
-        private static bool LerAtiva()
-        {
-            string afr_valor = Environment.GetEnvironmentVariable("API_ATIVA") ?? "true";
-
-            return afr_valor.Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
-        }
 
         private static string LerUrl()
         {
@@ -106,12 +79,7 @@ namespace PlataformaCursos
 
         public static string ObterDescricao()
         {
-            if (!ATIVA)
-            {
-                return "Modo SQL Server (API desligada).";
-            }
-
-            return "Modo API: " + URL_BASE;
+            return "API: " + URL_BASE;
         }
     }
 
@@ -510,7 +478,7 @@ namespace PlataformaCursos
         }
 
         // -------------------------------------------------------------
-        // VERSAO 5 - rotas que so a NOSSA API tem (Api/PlataformaCursosApi)
+        // VERSAO 5 - rotas a mais da API do grupo
         //
         // A API do grupo e propria do desktop e da web, com as mesmas
         // rotas e regras da API do Gui, mais estas, que as telas daqui

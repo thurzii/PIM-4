@@ -47,24 +47,16 @@ namespace PlataformaCursosWeb.Services
     {
         // De onde a identidade vem: o contexto da requisicao atual
         private readonly IHttpContextAccessor afr_contexto;
-        private readonly BancoService afr_bancoService;
-
-        // VERSAO 4 - no modo API o usuario nao e buscado no banco local
-        private readonly ConfiguracaoApi afr_configuracaoApi;
 
         // Nome do item do cookie que guarda o token da API
         public const string CLAIM_TOKEN_API = "TokenApi";
 
-        // Cache da requisicao: evita ir ao banco duas vezes no mesmo
-        // carregamento de pagina
+        // Cache da requisicao: o usuario e montado uma vez por pagina
         private Usuario afr_usuarioCarregado = null;
 
-        public SessaoAtual(IHttpContextAccessor afr_acessor, BancoService afr_banco,
-                           ConfiguracaoApi afr_api)
+        public SessaoAtual(IHttpContextAccessor afr_acessor)
         {
-            this.afr_configuracaoApi = afr_api;
             this.afr_contexto = afr_acessor;
-            this.afr_bancoService = afr_banco;
         }
 
         // -------------------------------------------------------------
@@ -160,17 +152,9 @@ namespace PlataformaCursosWeb.Services
                 return afr_usuarioCarregado;
             }
 
-            // No modo API o banco local nao e a fonte de verdade: o que se
-            // sabe do usuario e o que o login da API devolveu e foi para o
-            // cookie. Quem ainda precisava do objeto inteiro era a
-            // confirmacao de senha, que no modo API pergunta a propria API.
-            if (afr_configuracaoApi.EstaAtiva())
-            {
-                afr_usuarioCarregado = MontarDoCookie();
-                return afr_usuarioCarregado;
-            }
-
-            afr_usuarioCarregado = afr_bancoService.BuscarUsuarioPorId(ObterUsuarioId());
+            // O que se sabe do usuario e o que o login da API devolveu e
+            // foi para o cookie. Nao ha banco local para completar.
+            afr_usuarioCarregado = MontarDoCookie();
 
             return afr_usuarioCarregado;
         }

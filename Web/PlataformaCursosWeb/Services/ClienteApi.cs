@@ -27,16 +27,10 @@
    responde. As rotas de curso e de administracao que funcionam sao as
    escritas direto no server.js. Nada aqui chama rota nao montada.
 
-   VERSAO 5 - APONTA PARA A NOSSA API
-   O grupo combinou que cada projeto tem a sua API, as duas no mesmo
-   banco do Azure. A do desktop e da web esta em Api/PlataformaCursosApi:
-   mesmas rotas e formatos da API do Gui (por isso este cliente nao
-   precisou mudar) e algumas rotas a mais, marcadas "VERSAO 5" abaixo.
-
-   COMO ESTA HOJE
-   DESLIGADO por padrao (Api:Ativa = false). Os programas continuam
-   lendo e gravando no SQL Server. Este arquivo e o caminho pronto para
-   quando o grupo decidir virar a chave.
+   VERSAO 6 - A API UNICA DO GRUPO
+   O desktop, a web e o aplicativo usam a mesma API, unificada pelo
+   Guilherme e hospedada no Render. Nao ha mais banco local: este
+   cliente e o unico caminho para os dados.
    ===================================================================== */
 
 using System;
@@ -69,12 +63,6 @@ namespace PlataformaCursosWeb.Services
             afr_configuracao = afr_config;
         }
 
-        // Le do appsettings.json, secao "Api". Ausente = desligada.
-        public bool EstaAtiva()
-        {
-            return afr_configuracao.GetValue<bool?>("Api:Ativa") ?? true;
-        }
-
         public string ObterUrlBase()
         {
             string afr_url = afr_configuracao.GetValue<string>("Api:UrlBase");
@@ -94,12 +82,7 @@ namespace PlataformaCursosWeb.Services
 
         public string ObterDescricao()
         {
-            if (!EstaAtiva())
-            {
-                return "Modo SQL Server (API desligada).";
-            }
-
-            return "Modo API: " + ObterUrlBase();
+            return "API: " + ObterUrlBase();
         }
     }
 
@@ -494,7 +477,7 @@ namespace PlataformaCursosWeb.Services
         }
 
         // -------------------------------------------------------------
-        // VERSAO 5 - rotas que so a NOSSA API tem (Api/PlataformaCursosApi)
+        // VERSAO 5 - rotas a mais da API do grupo
         //
         // A API do grupo e propria do desktop e da web, com as mesmas
         // rotas e regras da API do Gui, mais estas, que as telas daqui

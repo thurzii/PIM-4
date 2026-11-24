@@ -3,6 +3,13 @@
 **Trabalho em grupo — Plataforma de Cursos Online**
 Modelo: `Modelagem/Projeto_UML.asta` · Programa: `CSharp/PlataformaCursos`
 
+> **Atualização de 24/11/2026: o banco local saiu.** Os programas agora usam só a
+> API do grupo. Onde este mapa cita `BancoService` (ou o `EmailService` e a caixa de
+> entrada da recuperação de senha), o passo hoje é feito pela API: o serviço chama a
+> `PonteApi`, que chama a rota correspondente (`ClienteApi.cs`). Os nomes dos serviços
+> e das mensagens do diagrama continuam os mesmos. A recuperação de senha (DS02) passou
+> a ser pelo **código de recuperação** que a API entrega ao criar a conta.
+
 Este documento liga **cada mensagem** dos 14 diagramas de sequência do Astah ao
 método que a implementa no programa. Serve para a apresentação do grupo e para
 qualquer pessoa conferir que o código segue o modelo, e não o contrário.
@@ -435,5 +442,5 @@ conferências automáticas rodaram sobre o código antes da entrega:
 - **SQL**: todo parâmetro `@` usado nos comandos tem o `AddWithValue`
   correspondente — nenhum valor é colado no texto do comando.
 
-A compilação e o teste em execução são feitos no Visual Studio, com o SQL Server
-LocalDB, conforme o `LEIAME.txt`.
+A compilação e o teste em execução são feitos no Visual Studio, com a API do
+grupo no ar, conforme o `README.md`.

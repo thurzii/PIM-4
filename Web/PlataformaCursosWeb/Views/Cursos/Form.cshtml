@@ -25,7 +25,7 @@
 <p class="subtitulo">
     @if (afr_edicao)
     {
-        <text>Gravar vai executar um <strong>UPDATE</strong> no registro Id @Model.afr_Id.</text>
+        <text>Salvar envia as alteracoes do curso Id @Model.afr_Id para a API.</text>
 
         if (ViewBag.TotalAulas != null)
         {
@@ -34,7 +34,7 @@
     }
     else
     {
-        <text>Gravar vai executar um <strong>INSERT</strong> na tabela dbo.Cursos.</text>
+        <text>Salvar cadastra o curso pela API.</text>
     }
 </p>
 

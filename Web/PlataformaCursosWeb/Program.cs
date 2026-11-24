@@ -4,7 +4,8 @@
    Professor.: Antonio Graça
    ---------------------------------------------------------------------
    No desktop o Main abria um formulario. Aqui ele monta e sobe um
-   servidor web. Este arquivo faz quatro coisas:
+   servidor web. Este arquivo faz tres coisas (nao ha banco para
+   preparar: todos os dados vem da API do grupo):
 
    1) INJECAO DE DEPENDENCIA
       Registra as classes de servico. Quando um controller pedir um
@@ -16,13 +17,7 @@
       recebe o seu proprio cookie assinado, entao dois usuarios podem
       estar logados ao mesmo tempo sem um atrapalhar o outro.
 
-   3) PREPARACAO DO BANCO
-      Cria o banco CursosDB, as seis tabelas e os dados iniciais quando
-      a aplicacao sobe - o mesmo que o desktop fazia ao abrir a tela.
-      Tambem roda a MIGRACAO: quem ja tinha o banco da versao 1 ganha
-      as colunas e tabelas novas sem perder dado nenhum.
-
-   4) ROTAS
+   3) ROTAS
       Define que endereco leva a qual controller e acao.
    ===================================================================== */
 
@@ -40,10 +35,8 @@ builder.Services.AddControllersWithViews();
 // Quem da esse acesso e o IHttpContextAccessor.
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<BancoService>();
 builder.Services.AddScoped<SessaoAtual>();
 
-builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<LogService>();
 builder.Services.AddScoped<AutenticacaoService>();
 builder.Services.AddScoped<UsuarioService>();
@@ -51,19 +44,11 @@ builder.Services.AddScoped<CursoService>();
 builder.Services.AddScoped<AulaService>();
 builder.Services.AddScoped<ProgressoService>();
 
-// VERSAO 3 - gamificacao (XP, niveis e conquistas).
-// Precisa vir registrado aqui, senao o ProgressoService nao consegue
-// ser construido: ele recebe o GamificacaoService pelo construtor.
 builder.Services.AddScoped<GamificacaoService>();
 
-// VERSAO 3 - configuracao da integracao com a API Node.js.
-// Desligada por padrao (Api:Ativa = false no appsettings.json): o site
-// continua lendo e gravando direto no SQL Server. Fica registrada
-// mesmo assim para quem quiser consultar ConfiguracaoApi.EstaAtiva().
+// O endereco da API (Api:UrlBase no appsettings.json) e a ponte que
+// todos os servicos usam para chegar aos dados
 builder.Services.AddScoped<ConfiguracaoApi>();
-
-// VERSAO 4 - a ponte entre os servicos e a API. Com Api:Ativa = true,
-// os servicos perguntam a API por meio dela em vez de ir ao banco local.
 builder.Services.AddScoped<PonteApi>();
 
 // =====================================================================
@@ -93,41 +78,6 @@ builder.Services
 var app = builder.Build();
 
 // =====================================================================
-// 3) PREPARACAO DO BANCO DE DADOS
-//    Roda uma vez, quando a aplicacao sobe.
-// =====================================================================
-// VERSAO 4 - COM A API LIGADA, O SITE NAO TOCA EM BANCO NENHUM.
-// PrepararBanco cria tabelas, roda ALTER TABLE/UPDATE de migracao e
-// cadastra usuarios de teste. No banco local isso e o que se quer; no
-// banco do Azure, que o aplicativo ja usa, seria estragar o esquema
-// dele. No modo API quem fala com o banco e so a API.
-bool afr_modoApi = app.Configuration.GetValue<bool?>("Api:Ativa") ?? false;
-
-if (afr_modoApi)
-{
-    Console.WriteLine("[API] Modo API: o banco local nao sera preparado. " +
-                      "Endereco da API: " + app.Configuration.GetValue<string>("Api:UrlBase"));
-}
-else
-using (var afr_escopo = app.Services.CreateScope())
-{
-    var afr_bancoService = afr_escopo.ServiceProvider.GetRequiredService<BancoService>();
-
-    string afr_mensagem;
-
-    if (afr_bancoService.PrepararBanco(out afr_mensagem))
-    {
-        Console.WriteLine("[BANCO] " + afr_mensagem);
-        Console.WriteLine("[BANCO] " + afr_bancoService.ObterDescricao());
-    }
-    else
-    {
-        // A aplicacao sobe mesmo assim, e a tela de login mostra o erro
-        Console.WriteLine("[BANCO] ERRO: " + afr_mensagem);
-    }
-}
-
-// =====================================================================
 // PIPELINE DE REQUISICOES
 // A ordem importa: autenticar vem antes de autorizar.
 // =====================================================================
@@ -144,7 +94,7 @@ app.UseAuthentication();   // quem e voce?
 app.UseAuthorization();    // voce pode fazer isso?
 
 // =====================================================================
-// 4) ROTAS
+// 3) ROTAS
 //    A pagina inicial e o login; depois de entrar, vai para o Home.
 // =====================================================================
 app.MapControllerRoute(
@@ -152,7 +102,7 @@ app.MapControllerRoute(
     pattern: "{controller=Conta}/{action=Login}/{id?}");
 
 // =====================================================================
-// 5) ABRIR O NAVEGADOR SOZINHO
+// 4) ABRIR O NAVEGADOR SOZINHO
 // ---------------------------------------------------------------------
 // POR QUE ISTO EXISTE
 //

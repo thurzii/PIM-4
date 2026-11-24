@@ -42,7 +42,6 @@ namespace PlataformaCursos
     {
         private CursoService afr_cursoService = new CursoService();
         private AulaService afr_aulaService = new AulaService();
-        private BancoService afr_bancoService = new BancoService();
 
         // VERSAO 4 - no modo API a conexao testada e descrita e a da API
         private PonteApi afr_ponte = new PonteApi();
@@ -500,7 +499,7 @@ namespace PlataformaCursos
 
             afr_lblStatus.ForeColor = Color.DimGray;
             afr_lblStatus.Text = afr_listaAtual.Count + " curso(s) em dbo.Cursos  |  " +
-                                 (afr_ponte.Ativa() ? afr_ponte.ObterDescricao() : afr_bancoService.ObterDescricao());
+                                 afr_ponte.ObterDescricao();
 
             afr_carregandoLista = false;
         }

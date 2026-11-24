@@ -10,20 +10,4 @@
     <AssemblyName>PlataformaCursos</AssemblyName>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-
-    <!--
-      VERSAO 3.1 - scrypt, para o hash de senha falar a mesma lingua da
-      API do grupo (ver Services/SenhaHash.cs). O .NET nao traz scrypt
-      pronto e escrever criptografia a mao erra em silencio.
-
-      A versao esta como 2.* de proposito: resolve para a ultima 2.x
-      publicada. A chamada SCrypt.Generate e estavel em toda a linha
-      2.x, entao assim o projeto nao quebra por um numero de versao
-      errado. Se preferir fixar, troque por uma versao 2.x especifica.
-    -->
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.*" />
-  </ItemGroup>
-
 </Project>

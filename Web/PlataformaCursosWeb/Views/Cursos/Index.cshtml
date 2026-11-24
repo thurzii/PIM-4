@@ -33,7 +33,7 @@
                        placeholder="Titulo ou descricao" />
             </div>
 
-            <button type="submit" class="botao">Buscar (SELECT)</button>
+            <button type="submit" class="botao">Buscar</button>
 
             <a asp-controller="Cursos" asp-action="Novo" class="botao botao-primario">
                 Novo curso
@@ -108,7 +108,7 @@ else
     </section>
 
     <p class="ajuda">
-        @Model.Count curso(s) na tabela dbo.Cursos. @ViewBag.StatusBanco
+        @Model.Count curso(s). Dados da @ViewBag.StatusBanco
     </p>
 
     <p class="ajuda">

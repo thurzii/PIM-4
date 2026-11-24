@@ -19,7 +19,7 @@ No GitHub, troque de branch no seletor acima da lista de arquivos. Para ver os d
 - **Web:** C# e ASP.NET Core MVC (.NET 8), com autenticação por cookie.
 - **Mobile:** React Native e Expo (JavaScript).
 - **API:** uma só para as três interfaces, em Node.js e Express, unificada pelo Guilherme e hospedada em `https://pim-iv-api.onrender.com`.
-- **Banco de dados:** Microsoft SQL Server, com suporte à conexão ao Azure SQL.
+- **Banco de dados:** Azure SQL. Só a API fala com ele; o desktop e a web não têm banco próprio.
 - **Autenticação:** senhas armazenadas com `scrypt`, no mesmo formato nas três interfaces.
 
 ## Funcionalidades
@@ -81,7 +81,7 @@ Apresentacao/    Slides e roteiros (vídeos ficam fora, só o link)
 
 ## Como executar
 
-**Pré-requisitos:** Visual Studio 2022 ou mais novo, com a carga de trabalho **.NET desktop** (desktop) ou **ASP.NET e desenvolvimento web** (web). O banco é criado automaticamente na primeira execução.
+**Pré-requisitos:** Visual Studio 2022 ou mais novo, com a carga de trabalho **.NET desktop** (desktop) ou **ASP.NET e desenvolvimento web** (web). Precisa de **internet**: todos os dados vêm da API do grupo.
 
 ### 1. Baixar o repositório
 
@@ -97,24 +97,21 @@ Abra `Web/PlataformaCursosWeb.sln` e pressione **Ctrl+F5**. O navegador abre soz
 
 Use **Ctrl+F5** (*Iniciar sem Depuração*), e não F5: com F5 o Visual Studio encerra o servidor assim que a janela do navegador fecha, o que atrapalha abrir uma segunda sessão.
 
-Nos dois casos, aguarde a restauração dos pacotes NuGet na primeira vez — precisa de internet, e inclui o **BouncyCastle**, usado para o hash de senha.
+Na primeira vez o servidor gratuito da API pode demorar alguns segundos para acordar: a tela de login espera por ele antes de avisar que não respondeu.
 
 ### 4. Entrar no sistema
 
-Não existe cadastro aberto: as contas são criadas pelo **administrador**, em *Usuários*, com o perfil de cada pessoa (aluno, professor ou administrador). Peça a sua conta a quem administra o sistema.
+- **Aluno** pode criar a própria conta em *Criar conta de aluno*, na tela de login.
+- **Professor e administrador** são cadastrados pelo administrador, em *Usuários*, com uma **senha temporária**. No primeiro login, a pessoa troca essa senha.
+- Ao criar a conta ou concluir o primeiro acesso, o sistema mostra um **código de recuperação**, exibido uma vez só. É com ele que se redefine a senha em *Esqueci minha senha*.
 
-A senha precisa ter pelo menos **8 caracteres**, a mesma regra da API, e é guardada em `scrypt`, nunca como texto.
+A senha precisa ter pelo menos **8 caracteres** e é guardada pela API em `scrypt`, nunca como texto.
 
 ## Banco de dados
 
-O script de criação é [CSharp/Banco_CursosDB.sql](CSharp/Banco_CursosDB.sql), executado automaticamente pelos programas. As tabelas de gamificação e matrícula seguem exatamente o esquema da API, definido em `sql/Etapa1_Professor.sql` e `sql/Etapa4_Gamificacao.sql`, no branch `main`.
+O banco fica no **Azure SQL** e é o mesmo para as três interfaces. Quem fala com ele é só a API: o desktop e a web pedem e enviam dados por ela, nunca direto ao banco. Por isso a regra de XP, de matrícula e de permissão existe num lugar só.
 
-| Arquivo | Finalidade |
-|---|---|
-| `CSharp/Banco_CursosDB.sql` | Estrutura completa: usuários, cursos, aulas, progresso, gamificação e matrículas. |
-| `CSharp/Zerar_Testes.sql` | Apaga progresso, XP e conquistas para repetir testes. Preserva usuários, cursos e o catálogo de medalhas. |
-
-**Atenção:** não execute `Banco_CursosDB.sql` no banco do Azure. Ele monta o esquema local; o da nuvem é o do aplicativo mobile. Os `IF OBJECT_ID` evitam recriar tabelas, mas não protegem contra os `ALTER TABLE` e o `UPDATE` da seção de migração. Antes de apontar qualquer interface para o Azure, o grupo precisa comparar os dois esquemas.
+O esquema (tabelas e colunas) é mantido junto com a API, no projeto do Guilherme, e administrado pela Maria no portal do Azure.
 
 ## Verificação do projeto
 
@@ -144,22 +141,21 @@ Dois integrantes no mesmo arquivo ao mesmo tempo gera conflito, e alguém perde 
 |---|---|---|
 | **Arthur Fernandes Reis** | Sistema desktop e web, em C# | `CSharp/`, `Web/` (branch `master`) |
 | **Guilherme Alves Martins dos Santos** | Aplicativo mobile e API | `api/`, `mobile/` (branch `main`) |
-| **Maria Clara Vilas Boas de Souza** | Banco de dados | `sql/` (branch `main`), `CSharp/Banco_CursosDB.sql` |
+| **Maria Clara Vilas Boas de Souza** | Banco de dados | Azure SQL e os scripts do banco |
 | **Leonardo Alves Fudoli** | Modelagem UML e gestão ágil | `Modelagem/` |
 | **Lucas Matheus Marques Gonçalves** | Documentação das disciplinas a distância | `Documentacao/` |
 | **Nícolas Gramani Machado França** | Documentação das disciplinas a distância | `Documentacao/` |
 
 Os arquivos mais sensíveis são os **`.Designer.cs`** do projeto desktop: quando alguém arrasta um controle na tela, o Visual Studio reescreve o arquivo quase inteiro, e o Git não consegue juntar duas versões dessas. As views `.cshtml` não têm esse problema, por serem texto escrito à mão.
 
-`BancoService.cs`, `Servicos.cs` e `Modelo.cs` **existem nos dois projetos C#** — avise no grupo antes de mexer e lembre de aplicar a mesma correção nos dois lugares.
+`ClienteApi.cs`, `PonteApi.cs`, `Servicos.cs` e `Modelo.cs` **existem nos dois projetos C#** — avise no grupo antes de mexer e lembre de aplicar a mesma correção nos dois lugares.
 
 ## Observações
 
 - Arquivos acima de **100 MB não sobem**. O GitHub recusa e o push falha inteiro, não só aquele arquivo. Vídeos de apresentação quase sempre passam disso: deixe no Teams ou no Drive e coloque o link em `Apresentacao/README.md`.
 - As pastas `bin`, `obj` e `.vs` **não sobem**, de propósito. São geradas pela compilação e pelo Visual Studio, mudam em cada máquina e geram conflito.
 - **Criou uma pasta de projeto nova?** Copie o bloco correspondente no `.gitignore`, trocando o prefixo. Se esquecer, centenas de arquivos gerados vão para o GitHub.
-- **Senhas e credenciais não vão para o repositório.** A conexão local usa a conta do Windows de quem está rodando. O `.env` da API e qualquer `appsettings.json` com usuário e senha do SQL Server precisam ficar fora do Git.
-- A recuperação automática de senha por e-mail ainda não está implementada na API, que responde `501`. O desktop e a web têm um fluxo próprio, com código de prazo determinado.
+- **Senhas e credenciais não vão para o repositório.** O `.env` da API, com o usuário e a senha do Azure, fica fora do Git (está no `.gitignore`).
 
 ## Integrantes
 

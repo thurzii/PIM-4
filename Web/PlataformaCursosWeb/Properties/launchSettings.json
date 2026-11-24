@@ -25,7 +25,6 @@
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "Api__Ativa": "true",
         "Api__UrlBase": "https://pim-iv-api.onrender.com"
       }
     },

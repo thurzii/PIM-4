@@ -171,44 +171,6 @@ def main():
                     problemas.append(f'{caminho}: {descricao}')
 
     # ---------------------------------------------------------------
-    # 4) PARAMETROS SQL: todo @nome usado precisa de AddWithValue
-    #
-    # A conferencia e por ARQUIVO, nao por metodo. Varios metodos aqui
-    # delegam para um helper comum (BuscarUsuarioPorEmail monta a condicao
-    # "Email = @chave" e entrega para BuscarUsuario, que e quem faz o
-    # AddWithValue). Conferindo metodo a metodo, toda delegacao viraria
-    # falso positivo. Por arquivo, um parametro realmente esquecido
-    # continua aparecendo.
-    # ---------------------------------------------------------------
-    for raiz in ('CSharp', 'Web'):
-        for caminho in arquivos_cs(raiz):
-            if 'BancoService' not in caminho:
-                continue
-
-            bruto = open(caminho, encoding='utf-8-sig').read()
-
-            # So dentro de strings: e ali que o SQL mora. Fora delas, um @
-            # pode ser string verbatim (@"...") ou email em comentario.
-            sql = ' '.join(re.findall(r'"((?:[^"\\]|\\.)*)"', bruto))
-
-            usados = set(re.findall(r'(?<![\w@])@([a-zA-Z_]\w*)', sql))
-            ligados = set(re.findall(r'AddWithValue\(\s*"@(\w+)"', bruto))
-
-            # Variaveis locais do T-SQL (DECLARE @x ...) nao sao
-            # parametros: quem as declara e o proprio lote SQL, nao o C#.
-            # Sem descontar isso, todo DECLARE vira falso positivo.
-            declaradas = set(re.findall(r'DECLARE\s+@(\w+)', sql, re.IGNORECASE))
-
-            # Tabela-variavel e alias de OUTPUT ... INTO @tabela tambem
-            declaradas |= set(re.findall(r'INTO\s+@(\w+)', sql, re.IGNORECASE))
-
-            faltando = usados - ligados - declaradas
-
-            if faltando:
-                problemas.append(
-                    f'{caminho}: parametro SQL sem AddWithValue: {sorted(faltando)}')
-
-    # ---------------------------------------------------------------
     # 5) INJECAO DE DEPENDENCIA (so a web)
     #
     # Todo tipo *Service pedido num construtor de servico ou de
@@ -402,7 +364,7 @@ def main():
     # ---------------------------------------------------------------
     # 9) SIMETRIA DESKTOP x WEB
     #
-    # As classes de dominio e os metodos de banco tem que existir nos
+    # As classes de dominio e os metodos da ponte com a API tem que existir nos
     # DOIS projetos. Se um metodo entrar so num lado, o outro para de
     # compilar quando alguem chamar - ou pior, as duas interfaces
     # passam a se comportar diferente com o mesmo banco.
@@ -411,8 +373,8 @@ def main():
         ('CSharp/PlataformaCursos/Modelo.cs',
          'Web/PlataformaCursosWeb/Models/Modelo.cs',
          r'public (?:class|static class) (\w+)'),
-        ('CSharp/PlataformaCursos/BancoService.cs',
-         'Web/PlataformaCursosWeb/Services/BancoService.cs',
+        ('CSharp/PlataformaCursos/PonteApi.cs',
+         'Web/PlataformaCursosWeb/Services/PonteApi.cs',
          r'public [\w<>\[\], ]+ (\w+)\s*\('),
         ('CSharp/PlataformaCursos/Servicos.cs',
          'Web/PlataformaCursosWeb/Services/Servicos.cs',
@@ -439,40 +401,6 @@ def main():
         if so_web:
             problemas.append(
                 f'{caminho_desk}: falta o que a web tem: {sorted(so_web)}')
-
-    # ---------------------------------------------------------------
-    # 10) AS DUAS ARMADILHAS DO HASH scrypt
-    #
-    # Nenhuma das duas daria erro de compilacao. As duas produziriam um
-    # hash de aparencia perfeitamente normal que a API JAMAIS aceitaria:
-    #
-    #   a) salt decodificado em vez de ASCII. No Node o salt vai para o
-    #      scrypt como STRING, entao sao os bytes ASCII do texto
-    #      hexadecimal. Usar Convert.FromHexString no salt da outro hash.
-    #
-    #   b) hexadecimal maiusculo. Convert.ToHexString devolve maiusculo
-    #      e a API exige /^[a-f0-9]+$/. Sem ToLowerInvariant ela recusa
-    #      sem nem calcular.
-    # ---------------------------------------------------------------
-    for caminho in ('CSharp/PlataformaCursos/SenhaHash.cs',
-                    'Web/PlataformaCursosWeb/Services/SenhaHash.cs'):
-        if not os.path.exists(caminho):
-            continue
-
-        codigo = limpar(open(caminho, encoding='utf-8-sig').read())
-
-        if re.search(r'FromHexString\s*\(\s*afr_saltHex', codigo):
-            problemas.append(
-                f'{caminho}: salt decodificado com FromHexString. O Node usa '
-                f'os bytes ASCII do texto hexadecimal - o hash nao vai conferir.')
-
-        # Todo ToHexString tem que ser seguido de ToLowerInvariant
-        for m in re.finditer(r'Convert\.ToHexString\s*\([^)]*\)(\s*\.\s*ToLowerInvariant\s*\(\s*\))?',
-                             codigo):
-            if m.group(1) is None:
-                problemas.append(
-                    f'{caminho}: ToHexString sem ToLowerInvariant. A API exige '
-                    f'hexadecimal minusculo e recusaria o hash.')
 
     # ---------------------------------------------------------------
     # 11) CHAMADAS A COISAS QUE NAO EXISTEM

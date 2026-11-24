@@ -9,7 +9,7 @@
    1) Perfil PROFESSOR, que aparece nos diagramas DS07 a DS10
    2) Aula ganhou Conteudo (DS05: exibirConteudo)
    3) Curso ganhou PercentualMinimo (DS08: obterRequisitosCurso)
-   4) Classes novas: FiltroCurso, CodigoRecuperacao, LogAcao,
+   4) Classes novas: FiltroCurso, LogAcao,
       ResultadoConclusao e ElegibilidadeExclusao
 
    OS TRES PERFIS, conforme os diagramas de sequencia:
@@ -381,37 +381,6 @@ namespace PlataformaCursosWeb.Models
         public string ObterResumo()
         {
             return afr_Curso.afr_Titulo + ": " + afr_Resultado.ObterResumo();
-        }
-    }
-
-    // =================================================================
-    // CLASSE 8 - CodigoRecuperacao
-    // DS02 - enviarCodigo(email) / codigoEnviado()
-    // =================================================================
-    public class CodigoRecuperacao
-    {
-        public int afr_Id { get; set; }
-        public int afr_UsuarioId { get; set; }
-        public string afr_Codigo { get; set; } = "";
-        public DateTime afr_Expiracao { get; set; }
-        public bool afr_Usado { get; set; }
-
-        public bool EstaValido()
-        {
-            // Operador logico E (&&)
-            return !afr_Usado && DateTime.Now <= afr_Expiracao;
-        }
-
-        public int MinutosRestantes()
-        {
-            double afr_minutos = (afr_Expiracao - DateTime.Now).TotalMinutes;
-
-            if (afr_minutos < 0)
-            {
-                return 0;
-            }
-
-            return (int)Math.Ceiling(afr_minutos);
         }
     }
 

@@ -1,11 +1,7 @@
 # Plataforma de Cursos Online — versão web
 
-> **Versão 3.1 (18/11/2026):** este projeto foi sincronizado com o código da API,
-> que está no branch `main` deste repositório. Perfil `TUTOR` virou `PROFESSOR`, a
-> senha virou hash scrypt no formato da API, o esquema de gamificação passou a ser
-> o dela (`Gamificacao`, `Conquistas`, `UsuarioConquistas`, `HistoricoXP`,
-> `Matriculas`), e há um cliente HTTP pronto e desligado. O relato completo está em
-> [../Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md](../Documentacao/RESPOSTA_ANALISE_INTEGRACAO.md).
+> **Versão atual:** o site não tem banco próprio. Todos os dados vêm da **API do grupo**
+> (a mesma do aplicativo e do desktop), hospedada no Render, que guarda tudo no Azure SQL.
 
 
 > Faz parte do [repositório do grupo](../README.md). O mesmo sistema em Windows Forms está em [`../CSharp/`](../CSharp/).
@@ -14,7 +10,7 @@ Mesmo sistema do projeto desktop, feito em **ASP.NET Core MVC 8**. Nasceu da mes
 
 **Versão 2** — alinhada mensagem por mensagem com o modelo do Astah, igual ao desktop. O mapa completo (cada mensagem do modelo → o controller, a action e a view que a implementam) está em [`RASTREABILIDADE_WEB.md`](RASTREABILIDADE_WEB.md).
 
-> **O banco de dados é o mesmo do desktop.** Os dois projetos leem e escrevem no `CursosDB`. Se você já rodou a versão desktop, pode entrar na web com os mesmos usuários e ver o mesmo progresso. Quem rodou a versão 1 não precisa apagar nada: o programa acrescenta as colunas e tabelas novas sozinho na primeira execução.
+> **Os dados são os mesmos do desktop e do aplicativo**, porque os três usam a mesma API. Quem entra no site com uma conta vê o mesmo progresso e o mesmo XP que vê no celular.
 
 ---
 
@@ -23,16 +19,15 @@ Mesmo sistema do projeto desktop, feito em **ASP.NET Core MVC 8**. Nasceu da mes
 ### 1. O que você precisa
 
 - **Visual Studio 2022 ou 2026** com a carga de trabalho *Desenvolvimento web e ASP.NET*
-- **Um SQL Server** — o mais simples é o **LocalDB**, que já vem com o Visual Studio
+- **Internet**: os dados vêm da API do grupo
 
 ### 2. Abrir e executar
 
 1. Extraia a pasta (não rode de dentro do `.zip`)
 2. Dois cliques em `PlataformaCursosWeb.sln`
-3. Aguarde o Visual Studio restaurar o pacote `Microsoft.Data.SqlClient`
-4. Pressione **F5**
+3. Pressione **F5**
 
-O navegador abre em `http://localhost:5000` já na tela de login. Na primeira execução o programa cria o banco `CursosDB`, as seis tabelas e os dados de exemplo — a janela do console mostra `[BANCO] Banco de dados pronto.`
+O navegador abre em `http://localhost:5000` já na tela de login. Na primeira vez do dia, o servidor gratuito da API pode levar alguns segundos para acordar: a tela de login espera antes de avisar.
 
 ### Rodar pelo terminal, sem o Visual Studio
 
@@ -98,12 +93,11 @@ Quem abre a sessão é o `ContaController.Login`, com `SignInAsync`; quem a ence
 | Desktop | Web | Por quê |
 |---|---|---|
 | `Sessao` estática | cookie + `SessaoAtual` por requisição | o servidor atende vários usuários |
-| `new BancoService()` dentro de cada serviço | injeção de dependência no `Program.cs` | o ASP.NET cria e entrega; uma instância por requisição |
+| `new PonteApi()` dentro de cada serviço | injeção de dependência no `Program.cs` | o ASP.NET cria e entrega; uma instância por requisição |
 | Validação nos `if` do `Click` | atributos `[Required]`, `[Range]` nos ViewModels | o navegador manda texto solto; precisa validar na entrada |
 | Checagem no `Load` de cada formulário | `[Authorize(Roles = ...)]` no controller **mais** a checagem no serviço | duas camadas, como no desktop (esconder o botão + checar) |
 | `MessageBox` | faixas de aviso no topo (`TempData`) | numa página não existe caixa de diálogo modal |
 | Um `.Designer.cs` por tela | um `_Layout.cshtml` e views que preenchem o miolo | o layout não se repete em cada página |
-| "Ver o código" abria o `emails.txt` no Bloco de Notas | página `/Conta/CaixaDeEntrada` | o arquivo fica no **servidor**; o navegador não abre arquivo de lá |
 | `ShowDialog()` para confirmar exclusão | página `/Cursos/ConfirmarExclusao` | mesmo fluxo de duas etapas, em duas requisições |
 
 Nenhuma biblioteca externa de front-end: sem Bootstrap, sem jQuery. O CSS é próprio (`wwwroot/css/site.css`), em um arquivo comentado. Motivo: o sistema funciona sem internet, o que importa no dia da apresentação, e todo o visual fica explicável linha a linha.
@@ -114,12 +108,13 @@ Nenhuma biblioteca externa de front-end: sem Bootstrap, sem jQuery. O CSS é pr�
 
 ```
 PlataformaCursosWeb/
-├── Program.cs .................. injeção de dependência, cookie, banco, rotas
+├── Program.cs .................. injeção de dependência, cookie, rotas
 ├── Models/
 │   ├── Modelo.cs ............... as 11 classes de domínio (iguais ao desktop)
 │   └── ViewModels.cs ........... o que cada página mostra e recebe
 ├── Services/
-│   ├── BancoService.cs ......... a única classe que conhece SQL
+│   ├── ClienteApi.cs ........... a conversa HTTP com a API (uma função por rota)
+│   ├── PonteApi.cs ............. qual rota cada tela usa; converte a resposta
 │   ├── SessaoAtual.cs .......... a Sessao do desktop, traduzida para a web
 │   └── Servicos.cs ............. as 7 classes de negócio
 ├── Controllers/
@@ -130,7 +125,7 @@ PlataformaCursosWeb/
 │   ├── CursosController.cs ..... DS09, DS10
 │   ├── ProgressoController.cs .. DS07
 │   └── UsuariosController.cs ... DS11, DS12, DS13, DS14
-├── Views/ ...................... 19 páginas
+├── Views/ ...................... 20 páginas
 └── wwwroot/css/site.css ........ folha de estilo própria
 ```
 
@@ -138,9 +133,10 @@ PlataformaCursosWeb/
 
 | Página | Diagramas | Novidade na versão 2 |
 |---|---|---|
-| `Conta/Login` | DS01 | credencial do professor |
-| `Conta/RecuperarSenha` | DS02 | **três etapas, com código de 6 dígitos** |
-| `Conta/CaixaDeEntrada` | DS02 | **nova** — a caixa de entrada simulada |
+| `Conta/Login` | DS01 | link para criar conta de aluno |
+| `Conta/Cadastro` | — | **nova** — o aluno cria a própria conta |
+| `Conta/PrimeiroAcesso` | DS01 | **nova** — troca da senha temporária |
+| `Conta/RecuperarSenha` | DS02 | **redefinir a senha com o código de recuperação** |
 | `Conta/AcessoNegado` | — | tabela dos três perfis |
 | `Home/Index` | — | três áreas, uma por perfil |
 | `Catalogo/Index` | DS03, DS04 | **filtros de carga horária e de concluídos** |
@@ -160,19 +156,17 @@ PlataformaCursosWeb/
 
 ## Como demonstrar as partes novas
 
-**Recuperação de senha (3 etapas).** Na tela de login, clique em *Esqueci minha senha*. Digite o e-mail de uma conta de **aluno** → **Enviar código**. Clique em *abrir a caixa de entrada*: abre a página `/Conta/CaixaDeEntrada`, que é o arquivo `dados/emails.txt` do servidor — o trabalho não tem servidor de e-mail. Copie os 6 dígitos → **Conferir código** → escolha a nova senha → **Redefinir senha**. O código vale 15 minutos e serve uma vez só.
+**Primeiro acesso e código de recuperação.** O administrador cadastra um usuário em *Usuários* com uma senha temporária. Ao entrar com ela, o site pede uma nova senha e mostra o **código de recuperação**, exibido uma vez só. Com ele, *Esqueci minha senha* redefine a senha. Na tela de login também há *Criar conta de aluno*.
 
 **Conteúdo da aula.** Entre com uma conta de **professor** → *Cursos* → clique em *Aulas* de um curso → *Editar* numa aula. Escreva o conteúdo e salve. O botão *Ver como o aluno vê* abre a página da aula em outra aba.
 
 **Abrir a aula como aluno.** Entre com uma conta de **aluno** → *Catálogo* → um curso → clique no **título da aula**. A página mostra o conteúdo, o botão de concluir e o andamento do curso.
 
-**Requisito de conclusão.** O curso *Banco de Dados com SQL Server* exige 75% das aulas, não 100% — o status vira `CONCLUÍDO` antes de o aluno fazer tudo. O de *Lógica* exige 100%.
-
-**Filtros da busca.** No catálogo, preencha `Carga de 50 até 0` → *Buscar*: sai só o curso de 60h. Marque *Somente os cursos que eu ainda não concluí* para esconder os concluídos.
+**Filtros da busca.** No catálogo, preencha a carga horária mínima ou máxima → *Buscar*. Marque *Somente os cursos que eu ainda não concluí* para esconder os concluídos.
 
 **Progresso dos alunos.** Entre com uma conta de **professor** → *Progresso* → *Ver progresso* num aluno. Sai uma linha por curso, com aulas feitas, percentual, mínimo exigido e status.
 
-**Perfil e histórico.** Entre com uma conta de **administrador** → *Usuários* → *Perfil* num usuário. As três listas são os acessos, os cadastros e as ações em cursos daquela pessoa — exatamente os três conjuntos que o DS12 nomeia.
+**Perfil e histórico.** Entre com uma conta de **administrador** → *Usuários* → *Perfil* num usuário. As três listas são os acessos, os cadastros e as ações em cursos daquela pessoa — exatamente os três conjuntos que o DS12 nomeia. A API ainda não guarda o histórico, então as três listas aparecem vazias até ela ganhar essa rota.
 
 **Exclusão em duas etapas.** Em *Usuários* ou em *Cursos*, clique em *Excluir*. Abre a página de confirmação, que lista o que será apagado junto e pede a **sua** senha. Tente excluir a própria conta de admin, ou o último administrador ativo: a página abre em modo aviso e explica por que não pode.
 
@@ -180,46 +174,24 @@ PlataformaCursosWeb/
 
 ---
 
-## Sobre a conexão com o banco
+## Sobre a conexão com a API
 
-**Você não precisa editar nada.** O sistema testa uma lista de servidores e usa o primeiro que responder:
+O endereço da API fica em `appsettings.json`, na chave `Api:UrlBase`: por padrão, `https://pim-iv-api.onrender.com`. O painel inicial mostra o endereço em uso, e o botão **Testar conexão** confirma a comunicação.
 
-1. `(localdb)\MSSQLLocalDB` — LocalDB, acompanha o Visual Studio
-2. `.\SQLEXPRESS` — SQL Server Express
-3. `localhost` e `.` — instância padrão local
-
-O servidor em uso aparece no painel inicial, e o botão **Testar conexão** confirma a comunicação.
-
-Se o seu SQL Server tiver outro nome, acrescente-o na lista `afr_SERVIDORES`, no início de `Services/BancoService.cs` — mas **avise o grupo antes**, porque é um arquivo compartilhado.
-
-### Se aparecer erro de banco de dados
+### Se aparecer erro de conexão
 
 A aplicação sobe mesmo assim e a tela de login mostra a mensagem.
 
 | Mensagem | O que fazer |
 |---|---|
-| Nenhum SQL Server encontrado | Instalar o LocalDB pelo Visual Studio Installer (Componentes individuais → SQL Server Express LocalDB) |
-| Erro de rede ou instância | Rodar `sqllocaldb start MSSQLLocalDB` no Prompt |
-| Falha ao restaurar pacote | Conferir a internet e restaurar o NuGet |
-
-O arquivo [`../CSharp/Banco_CursosDB.sql`](../CSharp/Banco_CursosDB.sql) traz o script completo do banco, os comandos de migração da versão 1 e consultas de conferência. Ele fica numa cópia só, em `CSharp/`, para as duas versões não saírem do ar uma da outra.
+| Não foi possível falar com a API | Conferir a internet. Se for a primeira vez do dia, esperar o servidor acordar e recarregar |
+| A API respondeu, mas o banco não | O firewall do Azure bloqueou o IP. Quem administra o banco libera o IP no portal (servidor SQL → Rede) |
 
 ---
 
 ## O banco de dados
 
-Banco `CursosDB`, com seis tabelas:
-
-```
-Cursos   1 ──── N  Aulas                 (uma aula pertence a um curso)
-Usuarios N ──── N  Aulas                 (pela tabela Progresso)
-Usuarios 1 ──── N  CodigosRecuperacao    (códigos de recuperação de senha)
-Usuarios 1 ──── N  LogAcoes              (histórico de ações)
-```
-
-Todas as chaves estrangeiras usam `ON DELETE CASCADE`: apagar o curso apaga as aulas, apagar o usuário apaga o progresso e o histórico dele. É por isso que a página de confirmação mostra antes o que vai sair junto.
-
-Para ver os dados, no Visual Studio: **Exibir → Pesquisador de Objetos do SQL Server** → `CursosDB → Tabelas` → botão direito → **Exibir Dados**.
+O banco fica no **Azure SQL** e é o mesmo do aplicativo e do desktop. O site nunca fala com ele direto: tudo passa pela API, que é quem conhece as tabelas e as regras.
 
 ---
 
@@ -229,11 +201,11 @@ O que está feito, e vale citar na apresentação:
 
 - **Senhas não vão no cookie.** O cookie guarda só Id, nome, e-mail e perfil, e é assinado pelo servidor: alterar o perfil no navegador invalida a assinatura.
 - **Todo formulário POST tem token anti-CSRF** (`@Html.AntiForgeryToken()` na página, `[ValidateAntiForgeryToken]` na action). Sem ele, outro site poderia enviar formulários em nome de quem está logado.
-- **Todo comando SQL usa parâmetros `@`**, nunca texto colado — é o que impede injeção de SQL.
+- **O site não monta SQL nenhum.** Tudo passa pela API, que manda os valores por parâmetro, nunca colados no comando, o que impede injeção de SQL.
 - **Cookie `HttpOnly`**, então JavaScript da página não consegue ler.
 - **Duas camadas de permissão**: o `[Authorize]` no controller e a checagem no serviço.
 
-O que **não** está feito, e é honesto dizer: a senha é gravada como texto simples, para a demonstração ficar clara. Em um sistema real seria guardada como *hash* (BCrypt, PBKDF2).
+- **A senha nunca é guardada como texto.** A API grava só o *hash* (scrypt); nem o administrador consegue vê-la depois de salva.
 
 ---
 

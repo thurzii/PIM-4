@@ -5,7 +5,7 @@
 # GitHub mesmo estando na pasta.
 #
 # IMPORTANTE: as regras de projeto C# valem APENAS dentro das pastas
-# CSharp/, Web/ e Api/. Isso e proposital. Se elas valessem para o
+# CSharp/ e Web/. Isso e proposital. Se elas valessem para o
 # repositorio inteiro, um trabalho de outra materia com uma pasta
 # chamada "Debug" ou "bin" simplesmente nao subiria, sem nenhum aviso.
 #
@@ -36,7 +36,7 @@ Desktop.ini
 # anotando como VOCE deixou a tela. Cada integrante gera o seu, muda a
 # cada vez que o programa abre, e conflita com o dos outros.
 #
-# As regras mais abaixo cobriam .vs so dentro de CSharp/, Web/ e Api/,
+# As regras mais abaixo cobriam .vs so dentro de CSharp/ e Web/,
 # e por isso o .vs da RAIZ do repositorio escapou e foi parar no
 # GitHub. Esta regra, sem prefixo, vale em qualquer lugar.
 #
@@ -86,27 +86,6 @@ Web/**/*.dll
 Web/**/*.exe
 Web/**/*.pdb
 Web/**/*.nupkg
-
-# A caixa de entrada simulada da recuperacao de senha (DS02). E gerada
-# em tempo de execucao e so faz sentido na maquina de quem testou.
-Web/**/dados/
-
-# ---------------------------------------------------------------------
-# Api/ - o servico que vai atender os dois sistemas
-# ---------------------------------------------------------------------
-Api/**/[Bb]in/
-Api/**/[Oo]bj/
-Api/**/[Dd]ebug/
-Api/**/[Rr]elease/
-Api/**/.vs/
-Api/**/packages/
-Api/**/*.user
-Api/**/*.suo
-Api/**/*.cache
-Api/**/*.dll
-Api/**/*.exe
-Api/**/*.pdb
-Api/**/*.nupkg
 
 # =====================================================================
 # O QUE NAO ESTA AQUI, DE PROPOSITO
