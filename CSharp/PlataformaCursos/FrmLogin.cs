@@ -11,6 +11,7 @@
 
 using System;
 using System.Drawing;
+using System.Text.Json;
 using System.Windows.Forms;
 
 namespace PlataformaCursos
@@ -29,6 +30,11 @@ namespace PlataformaCursos
         public FrmLogin()
         {
             InitializeComponent();
+            if (afr_ponte.Ativa()) {
+                var cadastro = new LinkLabel { Text = "Criar conta", AutoSize = true, Location = new Point(270, 285) };
+                cadastro.LinkClicked += (sender, args) => Cadastrar();
+                Controls.Add(cadastro);
+            }
 
             string afr_mensagem;
 
@@ -68,6 +74,22 @@ namespace PlataformaCursos
         {
             string afr_mensagem;
 
+            if (afr_ponte.Ativa()) {
+                var cliente = ConfiguracaoApi.ObterCliente();
+                var resposta = cliente.Entrar(afr_txtEmail.Text, afr_txtSenha.Text);
+                if (resposta.afr_Ok) {
+                    using var doc = JsonDocument.Parse(resposta.afr_CorpoJson);
+                    if (doc.RootElement.TryGetProperty("tokenPrimeiroAcesso", out var token)) {
+                        var campos = Solicitar("Primeiro acesso", new[] { "Nova senha", "Confirmar senha" }, new[] { true, true });
+                        if (campos == null) return;
+                        if (campos[0] != campos[1]) { MessageBox.Show("As senhas nao conferem."); return; }
+                        var troca = cliente.PrimeiroAcesso(token.GetString(), afr_txtSenha.Text, campos[0]);
+                        if (!troca.afr_Ok) { MessageBox.Show(troca.afr_Mensagem); return; }
+                        MessageBox.Show("Guarde seu codigo de recuperacao: " + troca.CodigoRecuperacao);
+                        afr_txtSenha.Text = campos[0];
+                    }
+                } else { MessageBox.Show(resposta.afr_Mensagem); return; }
+            }
             Usuario afr_usuario = afr_autenticacaoService.ValidarLogin(
                                       afr_txtEmail.Text,
                                       afr_txtSenha.Text,
@@ -100,6 +122,33 @@ namespace PlataformaCursos
 
             this.Show();
             afr_txtEmail.Focus();
+        }
+
+        private void Cadastrar()
+        {
+            var campos = Solicitar("Criar conta de aluno", new[] { "Nome", "Email", "Senha", "Confirmar senha" }, new[] { false, false, true, true });
+            if (campos == null) return;
+            var resposta = ConfiguracaoApi.ObterCliente().CadastrarAluno(campos[0], campos[1], campos[2], campos[3]);
+            MessageBox.Show(resposta.afr_Ok ? "Conta criada. Guarde seu codigo de recuperacao: " + resposta.CodigoRecuperacao : resposta.afr_Mensagem);
+            if (resposta.afr_Ok) afr_txtEmail.Text = campos[1];
+        }
+
+        private string[] Solicitar(string titulo, string[] rotulos, bool[] secretos)
+        {
+            using var janela = new Form { Text = titulo, ClientSize = new Size(380, rotulos.Length * 65 + 55), StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false };
+            var entradas = new TextBox[rotulos.Length];
+            for (int i = 0; i < rotulos.Length; i++) {
+                janela.Controls.Add(new Label { Text = rotulos[i], Location = new Point(20, 10 + i*65), AutoSize = true });
+                entradas[i] = new TextBox { Location = new Point(20, 32 + i*65), Width = 340, UseSystemPasswordChar = secretos[i] };
+                janela.Controls.Add(entradas[i]);
+            }
+            var ok = new Button { Text = "Confirmar", DialogResult = DialogResult.OK, Location = new Point(180, rotulos.Length*65 + 10), Width = 90 };
+            var cancelar = new Button { Text = "Cancelar", DialogResult = DialogResult.Cancel, Location = new Point(275, rotulos.Length*65 + 10), Width = 85 };
+            janela.Controls.Add(ok); janela.Controls.Add(cancelar); janela.AcceptButton = ok; janela.CancelButton = cancelar;
+            if (janela.ShowDialog(this) != DialogResult.OK) return null;
+            var valores = new string[entradas.Length];
+            for (int i = 0; i < entradas.Length; i++) valores[i] = entradas[i].Text;
+            return valores;
         }
 
         // =============================================================

@@ -1,3 +1,4 @@
+
 {
   "profiles": {
     "PlataformaCursos": {
@@ -7,7 +8,7 @@
       "commandName": "Project",
       "environmentVariables": {
         "API_ATIVA": "true",
-        "API_URL": "http://localhost:3000"
+        "API_URL": "https://pim-iv-api.onrender.com"
       }
     }
   }

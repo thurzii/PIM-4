@@ -4,10 +4,6 @@ VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlataformaCursos", "PlataformaCursos\PlataformaCursos.csproj", "{A8E1C4D2-63B9-4F07-9E52-1D3A76B0F8C4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{FF0C50D7-9545-4469-8FD9-584A9C799042}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlataformaCursosApi", "..\Api\PlataformaCursosApi\PlataformaCursosApi.csproj", "{CCF6CB71-175D-490C-9BCB-DD4E35213630}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,15 +14,8 @@ Global
 		{A8E1C4D2-63B9-4F07-9E52-1D3A76B0F8C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8E1C4D2-63B9-4F07-9E52-1D3A76B0F8C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8E1C4D2-63B9-4F07-9E52-1D3A76B0F8C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCF6CB71-175D-490C-9BCB-DD4E35213630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCF6CB71-175D-490C-9BCB-DD4E35213630}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCF6CB71-175D-490C-9BCB-DD4E35213630}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCF6CB71-175D-490C-9BCB-DD4E35213630}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{CCF6CB71-175D-490C-9BCB-DD4E35213630} = {FF0C50D7-9545-4469-8FD9-584A9C799042}
 	EndGlobalSection
 EndGlobal

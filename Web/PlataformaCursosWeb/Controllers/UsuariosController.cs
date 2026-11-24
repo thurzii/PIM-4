@@ -216,6 +216,7 @@ namespace PlataformaCursosWeb.Controllers
             }
 
             // DS11 - exibirMensagemSucesso() / sucessoConfirmado()
+            if (!afr_dados.EhEdicao()) { Response.Headers["Cache-Control"] = "no-store"; ViewBag.MensagemCadastro = afr_mensagem; return View("CadastroConcluido"); }
             AvisarSucesso(afr_comando + " executado. " + afr_mensagem);
 
             return RedirectToAction("Index");

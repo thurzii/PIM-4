@@ -39,105 +39,21 @@
             <p class="marca-sub">Plataforma de Cursos</p>
         </header>
 
-        @* O indicador das tres etapas *@
-        <ol class="passos">
-            <li class="passo @(Model.afr_Etapa == 1 ? "atual" : "pronto")">1. Email</li>
-            <li class="passo @(Model.afr_Etapa == 2 ? "atual" : (Model.afr_Etapa > 2 ? "pronto" : ""))">2. Codigo</li>
-            <li class="passo @(Model.afr_Etapa == 3 ? "atual" : "")">3. Nova senha</li>
-        </ol>
-
-        @if (ViewBag.Sucesso != null)
-        {
-            <p class="aviso aviso-sucesso" role="status">@ViewBag.Sucesso</p>
-        }
-
-        @if (ViewBag.Erro != null)
-        {
-            <p class="aviso aviso-erro" role="alert">@ViewBag.Erro</p>
-        }
-
         <div class="cartao">
-            <p class="etapa-titulo">@Model.ObterTituloEtapa()</p>
-            <p class="ajuda" style="margin-bottom:18px;">@Model.ObterExplicacaoEtapa()</p>
-
-            @* ======================= ETAPA 1 ======================= *@
-            @if (Model.afr_Etapa == 1)
-            {
-                <form asp-controller="Conta" asp-action="EnviarCodigo" method="post">
-                    @Html.AntiForgeryToken()
-
-                    <div class="campo">
-                        <label asp-for="afr_Email">Email cadastrado</label>
-                        <input asp-for="afr_Email" type="email" autocomplete="username"
-                               placeholder="seu@@email.com" />
-                    </div>
-
-                    <button type="submit" class="botao botao-primario botao-largo">
-                        Enviar codigo
-                    </button>
-                </form>
-            }
-
-            @* ======================= ETAPA 2 ======================= *@
-            @if (Model.afr_Etapa == 2)
-            {
-                <form asp-controller="Conta" asp-action="ConferirCodigo" method="post">
-                    @Html.AntiForgeryToken()
-
-                    @* O email segue escondido para a etapa seguinte *@
-                    <input type="hidden" asp-for="afr_Email" />
-
-                    <div class="campo">
-                        <label asp-for="afr_Codigo">Codigo de 6 digitos</label>
-                        <input asp-for="afr_Codigo" type="text" maxlength="6"
-                               inputmode="numeric" autocomplete="one-time-code"
-                               placeholder="000000" />
-                    </div>
-
-                    <button type="submit" class="botao botao-primario botao-largo">
-                        Conferir codigo
-                    </button>
-                </form>
-
-                <p class="ajuda" style="margin-top:16px;">
-                    Enviado para <strong>@Model.afr_Email</strong>.
-                    Este trabalho nao tem servidor de email, entao a mensagem
-                    foi gravada num arquivo no servidor:
-                    <a asp-controller="Conta" asp-action="CaixaDeEntrada" target="_blank">
-                        abrir a caixa de entrada
-                    </a>.
-                </p>
-            }
-
-            @* ======================= ETAPA 3 ======================= *@
-            @if (Model.afr_Etapa == 3)
-            {
-                <form asp-controller="Conta" asp-action="RedefinirSenha" method="post">
-                    @Html.AntiForgeryToken()
-
-                    @* Email e codigo seguem escondidos: o servidor
-                       confere o codigo outra vez antes de trocar a senha *@
-                    <input type="hidden" asp-for="afr_Email" />
-                    <input type="hidden" asp-for="afr_Codigo" />
-
-                    <div class="campo">
-                        <label asp-for="afr_NovaSenha">Nova senha</label>
-                        <input asp-for="afr_NovaSenha" type="password"
-                               autocomplete="new-password" />
-                    </div>
-
-                    <div class="campo">
-                        <label asp-for="afr_Confirmacao">Confirmar a nova senha</label>
-                        <input asp-for="afr_Confirmacao" type="password"
-                               autocomplete="new-password" />
-                    </div>
-
-                    <button type="submit" class="botao botao-primario botao-largo">
-                        Redefinir senha
-                    </button>
-                </form>
-            }
-
+        @if (ViewBag.Erro != null) { <p class="aviso aviso-erro">@ViewBag.Erro</p> }
+        @if (ViewBag.NovoCodigo != null) {
+            <p class="aviso aviso-sucesso">Senha redefinida. Guarde o novo codigo: <strong>@ViewBag.NovoCodigo</strong></p>
+        } else {
+            <p class="ajuda">Use o codigo pessoal recebido no cadastro.</p>
+            <form asp-controller="Conta" asp-action="RedefinirSenha" method="post">
+                @Html.AntiForgeryToken()
+                <div class="campo"><label>Email</label><input asp-for="afr_Email" type="email" required /></div>
+                <div class="campo"><label>Codigo pessoal</label><input asp-for="afr_Codigo" maxlength="19" required /></div>
+                <div class="campo"><label>Nova senha</label><input asp-for="afr_NovaSenha" type="password" minlength="8" maxlength="128" required /></div>
+                <div class="campo"><label>Confirmar senha</label><input asp-for="afr_Confirmacao" type="password" required /></div>
+                <button class="botao botao-primario botao-largo" type="submit">Redefinir senha</button>
+            </form>
+        }
             <p class="ajuda" style="margin-top:14px;">
                 <a asp-controller="Conta" asp-action="Login">Voltar para o login</a>
             </p>

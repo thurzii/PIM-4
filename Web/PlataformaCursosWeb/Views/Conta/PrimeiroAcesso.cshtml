@@ -1,0 +1,12 @@
+@{ Layout = null; }
+<!DOCTYPE html><html lang="pt-br"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="~/css/site.css"/></head><body><main class="tela-acesso"><section class="caixa-acesso"><h1>Primeiro acesso</h1><div class="cartao">
+@if (ViewBag.Erro != null) { <p class="aviso aviso-erro">@ViewBag.Erro</p> }
+@if (ViewBag.Codigo != null) { <p>Guarde seu código de recuperação em local seguro. Ele será exibido apenas agora.</p><strong>@ViewBag.Codigo</strong> }
+else {
+<form method="post" asp-action="PrimeiroAcesso">@Html.AntiForgeryToken()
+<input type="hidden" name="token" value="@ViewBag.Token"/>
+<div class="campo"><label for="senhaTemporaria">Senha temporária</label><input id="senhaTemporaria" name="senhaTemporaria" type="password" required /></div>
+<div class="campo"><label for="novaSenha">Nova senha</label><input id="novaSenha" name="novaSenha" type="password" required /></div>
+<div class="campo"><label for="confirmarSenha">Confirmar senha</label><input id="confirmarSenha" name="confirmarSenha" type="password" required /></div>
+<button class="botao botao-primario botao-largo" type="submit">Confirmar</button></form> }
+<p><a asp-action="Login">Voltar ao login</a></p></div></section></main></body></html>

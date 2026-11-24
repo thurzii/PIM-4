@@ -144,7 +144,7 @@ namespace PlataformaCursos
             }
 
             afr_txtSaida.Text = afr_comando + " executado." + Environment.NewLine +
-                                afr_mensagem + Environment.NewLine +
+                                "Usuario salvo." + Environment.NewLine +
                                 afr_usuario.ObterResumo();
 
             // DS11 - exibirMensagemSucesso() / sucessoConfirmado()

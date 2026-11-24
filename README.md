@@ -18,7 +18,7 @@ No GitHub, troque de branch no seletor acima da lista de arquivos. Para ver os d
 - **Desktop:** C# e Windows Forms (.NET 8).
 - **Web:** C# e ASP.NET Core MVC (.NET 8), com autenticação por cookie.
 - **Mobile:** React Native e Expo (JavaScript).
-- **APIs:** a do desktop e da web em C# e ASP.NET Core (`Api/`); a do aplicativo em Node.js e Express (branch `main`). As duas seguem as mesmas regras e gravam no mesmo banco.
+- **API:** uma só para as três interfaces, em Node.js e Express, unificada pelo Guilherme e hospedada em `https://pim-iv-api.onrender.com`.
 - **Banco de dados:** Microsoft SQL Server, com suporte à conexão ao Azure SQL.
 - **Autenticação:** senhas armazenadas com `scrypt`, no mesmo formato nas três interfaces.
 
@@ -53,20 +53,18 @@ Ao desmarcar uma aula, o desktop e a web estornam o XP daquela aula, para o tota
 ## Arquitetura
 
 ```text
-   Windows Forms     ASP.NET Core MVC             React Native (Expo)
-         |                  |                             |
-         +--------+---------+                             |
-                  | HTTP / JWT                            | HTTP / JWT
-                  v                                       v
-       API C# / ASP.NET Core (Api/)            API Node.js / Express (main)
-                  |                                       |
-                  +-------------------+-------------------+
-                                      |
-                                      v
-                           Azure SQL (o mesmo banco)
+   Windows Forms     ASP.NET Core MVC       React Native (Expo)
+         |                  |                       |
+         +------------------+-----------------------+
+                            | HTTP / JWT
+                            v
+          API Node.js / Express (unica, hospedada no Render)
+                            |
+                            v
+                 Azure SQL (o mesmo banco)
 ```
 
-Cada projeto tem a sua API, e as duas gravam no **mesmo banco do Azure**. Por isso a nossa segue as rotas, os formatos e as regras da API do aplicativo: mesmo hash de senha, mesmo token, mesma regra de XP. No Visual Studio, o perfil **API + Web** / **API + Desktop** sobe a API junto com o programa, já em modo API. O perfil normal abre só o programa, com o banco local, para testes. Não há chave para editar no código. Detalhes em [Api/README.md](Api/README.md).
+As três interfaces usam **a mesma API**, unificada pelo Guilherme. O desktop e a web vêm configurados para ela: endereço em `appsettings.json` (web) e no perfil **API (Azure)** do `launchSettings.json` (desktop e web).
 
 **O banco de dados é o mesmo para todas as interfaces.** Quem concluir uma aula no celular vê o mesmo XP no desktop, porque a regra e os dados estão num lugar só.
 
@@ -75,7 +73,6 @@ Cada projeto tem a sua API, e as duas gravam no **mesmo banco do Azure**. Por is
 ```text
 CSharp/          Sistema desktop em Windows Forms e o script do banco
 Web/             O mesmo sistema em ASP.NET Core MVC
-Api/             A API do desktop e da web (C#), ligada ao banco do Azure
 Ferramentas/     Scripts de verificação do projeto
 Modelagem/       Arquivo do Astah e diagramas exportados
 Documentacao/    Relatórios e documentos das demais matérias
