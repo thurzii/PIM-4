@@ -68,7 +68,7 @@ namespace PlataformaCursos
         {
             if (!Sessao.EstaAberta())
             {
-                MessageBox.Show("Sessao encerrada. Entre novamente.",
+                MessageBox.Show("Sessão encerrada. Entre novamente.",
                                 "Aula",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);
@@ -90,7 +90,7 @@ namespace PlataformaCursos
 
             if (afr_aula == null)
             {
-                MessageBox.Show("Aula nao encontrada.",
+                MessageBox.Show("Aula não encontrada.",
                                 "Aula",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);
@@ -103,14 +103,14 @@ namespace PlataformaCursos
 
             afr_lblCurso.Text = "Curso: " + afr_curso.afr_Titulo;
             afr_lblTituloAula.Text = afr_aula.afr_Ordem + ". " + afr_aula.afr_Titulo;
-            afr_lblInfo.Text = "Duracao: " + afr_aula.afr_DuracaoMin + " minutos"
+            afr_lblInfo.Text = "Duração: " + afr_aula.afr_DuracaoMin + " minutos"
                              + "   |   Aula " + afr_aula.afr_Ordem
                              + " de " + afr_curso.afr_TotalAulas;
 
             if (afr_aula.afr_Conteudo.Trim() == "")
             {
-                afr_txtConteudo.Text = "Esta aula ainda nao tem conteudo cadastrado. "
-                                     + "O professor pode escrever o conteudo na tela de cursos.";
+                afr_txtConteudo.Text = "Esta aula ainda não tem conteúdo cadastrado. "
+                                     + "O professor pode escrever o conteúdo na tela de cursos.";
             }
             else
             {
@@ -132,9 +132,9 @@ namespace PlataformaCursos
             if (afr_aula.afr_Concluida)
             {
                 afr_lblStatusAula.ForeColor = System.Drawing.Color.SeaGreen;
-                afr_lblStatusAula.Text = "Status: aula concluida";
+                afr_lblStatusAula.Text = "Status: aula concluída";
 
-                afr_btnConcluir.Text = "Desmarcar conclusao";
+                afr_btnConcluir.Text = "Desmarcar conclusão";
                 afr_btnConcluir.BackColor = System.Drawing.Color.LightYellow;
             }
             else
@@ -142,7 +142,7 @@ namespace PlataformaCursos
                 afr_lblStatusAula.ForeColor = System.Drawing.Color.Chocolate;
                 afr_lblStatusAula.Text = "Status: aula pendente";
 
-                afr_btnConcluir.Text = "Marcar como concluida";
+                afr_btnConcluir.Text = "Marcar como concluída";
                 afr_btnConcluir.BackColor = System.Drawing.Color.Honeydew;
             }
         }
@@ -234,7 +234,7 @@ namespace PlataformaCursos
             if (afr_resultado.afr_Aprovado && afr_aula.afr_Concluida)
             {
                 MessageBox.Show(afr_resultado.ObterResumo(),
-                                "Curso concluido",
+                                "Curso concluído",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Information);
             }

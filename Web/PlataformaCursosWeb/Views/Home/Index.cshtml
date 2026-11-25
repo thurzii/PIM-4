@@ -34,7 +34,7 @@
     bool afr_ehAluno = !Model.afr_EhAdmin && !Model.afr_EhProfessor;
 }
 
-<h1>Ola, @Model.afr_Nome</h1>
+<h1>Olá, @Model.afr_Nome</h1>
 <p class="subtitulo">
     @Model.afr_Email &middot;
     <span class="etiqueta @afr_classeEtiqueta">@Model.afr_Perfil</span>
@@ -51,14 +51,14 @@
 @* ---------------------------------------------------------------- *@
 <dl class="grade grade-3 numeros" style="margin-bottom:24px;">
     <div class="cartao">
-        <dt class="numero-rotulo">curso(s) disponivel(is)</dt>
+        <dt class="numero-rotulo">curso(s) disponível(is)</dt>
         <dd class="numero">@Model.afr_TotalCursos</dd>
     </div>
 
     @if (afr_ehAluno)
     {
         <div class="cartao">
-            <dt class="numero-rotulo">cursos que voce concluiu</dt>
+            <dt class="numero-rotulo">cursos que você concluiu</dt>
             <dd class="numero">@Model.afr_MeusConcluidos / @Model.afr_MeusCursos</dd>
         </div>
     }
@@ -66,7 +66,7 @@
     @if (Model.afr_PodeGerenciarUsuarios)
     {
         <div class="cartao">
-            <dt class="numero-rotulo">usuario(s) cadastrado(s)</dt>
+            <dt class="numero-rotulo">usuário(s) cadastrado(s)</dt>
             <dd class="numero">@Model.afr_TotalUsuarios</dd>
         </div>
     }
@@ -94,16 +94,16 @@
 
 @if (afr_ehAluno)
 {
-    <section class="cartao painel-xp" style="margin-bottom:24px;" aria-label="Sua pontuacao">
+    <section class="cartao painel-xp" style="margin-bottom:24px;" aria-label="Sua pontuação">
         <header class="xp-topo">
             <div>
                 <p class="xp-nivel">
-                    Nivel @afr_pontuacao.ObterNivel() &mdash; @afr_pontuacao.ObterTituloDoNivel()
+                    Nível @afr_pontuacao.ObterNivel() &mdash; @afr_pontuacao.ObterTituloDoNivel()
                 </p>
                 <p class="xp-detalhe">
                     @afr_pontuacao.afr_XpTotal XP &nbsp;|&nbsp;
                     faltam @afr_pontuacao.ObterXpParaProximoNivel()
-                    para o nivel @(afr_pontuacao.ObterNivel() + 1)
+                    para o nível @(afr_pontuacao.ObterNivel() + 1)
                 </p>
 
                 @* VERSAO 3.1 - sequencia de dias seguidos, vinda da API.
@@ -126,7 +126,7 @@
         </header>
 
         <progress class="xp-barra" max="100" value="@afr_percentual"
-                  aria-label="Progresso ate o proximo nivel">@afr_percentual%</progress>
+                  aria-label="Progresso até o próximo nível">@afr_percentual%</progress>
 
         @* As conquistas que faltam aparecem apagadas, nao escondidas:   *@
         @* saber o que da para ganhar e metade da graca.                 *@
@@ -156,14 +156,14 @@
     @* AREA DO ALUNO - todo mundo tem                                *@
     @* ------------------------------------------------------------ *@
     <section class="cartao">
-        <h3>Area do Aluno</h3>
+        <h3>Área do Aluno</h3>
         <p class="ajuda">
-            Veja os cursos, use os filtros da busca, abra o conteudo das
-            aulas e marque o que ja concluiu.
+            Veja os cursos, use os filtros da busca, abra o conteúdo das
+            aulas e marque o que já concluiu.
         </p>
         <div class="acoes">
             <a asp-controller="Catalogo" asp-action="Index"
-               class="botao botao-primario">Abrir o catalogo</a>
+               class="botao botao-primario">Abrir o catálogo</a>
         </div>
     </section>
 
@@ -174,9 +174,9 @@
     @if (Model.afr_PodeGerenciarCursos)
     {
         <section class="cartao">
-            <h3>Area do Professor</h3>
+            <h3>Área do Professor</h3>
             <p class="ajuda">
-                Cadastre cursos e aulas, escreva o conteudo de cada aula
+                Cadastre cursos e aulas, escreva o conteúdo de cada aula
                 e acompanhe o andamento dos alunos.
             </p>
             <div class="acoes">
@@ -198,14 +198,14 @@
     @if (Model.afr_PodeGerenciarUsuarios)
     {
         <section class="cartao">
-            <h3>Administracao</h3>
+            <h3>Administração</h3>
             <p class="ajuda">
-                Cadastre, edite e exclua usuarios, e consulte o perfil de
-                cada um com o historico de acoes.
+                Cadastre, edite e exclua usuários, e consulte o perfil de
+                cada um com o histórico de ações.
             </p>
             <div class="acoes">
                 <a asp-controller="Usuarios" asp-action="Index"
-                   class="botao botao-primario">Usuarios</a>
+                   class="botao botao-primario">Usuários</a>
             </div>
         </section>
     }
@@ -216,16 +216,16 @@
 @* SITUACAO DA CONEXAO COM A API                                    *@
 @* ---------------------------------------------------------------- *@
 <section class="cartao" style="margin-top:18px;">
-    <h3>Conexao</h3>
+    <h3>Conexão</h3>
     <p class="ajuda">@Model.afr_StatusBanco</p>
     <p class="ajuda">
-        Todos os dados vem da API do grupo, a mesma do aplicativo. Ela e
+        Todos os dados vêm da API do grupo, a mesma do aplicativo. É ela
         quem fala com o banco do Azure.
     </p>
 
     <div class="acoes">
         <form asp-controller="Home" asp-action="TestarConexao" method="get">
-            <button type="submit" class="botao botao-pequeno">Testar conexao</button>
+            <button type="submit" class="botao botao-pequeno">Testar conexão</button>
         </form>
     </div>
 </section>

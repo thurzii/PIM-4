@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Models/ViewModels.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    VERSAO 2 - alinhada com a modelagem UML (Projeto_UML.asta)
 
@@ -37,7 +36,7 @@ namespace PlataformaCursosWeb.Models
     public class LoginViewModel
     {
         [Required(ErrorMessage = "Informe o email.")]
-        [EmailAddress(ErrorMessage = "Email invalido.")]
+        [EmailAddress(ErrorMessage = "Email inválido.")]
         [Display(Name = "Email")]
         public string afr_Email { get; set; } = "";
 
@@ -57,7 +56,7 @@ namespace PlataformaCursosWeb.Models
         [Display(Name = "Email cadastrado")]
         public string afr_Email { get; set; } = "";
 
-        [Display(Name = "Codigo pessoal")]
+        [Display(Name = "Código pessoal")]
         public string afr_Codigo { get; set; } = "";
 
         [DataType(DataType.Password)]
@@ -86,7 +85,7 @@ namespace PlataformaCursosWeb.Models
         public string afr_Nome { get; set; } = "";
 
         [Required(ErrorMessage = "Informe o email.")]
-        [EmailAddress(ErrorMessage = "Email invalido.")]
+        [EmailAddress(ErrorMessage = "Email inválido.")]
         [Display(Name = "Email")]
         public string afr_Email { get; set; } = "";
 
@@ -95,7 +94,7 @@ namespace PlataformaCursosWeb.Models
         // troca-la (a tela nao mostra mais a senha gravada, que agora e
         // hash). A regra passou para Validate(), mais abaixo, que sabe
         // distinguir cadastro de edicao.
-        [StringLength(100, ErrorMessage = "A senha pode ter no maximo 100 caracteres.")]
+        [StringLength(100, ErrorMessage = "A senha pode ter no máximo 100 caracteres.")]
         [Display(Name = "Senha")]
         public string afr_Senha { get; set; } = "";
 
@@ -103,7 +102,7 @@ namespace PlataformaCursosWeb.Models
         [Display(Name = "Perfil")]
         public string afr_Perfil { get; set; } = Usuario.PERFIL_ALUNO;
 
-        [Display(Name = "Usuario ativo")]
+        [Display(Name = "Usuário ativo")]
         public bool afr_Ativo { get; set; } = true;
 
         // Mostrado na edicao; nao e editavel
@@ -150,7 +149,7 @@ namespace PlataformaCursosWeb.Models
         {
             if (afr_perfil == Usuario.PERFIL_ADMIN)
             {
-                return "Acessa tudo, inclusive o cadastro de usuarios.";
+                return "Acessa tudo, inclusive o cadastro de usuários.";
             }
 
             if (afr_perfil == Usuario.PERFIL_PROFESSOR)
@@ -158,7 +157,7 @@ namespace PlataformaCursosWeb.Models
                 return "Cadastra cursos e aulas e acompanha o progresso dos alunos.";
             }
 
-            return "Ve o catalogo e marca as proprias aulas como concluidas.";
+            return "Vê o catálogo e marca as próprias aulas como concluídas.";
         }
     }
 
@@ -170,25 +169,25 @@ namespace PlataformaCursosWeb.Models
     {
         public int afr_Id { get; set; }
 
-        [Required(ErrorMessage = "Informe o titulo do curso.")]
+        [Required(ErrorMessage = "Informe o título do curso.")]
         [StringLength(120, MinimumLength = 3,
-            ErrorMessage = "O titulo precisa ter entre 3 e 120 caracteres.")]
-        [Display(Name = "Titulo")]
+            ErrorMessage = "O título precisa ter entre 3 e 120 caracteres.")]
+        [Display(Name = "Título")]
         public string afr_Titulo { get; set; } = "";
 
-        [StringLength(500, ErrorMessage = "A descricao cabe em 500 caracteres.")]
-        [Display(Name = "Descricao")]
+        [StringLength(500, ErrorMessage = "A descrição cabe em 500 caracteres.")]
+        [Display(Name = "Descrição")]
         public string afr_Descricao { get; set; } = "";
 
-        [Range(1, 1000, ErrorMessage = "A carga horaria vai de 1 a 1000 horas.")]
-        [Display(Name = "Carga horaria (horas)")]
+        [Range(1, 1000, ErrorMessage = "A carga horária vai de 1 a 1000 horas.")]
+        [Display(Name = "Carga horária (horas)")]
         public int afr_CargaHoraria { get; set; } = 20;
 
-        [Range(1, 100, ErrorMessage = "O minimo para concluir vai de 1% a 100%.")]
-        [Display(Name = "Minimo para concluir (%)")]
+        [Range(1, 100, ErrorMessage = "O mínimo para concluir vai de 1% a 100%.")]
+        [Display(Name = "Mínimo para concluir (%)")]
         public int afr_PercentualMinimo { get; set; } = 100;
 
-        [Display(Name = "Curso ativo (visivel para o aluno)")]
+        [Display(Name = "Curso ativo (visível para o aluno)")]
         public bool afr_Ativo { get; set; } = true;
 
         public bool EhEdicao()
@@ -207,14 +206,14 @@ namespace PlataformaCursosWeb.Models
         public List<Aula> afr_Aulas { get; set; } = new List<Aula>();
 
         // Formulario de nova aula
-        [Display(Name = "Titulo da aula")]
+        [Display(Name = "Título da aula")]
         public string afr_NovaAulaTitulo { get; set; } = "";
 
-        [Range(1, 600, ErrorMessage = "A duracao vai de 1 a 600 minutos.")]
-        [Display(Name = "Duracao (minutos)")]
+        [Range(1, 600, ErrorMessage = "A duração vai de 1 a 600 minutos.")]
+        [Display(Name = "Duração (minutos)")]
         public int afr_NovaAulaDuracao { get; set; } = 45;
 
-        [Display(Name = "Conteudo da aula")]
+        [Display(Name = "Conteúdo da aula")]
         public string afr_NovaAulaConteudo { get; set; } = "";
 
         // Quantas aulas ainda estao sem conteudo escrito
@@ -244,17 +243,17 @@ namespace PlataformaCursosWeb.Models
         public string afr_CursoTitulo { get; set; } = "";
         public int afr_Ordem { get; set; }
 
-        [Required(ErrorMessage = "Informe o titulo da aula.")]
+        [Required(ErrorMessage = "Informe o título da aula.")]
         [StringLength(120, MinimumLength = 3,
-            ErrorMessage = "O titulo precisa ter entre 3 e 120 caracteres.")]
-        [Display(Name = "Titulo da aula")]
+            ErrorMessage = "O título precisa ter entre 3 e 120 caracteres.")]
+        [Display(Name = "Título da aula")]
         public string afr_Titulo { get; set; } = "";
 
-        [Range(1, 600, ErrorMessage = "A duracao vai de 1 a 600 minutos.")]
-        [Display(Name = "Duracao (minutos)")]
+        [Range(1, 600, ErrorMessage = "A duração vai de 1 a 600 minutos.")]
+        [Display(Name = "Duração (minutos)")]
         public int afr_DuracaoMin { get; set; } = 45;
 
-        [Display(Name = "Conteudo da aula")]
+        [Display(Name = "Conteúdo da aula")]
         public string afr_Conteudo { get; set; } = "";
     }
 
@@ -269,18 +268,18 @@ namespace PlataformaCursosWeb.Models
     {
         public List<Curso> afr_Cursos { get; set; } = new List<Curso>();
 
-        [Display(Name = "Buscar por titulo ou descricao")]
+        [Display(Name = "Buscar por título ou descrição")]
         public string afr_Termo { get; set; } = "";
 
-        [Range(0, 1000, ErrorMessage = "A carga minima vai de 0 a 1000 horas.")]
-        [Display(Name = "Carga horaria de")]
+        [Range(0, 1000, ErrorMessage = "A carga mínima vai de 0 a 1000 horas.")]
+        [Display(Name = "Carga horária de")]
         public int afr_CargaMinima { get; set; } = 0;
 
-        [Range(0, 1000, ErrorMessage = "A carga maxima vai de 0 a 1000 horas.")]
+        [Range(0, 1000, ErrorMessage = "A carga máxima vai de 0 a 1000 horas.")]
         [Display(Name = "ate")]
         public int afr_CargaMaxima { get; set; } = 0;
 
-        [Display(Name = "Somente os cursos que eu ainda nao conclui")]
+        [Display(Name = "Somente os cursos que eu ainda não conclui")]
         public bool afr_SomenteNaoConcluidos { get; set; } = false;
 
         // Preenchido pelo controller: o progresso do aluno em cada curso
@@ -351,12 +350,12 @@ namespace PlataformaCursosWeb.Models
         {
             if (afr_Resultado.afr_Total == 0)
             {
-                return "Este curso ainda nao tem aulas cadastradas.";
+                return "Este curso ainda não tem aulas cadastradas.";
             }
 
             if (afr_Resultado.afr_Aprovado)
             {
-                return "CONCLUIDO: voce bateu o minimo de "
+                return "CONCLUÍDO: você bateu o mínimo de "
                      + afr_Resultado.afr_PercentualMinimo + "% deste curso.";
             }
 
@@ -364,11 +363,11 @@ namespace PlataformaCursosWeb.Models
             {
                 return "EM ANDAMENTO: faltam "
                      + (afr_Resultado.afr_Total - afr_Resultado.afr_Concluidas)
-                     + " aula(s) para o minimo de "
+                     + " aula(s) para o mínimo de "
                      + afr_Resultado.afr_PercentualMinimo + "%.";
             }
 
-            return "NAO INICIADO: voce ainda nao concluiu nenhuma aula.";
+            return "NÃO INICIADO: você ainda não concluiu nenhuma aula.";
         }
 
         public string ObterClasseProgresso()
@@ -409,7 +408,7 @@ namespace PlataformaCursosWeb.Models
         {
             if (afr_Aula.afr_Concluida)
             {
-                return "Aula concluida";
+                return "Aula concluída";
             }
 
             return "Aula pendente";
@@ -551,7 +550,7 @@ namespace PlataformaCursosWeb.Models
                 return "Excluir o curso \"" + afr_Titulo + "\"";
             }
 
-            return "Excluir o usuario " + afr_Titulo;
+            return "Excluir o usuário " + afr_Titulo;
         }
 
         // Para onde voltar se a pessoa cancelar
@@ -562,7 +561,7 @@ namespace PlataformaCursosWeb.Models
                 return "Cursos";
             }
 
-            return "Usuarios";
+            return "Usuários";
         }
     }
 
@@ -602,15 +601,15 @@ namespace PlataformaCursosWeb.Models
         {
             if (afr_EhAdmin)
             {
-                return "Perfil ADMIN: catalogo, cursos, progresso dos alunos e usuarios.";
+                return "Perfil ADMIN: catálogo, cursos, progresso dos alunos e usuários.";
             }
 
             if (afr_EhProfessor)
             {
-                return "Perfil PROFESSOR: catalogo, cursos e aulas, e progresso dos alunos.";
+                return "Perfil PROFESSOR: catálogo, cursos e aulas, e progresso dos alunos.";
             }
 
-            return "Perfil ALUNO: catalogo de cursos e as suas aulas.";
+            return "Perfil ALUNO: catálogo de cursos e as suas aulas.";
         }
     }
 }

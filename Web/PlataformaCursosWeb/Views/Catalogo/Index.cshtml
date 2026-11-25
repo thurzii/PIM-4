@@ -17,10 +17,10 @@
 *@
 @model CatalogoViewModel
 @{
-    ViewData["Title"] = "Catalogo";
+    ViewData["Title"] = "Catálogo";
 }
 
-<h1>Catalogo de cursos</h1>
+<h1>Catálogo de cursos</h1>
 <p class="subtitulo">Escolha um curso para ver as aulas e acompanhar o seu progresso.</p>
 
 @* ---------------------------------------------------------------- *@
@@ -31,7 +31,7 @@
 
         <div class="filtros">
             <div class="campo campo-largo">
-                <label asp-for="afr_Termo">Buscar por titulo ou descricao</label>
+                <label asp-for="afr_Termo">Buscar por título ou descrição</label>
                 <input asp-for="afr_Termo" type="search" placeholder="Ex.: banco de dados" />
             </div>
 
@@ -41,7 +41,7 @@
             </div>
 
             <div class="campo campo-estreito">
-                <label asp-for="afr_CargaMaxima">ate (h)</label>
+                <label asp-for="afr_CargaMaxima">até (h)</label>
                 <input asp-for="afr_CargaMaxima" type="number" min="0" max="1000" />
             </div>
 
@@ -56,11 +56,11 @@
         <div class="campo-inline" style="margin-top:12px;">
             <input asp-for="afr_SomenteNaoConcluidos" type="checkbox" />
             <label asp-for="afr_SomenteNaoConcluidos">
-                Somente os cursos que eu ainda nao conclui
+                Somente os cursos que eu ainda não conclui
             </label>
         </div>
 
-        <p class="ajuda">Use 0 na carga maxima para nao ter limite.</p>
+        <p class="ajuda">Use 0 na carga máxima para não ter limite.</p>
     </form>
 
     @if (ViewBag.Resumo != null)
@@ -79,7 +79,7 @@
     <div class="cartao vazio">
         @if (!Model.TemFiltro())
         {
-            <p>Nenhum curso disponivel no momento.</p>
+            <p>Nenhum curso disponível no momento.</p>
         }
         else
         {

@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Controllers/ContaController.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    CASOS DE USO: DC01 Login, DC02 Recuperar Senha, DC06 Logout
    DIAGRAMAS...: DS01, DS02, DS06
@@ -150,7 +149,7 @@ namespace PlataformaCursosWeb.Controllers
             // Apaga o cookie: equivale ao Sessao.Encerrar() do desktop
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            TempData["Sucesso"] = "Sessao encerrada. Entre novamente para continuar.";
+            TempData["Sucesso"] = "Sessão encerrada. Entre novamente para continuar.";
 
             return RedirectToAction("Login");
         }

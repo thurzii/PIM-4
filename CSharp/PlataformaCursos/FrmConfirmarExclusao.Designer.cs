@@ -43,7 +43,7 @@ namespace PlataformaCursos
             this.afr_lblTitulo.Name = "afr_lblTitulo";
             this.afr_lblTitulo.Size = new System.Drawing.Size(220, 25);
             this.afr_lblTitulo.TabIndex = 0;
-            this.afr_lblTitulo.Text = "Confirmar exclusao";
+            this.afr_lblTitulo.Text = "Confirmar exclusão";
             //
             // afr_lblMotivo
             //
@@ -62,7 +62,7 @@ namespace PlataformaCursos
             this.afr_lblDetalhesTitulo.Name = "afr_lblDetalhesTitulo";
             this.afr_lblDetalhesTitulo.Size = new System.Drawing.Size(150, 15);
             this.afr_lblDetalhesTitulo.TabIndex = 2;
-            this.afr_lblDetalhesTitulo.Text = "O que sera apagado:";
+            this.afr_lblDetalhesTitulo.Text = "O que será apagado:";
             //
             // afr_txtDetalhes
             //
@@ -83,7 +83,7 @@ namespace PlataformaCursos
             this.afr_lblInstrucao.Name = "afr_lblInstrucao";
             this.afr_lblInstrucao.Size = new System.Drawing.Size(436, 34);
             this.afr_lblInstrucao.TabIndex = 4;
-            this.afr_lblInstrucao.Text = "Esta operacao nao tem volta. Para confirmar, digite a sua senha de acesso.";
+            this.afr_lblInstrucao.Text = "Esta operação não tem volta. Para confirmar, digite a sua senha de acesso.";
             //
             // afr_lblSenha
             //
@@ -155,7 +155,7 @@ namespace PlataformaCursos
             this.MinimizeBox = false;
             this.Name = "FrmConfirmarExclusao";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Confirmar exclusao";
+            this.Text = "Confirmar exclusão";
             this.ResumeLayout(false);
             this.PerformLayout();
         }

@@ -59,7 +59,7 @@ namespace PlataformaCursos
         {
             if (!Sessao.EstaAberta())
             {
-                MessageBox.Show("Sessao encerrada. Entre novamente.",
+                MessageBox.Show("Sessão encerrada. Entre novamente.",
                                 "Perfil",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);
@@ -95,7 +95,7 @@ namespace PlataformaCursos
 
             if (afr_usuario == null)
             {
-                MessageBox.Show("Usuario nao encontrado.",
+                MessageBox.Show("Usuário não encontrado.",
                                 "Perfil",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);
@@ -131,15 +131,15 @@ namespace PlataformaCursos
             if (afr_total == 0)
             {
                 afr_lblResumo.ForeColor = System.Drawing.Color.Chocolate;
-                afr_lblResumo.Text = "Este usuario ainda nao tem nenhuma acao registrada. "
-                                   + "O historico comeca a encher a partir do primeiro login dele.";
+                afr_lblResumo.Text = "Este usuário ainda não tem nenhuma ação registrada. "
+                                   + "O histórico começa a encher a partir do primeiro login dele.";
             }
             else
             {
                 afr_lblResumo.ForeColor = System.Drawing.Color.DimGray;
                 afr_lblResumo.Text = "Acessos: " + afr_loginLog.Count
                                    + "   |   Cadastros: " + afr_acoesCrud.Count
-                                   + "   |   Acoes em cursos: " + afr_cursosRelacionados.Count
+                                   + "   |   Ações em cursos: " + afr_cursosRelacionados.Count
                                    + "   |   Total de registros: " + afr_total;
             }
         }

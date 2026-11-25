@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Controllers/HomeController.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    Painel inicial, equivalente ao FrmPrincipal do desktop. Mostra
    areas diferentes conforme o perfil de quem entrou.

@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Services/SessaoAtual.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    A SESSAO DO DESKTOP, TRADUZIDA PARA A WEB
 

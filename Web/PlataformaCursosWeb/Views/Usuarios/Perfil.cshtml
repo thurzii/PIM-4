@@ -77,7 +77,7 @@
     </div>
 
     <div class="cartao">
-        <dt class="numero-rotulo">acao(oes) em cursos</dt>
+        <dt class="numero-rotulo">ação(oes) em cursos</dt>
         <dd class="numero">@Model.afr_CursosRelacionados.Count</dd>
     </div>
 </dl>
@@ -85,14 +85,14 @@
 @* ---------------------------------------------------------------- *@
 @* DS12 - historicoAcoes(loginLog, acoesCrud, cursosRelacionados)    *@
 @* ---------------------------------------------------------------- *@
-<h2>Historico de acoes</h2>
+<h2>Histórico de ações</h2>
 
 @if (Model.ContarTudo() == 0)
 {
     <div class="cartao vazio">
         <p>
-            Este usuario ainda nao tem nenhuma acao registrada.<br />
-            O historico comeca a encher a partir do primeiro login dele.
+            Este usuário ainda não tem nenhuma ação registrada.<br />
+            O histórico começa a encher a partir do primeiro login dele.
         </p>
     </div>
 }
@@ -171,7 +171,7 @@ else
 
 <div class="acoes">
     <a class="botao botao-primario" asp-controller="Usuarios" asp-action="Editar"
-       asp-route-id="@Model.afr_Usuario.afr_Id">Editar este usuario</a>
+       asp-route-id="@Model.afr_Usuario.afr_Id">Editar este usuário</a>
 
     <a class="botao" asp-controller="Usuarios" asp-action="Index">Voltar para a lista</a>
 </div>

@@ -57,7 +57,7 @@ namespace PlataformaCursos
                 afr_lblStatus.ForeColor = Color.Firebrick;
                 afr_lblStatus.Text = afr_mensagem;
 
-                MessageBox.Show(afr_mensagem, "Conexao",
+                MessageBox.Show(afr_mensagem, "Conexão",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -77,10 +77,10 @@ namespace PlataformaCursos
                     if (doc.RootElement.TryGetProperty("tokenPrimeiroAcesso", out var token)) {
                         var campos = Solicitar("Primeiro acesso", new[] { "Nova senha", "Confirmar senha" }, new[] { true, true });
                         if (campos == null) return;
-                        if (campos[0] != campos[1]) { MessageBox.Show("As senhas nao conferem."); return; }
+                        if (campos[0] != campos[1]) { MessageBox.Show("As senhas não conferem."); return; }
                         var troca = cliente.PrimeiroAcesso(token.GetString(), afr_txtSenha.Text, campos[0]);
                         if (!troca.afr_Ok) { MessageBox.Show(troca.afr_Mensagem); return; }
-                        MessageBox.Show("Guarde seu codigo de recuperacao: " + troca.CodigoRecuperacao);
+                        MessageBox.Show("Guarde seu código de recuperação: " + troca.CodigoRecuperacao);
                         afr_txtSenha.Text = campos[0];
                     }
                 } else { MessageBox.Show(resposta.afr_Mensagem); return; }
@@ -113,7 +113,7 @@ namespace PlataformaCursos
             // Quando a tela principal fecha (logout), volta para o login limpo
             afr_txtSenha.Clear();
             afr_lblStatus.ForeColor = Color.DimGray;
-            afr_lblStatus.Text = "Sessao encerrada. Entre novamente para continuar.";
+            afr_lblStatus.Text = "Sessão encerrada. Entre novamente para continuar.";
 
             this.Show();
             afr_txtEmail.Focus();
@@ -124,7 +124,7 @@ namespace PlataformaCursos
             var campos = Solicitar("Criar conta de aluno", new[] { "Nome", "Email", "Senha", "Confirmar senha" }, new[] { false, false, true, true });
             if (campos == null) return;
             var resposta = ConfiguracaoApi.ObterCliente().CadastrarAluno(campos[0], campos[1], campos[2], campos[3]);
-            MessageBox.Show(resposta.afr_Ok ? "Conta criada. Guarde seu codigo de recuperacao: " + resposta.CodigoRecuperacao : resposta.afr_Mensagem);
+            MessageBox.Show(resposta.afr_Ok ? "Conta criada. Guarde seu código de recuperação: " + resposta.CodigoRecuperacao : resposta.afr_Mensagem);
             if (resposta.afr_Ok) afr_txtEmail.Text = campos[1];
         }
 

@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - Trabalho em grupo
    Arquivo...: ClienteApi.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    VERSAO 3.1 - reescrito a partir do CODIGO da API, nao de suposicao
 
@@ -593,7 +592,7 @@ namespace PlataformaCursos
                 if (afr_resposta.afr_CodigoHttp == 401)
                 {
                     EsquecerToken();
-                    afr_resposta.afr_Mensagem = "Sessao expirada. Entre novamente.";
+                    afr_resposta.afr_Mensagem = "Sessão expirada. Entre novamente.";
                     return afr_resposta;
                 }
 
@@ -605,17 +604,17 @@ namespace PlataformaCursos
                     if (afr_resposta.afr_CodigoHttp == 403)
                     {
                         afr_resposta.afr_Mensagem =
-                            "Seu perfil nao tem permissao para esta operacao.";
+                            "Seu perfil não tem permissão para esta operação.";
                     }
                     else if (afr_resposta.afr_CodigoHttp == 501)
                     {
                         afr_resposta.afr_Mensagem =
-                            "Esta operacao ainda nao existe na API.";
+                            "Esta operação ainda não existe na API.";
                     }
                     else if (!afr_resposta.afr_Ok)
                     {
                         afr_resposta.afr_Mensagem =
-                            "A API respondeu com o codigo " + afr_resposta.afr_CodigoHttp + ".";
+                            "A API respondeu com o código " + afr_resposta.afr_CodigoHttp + ".";
                     }
                 }
 
@@ -626,7 +625,7 @@ namespace PlataformaCursos
                 // API fora do ar, URL errada, sem rede. Nunca deixa a
                 // excecao subir ate a tela: vira mensagem.
                 afr_resposta.afr_Ok = false;
-                afr_resposta.afr_Mensagem = "Nao foi possivel falar com a API: " +
+                afr_resposta.afr_Mensagem = "Não foi possível falar com a API: " +
                                             afr_erro.Message;
                 return afr_resposta;
             }
@@ -783,7 +782,7 @@ namespace PlataformaCursos
         public int afr_Concluidas { get; set; }
 
         // Passou a vir no corpo quando a matricula virou explicita.
-        // Diz se o aluno logado ja esta matriculado neste curso.
+        // Diz se o aluno logado ja está matriculado neste curso.
         [JsonPropertyName("matriculado")]
         public bool afr_Matriculado { get; set; }
     }

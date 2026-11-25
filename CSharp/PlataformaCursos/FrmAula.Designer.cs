@@ -53,7 +53,7 @@ namespace PlataformaCursos
             this.afr_lblTituloAula.Name = "afr_lblTituloAula";
             this.afr_lblTituloAula.Size = new System.Drawing.Size(160, 25);
             this.afr_lblTituloAula.TabIndex = 1;
-            this.afr_lblTituloAula.Text = "Titulo da aula";
+            this.afr_lblTituloAula.Text = "Título da aula";
             //
             // afr_lblInfo
             //
@@ -73,7 +73,7 @@ namespace PlataformaCursos
             this.afr_lblConteudoTitulo.Name = "afr_lblConteudoTitulo";
             this.afr_lblConteudoTitulo.Size = new System.Drawing.Size(140, 15);
             this.afr_lblConteudoTitulo.TabIndex = 3;
-            this.afr_lblConteudoTitulo.Text = "Conteudo da aula:";
+            this.afr_lblConteudoTitulo.Text = "Conteúdo da aula:";
             //
             // afr_txtConteudo
             //
@@ -103,7 +103,7 @@ namespace PlataformaCursos
             this.afr_btnConcluir.Name = "afr_btnConcluir";
             this.afr_btnConcluir.Size = new System.Drawing.Size(280, 44);
             this.afr_btnConcluir.TabIndex = 6;
-            this.afr_btnConcluir.Text = "Marcar como concluida";
+            this.afr_btnConcluir.Text = "Marcar como concluída";
             this.afr_btnConcluir.UseVisualStyleBackColor = false;
             this.afr_btnConcluir.Click += new System.EventHandler(this.afr_btnConcluir_Click);
             //

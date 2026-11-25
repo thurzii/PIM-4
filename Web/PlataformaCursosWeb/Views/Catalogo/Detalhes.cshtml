@@ -24,14 +24,14 @@
 }
 
 <p class="subtitulo" style="margin-bottom:6px;">
-    <a asp-controller="Catalogo" asp-action="Index">&larr; Voltar ao catalogo</a>
+    <a asp-controller="Catalogo" asp-action="Index">&larr; Voltar ao catálogo</a>
 </p>
 
 <h1>@Model.afr_Curso.afr_Titulo</h1>
 <p class="subtitulo">
     @Model.afr_Curso.afr_CargaHoraria h &middot;
     @Model.afr_Resultado.afr_Total aula(s) &middot;
-    minimo de @Model.afr_Curso.afr_PercentualMinimo% para concluir
+    mínimo de @Model.afr_Curso.afr_PercentualMinimo% para concluir
 </p>
 
 <div class="grade grade-2">
@@ -45,7 +45,7 @@
         <p>
             @if (string.IsNullOrWhiteSpace(Model.afr_Curso.afr_Descricao))
             {
-                <span class="ajuda">Este curso ainda nao tem descricao.</span>
+                <span class="ajuda">Este curso ainda não tem descrição.</span>
             }
             else
             {
@@ -96,13 +96,13 @@
             @if (Model.afr_Matriculado)
             {
                 <p class="situacao-aprovado" style="margin:0;">
-                    Voce esta matriculado neste curso.
+                    Você está matriculado neste curso.
                 </p>
             }
             else
             {
                 <p style="margin:0 0 10px;">
-                    Matricule-se para comecar a registrar o seu progresso
+                    Matricule-se para começar a registrar o seu progresso
                     nas aulas.
                 </p>
 
@@ -131,13 +131,13 @@
 @if (Model.afr_Aulas.Count == 0)
 {
     <div class="cartao vazio">
-        <p>Este curso ainda nao tem aulas cadastradas.</p>
+        <p>Este curso ainda não tem aulas cadastradas.</p>
     </div>
 }
 else
 {
     <p class="ajuda" style="margin-top:-6px; margin-bottom:12px;">
-        Clique no titulo da aula para abrir o conteudo dela.
+        Clique no título da aula para abrir o conteúdo dela.
     </p>
 
     @* Sem matricula o conteudo continua aberto para leitura; o que   *@
@@ -190,7 +190,7 @@ else
                         else
                         {
                             <button type="submit" class="botao botao-primario botao-pequeno">
-                                Marcar como concluida
+                                Marcar como concluída
                             </button>
                         }
                     </form>

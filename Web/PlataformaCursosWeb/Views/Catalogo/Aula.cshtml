@@ -37,7 +37,7 @@
 }
 
 <p class="trilha-aula">
-    <a asp-controller="Catalogo" asp-action="Index">Catalogo</a>
+    <a asp-controller="Catalogo" asp-action="Index">Catálogo</a>
     &rsaquo;
     <a asp-controller="Catalogo" asp-action="Detalhes" asp-route-id="@Model.afr_Curso.afr_Id">
         @Model.afr_Curso.afr_Titulo
@@ -62,8 +62,8 @@
 else
 {
     <div class="conteudo-aula vazia">
-        Esta aula ainda nao tem conteudo cadastrado. O professor pode escrever
-        o conteudo na tela de cursos e aulas.
+        Esta aula ainda não tem conteúdo cadastrado. O professor pode escrever
+        o conteúdo na tela de cursos e aulas.
     </div>
 }
 
@@ -84,12 +84,12 @@ else
 
         @if (Model.afr_Aula.afr_Concluida)
         {
-            <button type="submit" class="botao">Desmarcar conclusao</button>
+            <button type="submit" class="botao">Desmarcar conclusão</button>
         }
         else
         {
             <button type="submit" class="botao botao-primario">
-                Marcar como concluida
+                Marcar como concluída
             </button>
         }
     </form>
@@ -109,7 +109,7 @@ else
         <span class="ajuda">
             (@Model.afr_Resultado.afr_Concluidas de
              @Model.afr_Resultado.afr_Total aulas &middot;
-             minimo de @Model.afr_Resultado.afr_PercentualMinimo%)
+             mínimo de @Model.afr_Resultado.afr_PercentualMinimo%)
         </span>
     </p>
 
@@ -125,7 +125,7 @@ else
 @* ---------------------------------------------------------------- *@
 @* NAVEGACAO ENTRE AS AULAS                                          *@
 @* ---------------------------------------------------------------- *@
-<nav class="navegacao-aula" aria-label="Navegacao entre aulas">
+<nav class="navegacao-aula" aria-label="Navegação entre aulas">
     @if (Model.afr_AulaAnterior > 0)
     {
         <a class="botao" asp-controller="Catalogo" asp-action="Aula"

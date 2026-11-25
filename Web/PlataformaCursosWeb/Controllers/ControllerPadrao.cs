@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Controllers/ControllerPadrao.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    CLASSE BASE dos controllers que exigem login.
 

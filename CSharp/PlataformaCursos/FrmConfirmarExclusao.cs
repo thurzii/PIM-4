@@ -53,7 +53,7 @@ namespace PlataformaCursos
         {
             InitializeComponent();
 
-            this.afr_tituloOperacao = afr_titulo ?? "Confirmar exclusao";
+            this.afr_tituloOperacao = afr_titulo ?? "Confirmar exclusão";
             this.afr_elegibilidade = afr_dados ?? new ElegibilidadeExclusao();
             this.afr_Confirmado = false;
 
@@ -79,14 +79,14 @@ namespace PlataformaCursos
             if (!afr_elegibilidade.afr_Elegivel)
             {
                 afr_lblDetalhesTitulo.Text = "Motivo do bloqueio:";
-                afr_lblInstrucao.Text = "Esta exclusao nao pode ser feita agora. "
-                                      + "Resolva o que esta listado acima e tente de novo.";
+                afr_lblInstrucao.Text = "Esta exclusão não pode ser feita agora. "
+                                      + "Resolva o que está listado acima e tente de novo.";
 
                 afr_lblSenha.Visible = false;
                 afr_txtSenha.Visible = false;
 
                 afr_btnConfirmar.Enabled = false;
-                afr_btnConfirmar.Text = "Nao permitido";
+                afr_btnConfirmar.Text = "Não permitido";
 
                 afr_btnCancelar.Text = "Fechar";
                 afr_btnCancelar.Focus();
@@ -94,7 +94,7 @@ namespace PlataformaCursos
             }
 
             // Caminho normal: elegivel. Pede a senha do operador.
-            afr_lblDetalhesTitulo.Text = "O que sera apagado:";
+            afr_lblDetalhesTitulo.Text = "O que será apagado:";
             afr_txtSenha.Focus();
         }
 
@@ -110,7 +110,7 @@ namespace PlataformaCursos
             if (!afr_elegibilidade.afr_Elegivel)
             {
                 afr_lblStatus.ForeColor = System.Drawing.Color.Firebrick;
-                afr_lblStatus.Text = "Esta exclusao esta bloqueada pelo sistema.";
+                afr_lblStatus.Text = "Esta exclusão está bloqueada pelo sistema.";
                 return;
             }
 

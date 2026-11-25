@@ -59,7 +59,7 @@ namespace PlataformaCursos
         {
             if (!Sessao.EstaAberta())
             {
-                MessageBox.Show("Sessao encerrada. Entre novamente.",
+                MessageBox.Show("Sessão encerrada. Entre novamente.",
                                 "Progresso",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);
@@ -107,7 +107,7 @@ namespace PlataformaCursos
 
             if (afr_ranking.Count == 0)
             {
-                afr_lblRanking.Text = "CLASSIFICACAO POR XP  -  ainda sem dados";
+                afr_lblRanking.Text = "CLASSIFICAÇÃO POR XP  -  ainda sem dados";
                 return;
             }
 
@@ -143,7 +143,7 @@ namespace PlataformaCursos
                 afr_lstRanking.Items.Add(afr_item);
             }
 
-            afr_lblRanking.Text = "CLASSIFICACAO POR XP  -  " +
+            afr_lblRanking.Text = "CLASSIFICAÇÃO POR XP  -  " +
                                   afr_ranking.Count + " aluno(s)";
         }
 
@@ -242,7 +242,7 @@ namespace PlataformaCursos
             Pontuacao afr_pontuacao =
                 afr_gamificacaoService.ObterPontuacao(afr_aluno.afr_Id);
 
-            string afr_linhaXp = "Nivel " + afr_pontuacao.ObterNivel()
+            string afr_linhaXp = "Nível " + afr_pontuacao.ObterNivel()
                                + " (" + afr_pontuacao.ObterTituloDoNivel() + ")"
                                + "   |   " + afr_pontuacao.afr_XpTotal + " XP"
                                + "   |   " + afr_pontuacao.ContarConquistadas()
@@ -290,7 +290,7 @@ namespace PlataformaCursos
             if (afr_dados.Count == 0)
             {
                 afr_lblResumo.ForeColor = System.Drawing.Color.Chocolate;
-                afr_lblResumo.Text = "Nao existe nenhum curso ativo cadastrado no sistema.";
+                afr_lblResumo.Text = "Não existe nenhum curso ativo cadastrado no sistema.";
                 return;
             }
 
@@ -298,8 +298,8 @@ namespace PlataformaCursos
 
             afr_lblResumo.ForeColor = System.Drawing.Color.DimGray;
             afr_lblResumo.Text = "Cursos acompanhados: " + afr_dados.Count
-                               + "   |   Concluidos: " + afr_aprovados
-                               + "   |   Media geral de conclusao: " + afr_media + "%";
+                               + "   |   Concluídos: " + afr_aprovados
+                               + "   |   Média geral de conclusão: " + afr_media + "%";
         }
 
         private void afr_btnFechar_Click(object sender, EventArgs e)

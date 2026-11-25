@@ -60,7 +60,7 @@ namespace PlataformaCursos
             this.afr_lblEtapa.Name = "afr_lblEtapa";
             this.afr_lblEtapa.Size = new System.Drawing.Size(250, 15);
             this.afr_lblEtapa.TabIndex = 1;
-            this.afr_lblEtapa.Text = "Codigo pessoal de recuperacao";
+            this.afr_lblEtapa.Text = "Código pessoal de recuperação";
             //
             // afr_lblInfo
             //
@@ -69,7 +69,7 @@ namespace PlataformaCursos
             this.afr_lblInfo.Name = "afr_lblInfo";
             this.afr_lblInfo.Size = new System.Drawing.Size(376, 34);
             this.afr_lblInfo.TabIndex = 2;
-            this.afr_lblInfo.Text = "Use o codigo recebido no cadastro. Guarde o novo codigo.";
+            this.afr_lblInfo.Text = "Use o código recebido no cadastro. Guarde o novo código.";
             //
             // afr_lblEmail
             //
@@ -95,7 +95,7 @@ namespace PlataformaCursos
             this.afr_lblCodigo.Name = "afr_lblCodigo";
             this.afr_lblCodigo.Size = new System.Drawing.Size(140, 15);
             this.afr_lblCodigo.TabIndex = 7;
-            this.afr_lblCodigo.Text = "Codigo pessoal:";
+            this.afr_lblCodigo.Text = "Código pessoal:";
             //
             // afr_txtCodigo
             //

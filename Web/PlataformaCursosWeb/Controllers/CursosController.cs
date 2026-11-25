@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Controllers/CursosController.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    GERENCIAMENTO DE CURSOS E AULAS, equivalente ao FrmCursos do desktop.
 
@@ -96,7 +95,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_curso == null)
             {
-                AvisarErro("Curso nao encontrado.");
+                AvisarErro("Curso não encontrado.");
                 return RedirectToAction("Index");
             }
 
@@ -186,7 +185,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_curso == null)
             {
-                AvisarErro("Curso nao encontrado.");
+                AvisarErro("Curso não encontrado.");
                 return RedirectToAction("Index");
             }
 
@@ -262,7 +261,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_curso == null)
             {
-                AvisarErro("Curso nao encontrado.");
+                AvisarErro("Curso não encontrado.");
                 return RedirectToAction("Index");
             }
 
@@ -292,7 +291,7 @@ namespace PlataformaCursosWeb.Controllers
             afr_aula.afr_DuracaoMin = duracao;
             afr_aula.afr_Conteudo = (conteudo ?? "").Trim();
 
-            // A ordem e calculada: entra sempre como a ultima aula
+            // A ordem é calculada: entra sempre como a ultima aula
             afr_aula.afr_Ordem = afr_aulaService.ProximaOrdem(cursoId);
 
             string afr_mensagem;
@@ -320,7 +319,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_aula == null)
             {
-                AvisarErro("Aula nao encontrada.");
+                AvisarErro("Aula não encontrada.");
                 return RedirectToAction("Index");
             }
 
@@ -356,7 +355,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_aula == null)
             {
-                AvisarErro("Esta aula nao esta mais no banco.");
+                AvisarErro("Esta aula não está mais no banco.");
                 return RedirectToAction("Index");
             }
 

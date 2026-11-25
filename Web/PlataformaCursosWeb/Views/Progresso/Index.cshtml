@@ -132,11 +132,11 @@
     var afr_pont = Model.afr_Pontuacao;
     int afr_percentualAluno = afr_pont.ObterPercentualDoNivel();
 
-    <section class="cartao painel-xp" style="margin-bottom:20px;" aria-label="Pontuacao do aluno">
+    <section class="cartao painel-xp" style="margin-bottom:20px;" aria-label="Pontuação do aluno">
         <header class="xp-topo">
             <div>
                 <p class="xp-nivel">
-                    Nivel @afr_pont.ObterNivel() &mdash; @afr_pont.ObterTituloDoNivel()
+                    Nível @afr_pont.ObterNivel() &mdash; @afr_pont.ObterTituloDoNivel()
                 </p>
                 <p class="xp-detalhe">
                     @afr_pont.afr_XpTotal XP &nbsp;|&nbsp;
@@ -161,7 +161,7 @@
         </header>
 
         <progress class="xp-barra" max="100" value="@afr_percentualAluno"
-                  aria-label="Progresso ate o proximo nivel">@afr_percentualAluno%</progress>
+                  aria-label="Progresso até o próximo nível">@afr_percentualAluno%</progress>
 
         @if (afr_pont.afr_Conquistas.Count > 0)
         {
@@ -186,7 +186,7 @@
     @if (Model.afr_Progresso.Count == 0)
     {
         <div class="cartao vazio">
-            <p>Nao existe nenhum curso ativo cadastrado no sistema.</p>
+            <p>Não existe nenhum curso ativo cadastrado no sistema.</p>
         </div>
     }
     else
@@ -198,12 +198,12 @@
             </div>
 
             <div class="cartao">
-                <dt class="numero-rotulo">curso(s) concluido(s)</dt>
+                <dt class="numero-rotulo">curso(s) concluído(s)</dt>
                 <dd class="numero">@Model.ContarConcluidos()</dd>
             </div>
 
             <div class="cartao">
-                <dt class="numero-rotulo">media geral de conclusao</dt>
+                <dt class="numero-rotulo">média geral de conclusão</dt>
                 <dd class="numero">@Model.CalcularMedia()%</dd>
             </div>
         </dl>
@@ -215,7 +215,7 @@
                         <th>Curso</th>
                         <th>Aulas</th>
                         <th>Percentual</th>
-                        <th>Minimo</th>
+                        <th>Mínimo</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -270,22 +270,22 @@
 @* ----------------------------------------------------------------- *@
 @if (Model.afr_Ranking.Count > 0)
 {
-    <h2 style="margin-top:28px;">Classificacao por XP</h2>
+    <h2 style="margin-top:28px;">Classificação por XP</h2>
     <p class="subtitulo">
-        Alunos ativos, ordenados por experiencia acumulada. O formato
+        Alunos ativos, ordenados por experiência acumulada. O formato
         acompanha a rota /api/gamificacao/turma, para a lista ser a
         mesma no celular e aqui.
     </p>
 
-    <section class="cartao" aria-label="Classificacao por XP">
+    <section class="cartao" aria-label="Classificação por XP">
         <table>
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Nome</th>
                     <th>XP</th>
-                    <th>Nivel</th>
-                    <th>Sequencia</th>
+                    <th>Nível</th>
+                    <th>Sequência</th>
                 </tr>
             </thead>
             <tbody>

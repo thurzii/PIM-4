@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - Trabalho em grupo
    Arquivo...: Program.cs  (ponto de entrada da aplicacao)
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    O Main prepara o ambiente grafico e abre a primeira tela: o LOGIN.
    A partir dai quem comanda o programa sao os eventos dos botoes.

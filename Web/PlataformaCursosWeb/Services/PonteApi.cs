@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Services/PonteApi.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    VERSAO 4 - a ponte entre os servicos e a API Node.js
 
@@ -90,7 +89,7 @@ namespace PlataformaCursosWeb.Services
             // Com resposta, e a API dizendo que o banco nao respondeu.
             afr_mensagem = afr_resposta.afr_CodigoHttp == 0
                 ? afr_resposta.afr_Mensagem
-                : "A API respondeu, mas o banco nao: " + afr_resposta.afr_Mensagem;
+                : "A API respondeu, mas o banco não: " + afr_resposta.afr_Mensagem;
             return false;
         }
 
@@ -115,7 +114,7 @@ namespace PlataformaCursosWeb.Services
 
                 // Se a API respondeu mas o banco nao (firewall do Azure,
                 // por exemplo), esperar nao adianta
-                if (!afr_mensagem.Contains("Nao foi possivel falar com a API") ||
+                if (!afr_mensagem.Contains("Não foi possível falar com a API") ||
                     DateTime.Now >= afr_limite)
                 {
                     return false;
@@ -294,7 +293,7 @@ namespace PlataformaCursosWeb.Services
                 afr_usuario.afr_Nome, afr_usuario.afr_Email,
                 afr_usuario.afr_Senha, afr_usuario.afr_Perfil);
 
-            afr_mensagem = afr_resposta.afr_Ok ? "Usuario cadastrado. Informe a senha temporaria ao usuario." : afr_resposta.afr_Mensagem;
+            afr_mensagem = afr_resposta.afr_Ok ? "Usuário cadastrado. Informe a senha temporária ao usuário." : afr_resposta.afr_Mensagem;
             return afr_resposta.afr_Ok;
         }
 
@@ -307,7 +306,7 @@ namespace PlataformaCursosWeb.Services
                 afr_usuario.afr_Id, afr_usuario.afr_Nome, afr_usuario.afr_Email,
                 afr_usuario.afr_Senha, afr_usuario.afr_Perfil, afr_usuario.afr_Ativo);
 
-            afr_mensagem = afr_resposta.afr_Ok ? "Usuario atualizado." : afr_resposta.afr_Mensagem;
+            afr_mensagem = afr_resposta.afr_Ok ? "Usuário atualizado." : afr_resposta.afr_Mensagem;
             return afr_resposta.afr_Ok;
         }
 
@@ -316,7 +315,7 @@ namespace PlataformaCursosWeb.Services
         {
             RespostaApi afr_resposta = Cliente().ExcluirUsuario(afr_id);
 
-            afr_mensagem = afr_resposta.afr_Ok ? "Usuario excluido." : afr_resposta.afr_Mensagem;
+            afr_mensagem = afr_resposta.afr_Ok ? "Usuário excluído." : afr_resposta.afr_Mensagem;
             return afr_resposta.afr_Ok;
         }
 
@@ -443,13 +442,13 @@ namespace PlataformaCursosWeb.Services
         {
             if (!afr_sessao.EhAdministrador())
             {
-                afr_mensagem = "Na API, so o administrador exclui curso.";
+                afr_mensagem = "Na API, só o administrador exclui curso.";
                 return false;
             }
 
             RespostaApi afr_resposta = Cliente().ExcluirCurso(afr_cursoId);
 
-            afr_mensagem = afr_resposta.afr_Ok ? "Curso excluido." : afr_resposta.afr_Mensagem;
+            afr_mensagem = afr_resposta.afr_Ok ? "Curso excluído." : afr_resposta.afr_Mensagem;
             return afr_resposta.afr_Ok;
         }
 
@@ -529,7 +528,7 @@ namespace PlataformaCursosWeb.Services
                 : Cliente().CriarAulaProfessor(afr_aula.afr_CursoId, afr_aula.afr_Titulo,
                                                afr_aula.afr_DuracaoMin, afr_aula.afr_Conteudo);
 
-            afr_mensagem = afr_resposta.afr_Ok ? "Aula incluida." : afr_resposta.afr_Mensagem;
+            afr_mensagem = afr_resposta.afr_Ok ? "Aula incluída." : afr_resposta.afr_Mensagem;
             return afr_resposta.afr_Ok;
         }
 
@@ -539,7 +538,7 @@ namespace PlataformaCursosWeb.Services
                 ? Cliente().ExcluirAula(afr_aulaId)
                 : Cliente().ExcluirAulaProfessor(afr_aulaId);
 
-            afr_mensagem = afr_resposta.afr_Ok ? "Aula excluida." : afr_resposta.afr_Mensagem;
+            afr_mensagem = afr_resposta.afr_Ok ? "Aula excluída." : afr_resposta.afr_Mensagem;
             return afr_resposta.afr_Ok;
         }
 
@@ -574,7 +573,7 @@ namespace PlataformaCursosWeb.Services
                 afr_ganho = afr_corpo.afr_Gamificacao.ParaGanho();
             }
 
-            afr_mensagem = afr_concluida ? "Aula concluida." : "Aula desmarcada.";
+            afr_mensagem = afr_concluida ? "Aula concluída." : "Aula desmarcada.";
             return true;
         }
 

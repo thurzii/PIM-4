@@ -64,7 +64,7 @@ namespace PlataformaCursos
         {
             if (!Sessao.EstaAberta())
             {
-                MessageBox.Show("Sessao nao encontrada. Faca o login novamente.", "Acesso",
+                MessageBox.Show("Sessão não encontrada. Faça o login novamente.", "Acesso",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 this.Close();
                 return;
@@ -72,7 +72,7 @@ namespace PlataformaCursos
 
             Usuario afr_aluno = Sessao.ObterUsuario();
 
-            afr_lblAluno.Text = "Usuario: " + afr_aluno.afr_Nome + "  |  " + afr_aluno.afr_Email +
+            afr_lblAluno.Text = "Usuário: " + afr_aluno.afr_Nome + "  |  " + afr_aluno.afr_Email +
                                 "  |  Perfil: " + afr_aluno.afr_Perfil;
 
             // DS03 - visualizarCursos() / mostrarCursos()
@@ -111,8 +111,8 @@ namespace PlataformaCursos
                 && afr_filtro.afr_CargaMaxima < afr_filtro.afr_CargaMinima)
             {
                 afr_lblStatus.ForeColor = Color.Firebrick;
-                afr_lblStatus.Text = "A carga maxima nao pode ser menor que a minima. "
-                                   + "Use 0 na maxima para nao ter limite.";
+                afr_lblStatus.Text = "A carga máxima não pode ser menor que a mínima. "
+                                   + "Use 0 na máxima para não ter limite.";
                 return;
             }
 
@@ -151,7 +151,7 @@ namespace PlataformaCursos
             PreencherListaDeCursos();
 
             afr_lblStatus.ForeColor = Color.DimGray;
-            afr_lblStatus.Text = "Todos os cursos disponiveis: " + afr_listaAtual.Count + " curso(s).";
+            afr_lblStatus.Text = "Todos os cursos disponíveis: " + afr_listaAtual.Count + " curso(s).";
         }
 
         // =============================================================
@@ -247,12 +247,12 @@ namespace PlataformaCursos
             if (e.Item.Checked)
             {
                 afr_lblStatus.Text = "INSERT em dbo.Progresso: aula " + afr_aulaId +
-                                     " marcada como concluida.";
+                                     " marcada como concluída.";
             }
             else
             {
                 afr_lblStatus.Text = "DELETE em dbo.Progresso: aula " + afr_aulaId +
-                                     " voltou para nao concluida.";
+                                     " voltou para não concluída.";
             }
 
             // VERSAO 3 - o ganho entra na MESMA linha de status, em roxo.
@@ -361,7 +361,7 @@ namespace PlataformaCursos
                                    + afr_progressoService.ObterRequisitosCurso(afr_curso);
 
             afr_grpAulas.Text = "Aulas de \"" + afr_curso.afr_Titulo +
-                                "\" - abra a aula para ver o conteudo, ou marque a caixa para concluir";
+                                "\" - abra a aula para ver o conteúdo, ou marque a caixa para concluir";
 
             CarregarAulas(afr_curso);
             AtualizarProgresso();
@@ -403,7 +403,7 @@ namespace PlataformaCursos
             afr_btnMatricular.Enabled = !afr_matriculado;
 
             afr_btnMatricular.Text = afr_matriculado
-                ? "Voce esta matriculado"
+                ? "Você está matriculado"
                 : "Matricular-se neste curso";
         }
 
@@ -522,12 +522,12 @@ namespace PlataformaCursos
             if (afr_resultado.afr_Total == 0)
             {
                 afr_lblConclusao.ForeColor = Color.DimGray;
-                afr_lblConclusao.Text = "Este curso ainda nao tem aulas cadastradas.";
+                afr_lblConclusao.Text = "Este curso ainda não tem aulas cadastradas.";
             }
             else if (afr_resultado.afr_Aprovado)
             {
                 afr_lblConclusao.ForeColor = Color.Green;
-                afr_lblConclusao.Text = "CONCLUIDO: voce bateu o minimo de "
+                afr_lblConclusao.Text = "CONCLUÍDO: você bateu o mínimo de "
                                       + afr_resultado.afr_PercentualMinimo + "% deste curso.";
             }
             else if (afr_resultado.afr_Concluidas > 0)
@@ -535,13 +535,13 @@ namespace PlataformaCursos
                 afr_lblConclusao.ForeColor = Color.DarkOrange;
                 afr_lblConclusao.Text = "EM ANDAMENTO: faltam "
                                       + (afr_resultado.afr_Total - afr_resultado.afr_Concluidas)
-                                      + " aula(s) para o minimo de "
+                                      + " aula(s) para o mínimo de "
                                       + afr_resultado.afr_PercentualMinimo + "%.";
             }
             else
             {
                 afr_lblConclusao.ForeColor = Color.DimGray;
-                afr_lblConclusao.Text = "NAO INICIADO: voce ainda nao concluiu nenhuma aula.";
+                afr_lblConclusao.Text = "NÃO INICIADO: você ainda não concluiu nenhuma aula.";
             }
 
             // Repinta de verde as aulas concluidas
@@ -580,7 +580,7 @@ namespace PlataformaCursos
             afr_lblConclusao.ForeColor = Color.DimGray;
             afr_lblConclusao.Text = "";
 
-            afr_grpAulas.Text = "Aulas - abra a aula para ver o conteudo, ou marque a caixa para concluir";
+            afr_grpAulas.Text = "Aulas - abra a aula para ver o conteúdo, ou marque a caixa para concluir";
 
             AtualizarBotaoMatricula();
         }

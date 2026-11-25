@@ -100,7 +100,7 @@ namespace PlataformaCursos
             // direto no campo do email.
             if (afr_usuarioService.VerificarDuplicidade(afr_txtEmail.Text, afr_idSelecionado))
             {
-                MessageBox.Show("Este email ja esta cadastrado para outro usuario. "
+                MessageBox.Show("Este email já está cadastrado para outro usuário. "
                               + "Escolha outro email.",
                                 "Email em uso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
@@ -137,13 +137,13 @@ namespace PlataformaCursos
 
             if (!afr_ok)
             {
-                MessageBox.Show(afr_mensagem, "Atencao",
+                MessageBox.Show(afr_mensagem, "Atenção",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             afr_txtSaida.Text = afr_comando + " executado." + Environment.NewLine +
-                                "Usuario salvo." + Environment.NewLine +
+                                "Usuário salvo." + Environment.NewLine +
                                 afr_usuario.ObterResumo();
 
             // DS11 - exibirMensagemSucesso() / sucessoConfirmado()
@@ -168,8 +168,8 @@ namespace PlataformaCursos
             // solicitarExclusaoUsuario(usuario)
             if (afr_idSelecionado == 0)
             {
-                MessageBox.Show("Clique primeiro no usuario da lista que voce quer excluir.",
-                                "Atencao", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Clique primeiro no usuário da lista que você quer excluir.",
+                                "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -182,7 +182,7 @@ namespace PlataformaCursos
 
             // solicitarConfirmacaoExclusao(dadosDetalhados)
             FrmConfirmarExclusao afr_confirmacao = new FrmConfirmarExclusao(
-                "Excluir o usuario " + afr_txtNome.Text + " (Id " + afr_idSelecionado + ")",
+                "Excluir o usuário " + afr_txtNome.Text + " (Id " + afr_idSelecionado + ")",
                 afr_elegibilidade);
 
             afr_confirmacao.ShowDialog();
@@ -190,7 +190,7 @@ namespace PlataformaCursos
             // confirmarExclusaoFinal(usuario)
             if (!afr_confirmacao.afr_Confirmado)
             {
-                afr_txtSaida.Text = "Exclusao cancelada. Nenhum DELETE foi executado.";
+                afr_txtSaida.Text = "Exclusão cancelada. Nenhum DELETE foi executado.";
                 return;
             }
 
@@ -224,7 +224,7 @@ namespace PlataformaCursos
         {
             if (afr_idSelecionado == 0)
             {
-                MessageBox.Show("Clique primeiro em um usuario da lista.", "Atencao",
+                MessageBox.Show("Clique primeiro em um usuário da lista.", "Atenção",
                                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -233,7 +233,7 @@ namespace PlataformaCursos
             afr_tela.ShowDialog();
 
             afr_txtSaida.Text = "Perfil do Id " + afr_idSelecionado + " consultado: "
-                              + "dados do usuario e historico de acoes (login, CRUD e cursos).";
+                              + "dados do usuário e histórico de ações (login, CRUD e cursos).";
         }
 
         // =============================================================
@@ -294,7 +294,7 @@ namespace PlataformaCursos
 
             if (afr_usuario == null)
             {
-                afr_txtSaida.Text = "O usuario Id " + afr_id + " nao esta mais no banco. "
+                afr_txtSaida.Text = "O usuário Id " + afr_id + " não está mais no banco. "
                                   + "Clique em Recarregar lista.";
                 return;
             }
@@ -332,7 +332,7 @@ namespace PlataformaCursos
                 }
                 else
                 {
-                    afr_item.SubItems.Add("Nao");
+                    afr_item.SubItems.Add("Não");
                     afr_item.ForeColor = Color.Gray;
                 }
 
@@ -369,7 +369,7 @@ namespace PlataformaCursos
                 afr_lstUsuarios.Items.Add(afr_item);
             }
 
-            afr_lblStatus.Text = afr_listaAtual.Count + " usuario(s) em dbo.Usuarios  |  "
+            afr_lblStatus.Text = afr_listaAtual.Count + " usuário(s) em dbo.Usuarios  |  "
                                + afr_admins + " admin, " + afr_professores + " professor, "
                                + afr_alunos + " aluno  |  "
                                + afr_ponte.ObterDescricao();
@@ -407,10 +407,10 @@ namespace PlataformaCursos
             afr_lblModo.ForeColor = Color.DarkOrange;
             afr_lblModo.Text = "EDITANDO O Id " + afr_usuario.afr_Id;
 
-            afr_txtSaida.Text = "Usuario carregado para edicao." + Environment.NewLine +
+            afr_txtSaida.Text = "Usuário carregado para edição." + Environment.NewLine +
                                 "Altere os campos e clique em Salvar para executar o UPDATE." +
                                 Environment.NewLine +
-                                "O botao Novo cancela a edicao." + Environment.NewLine +
+                                "O botão Novo cancela a edição." + Environment.NewLine +
                                 "Cadastro em " +
                                 afr_usuario.ObterDataCadastro("dd/MM/yyyy HH:mm") +
                                 Environment.NewLine +
@@ -441,7 +441,7 @@ namespace PlataformaCursos
             afr_chkAtivo.Checked = true;
 
             afr_lblModo.ForeColor = Color.Black;
-            afr_lblModo.Text = "NOVO USUARIO";
+            afr_lblModo.Text = "NOVO USUÁRIO";
 
             afr_txtNome.Focus();
         }

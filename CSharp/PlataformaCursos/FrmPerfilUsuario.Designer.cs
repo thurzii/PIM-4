@@ -53,7 +53,7 @@ namespace PlataformaCursos
             this.afr_lblTitulo.Name = "afr_lblTitulo";
             this.afr_lblTitulo.Size = new System.Drawing.Size(220, 25);
             this.afr_lblTitulo.TabIndex = 0;
-            this.afr_lblTitulo.Text = "Perfil do usuario";
+            this.afr_lblTitulo.Text = "Perfil do usuário";
             //
             // afr_lblNome
             //
@@ -100,7 +100,7 @@ namespace PlataformaCursos
             this.afr_lblHistoricoTitulo.Name = "afr_lblHistoricoTitulo";
             this.afr_lblHistoricoTitulo.Size = new System.Drawing.Size(180, 19);
             this.afr_lblHistoricoTitulo.TabIndex = 5;
-            this.afr_lblHistoricoTitulo.Text = "Historico de acoes";
+            this.afr_lblHistoricoTitulo.Text = "Histórico de ações";
             //
             // afr_lblLoginTitulo
             //
@@ -134,7 +134,7 @@ namespace PlataformaCursos
             //
             // afr_colLoginDesc
             //
-            this.afr_colLoginDesc.Text = "Acao";
+            this.afr_colLoginDesc.Text = "Ação";
             this.afr_colLoginDesc.Width = 170;
             //
             // afr_lblCrudTitulo
@@ -169,7 +169,7 @@ namespace PlataformaCursos
             //
             // afr_colCrudDesc
             //
-            this.afr_colCrudDesc.Text = "Acao";
+            this.afr_colCrudDesc.Text = "Ação";
             this.afr_colCrudDesc.Width = 170;
             //
             // afr_lblCursosTitulo
@@ -204,7 +204,7 @@ namespace PlataformaCursos
             //
             // afr_colCursoDesc
             //
-            this.afr_colCursoDesc.Text = "Acao no curso";
+            this.afr_colCursoDesc.Text = "Ação no curso";
             this.afr_colCursoDesc.Width = 490;
             //
             // afr_lblResumo
@@ -251,7 +251,7 @@ namespace PlataformaCursos
             this.MinimizeBox = false;
             this.Name = "FrmPerfilUsuario";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Perfil do usuario";
+            this.Text = "Perfil do usuário";
             this.Load += new System.EventHandler(this.FrmPerfilUsuario_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

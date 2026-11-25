@@ -28,7 +28,7 @@
 *@
 @model ConfirmarExclusaoViewModel
 @{
-    ViewData["Title"] = "Confirmar exclusao";
+    ViewData["Title"] = "Confirmar exclusão";
 }
 
 <section class="cartao caixa-perigo">
@@ -55,7 +55,7 @@
         }
 
         <p class="ajuda">
-            Esta exclusao nao pode ser feita agora. Resolva o que esta
+            Esta exclusão não pode ser feita agora. Resolva o que está
             listado acima e tente de novo.
         </p>
 
@@ -74,7 +74,7 @@
         @* ---------------------------------------------------------- *@
         <p class="motivo-bloqueio">@Model.afr_Elegibilidade.afr_Motivo</p>
 
-        <h3>O que sera apagado</h3>
+        <h3>O que será apagado</h3>
         <ul class="lista-detalhes">
             @foreach (string afr_linha in Model.afr_Elegibilidade.afr_DadosDetalhados)
             {
@@ -91,7 +91,7 @@
             <input type="hidden" asp-for="afr_Titulo" />
 
             <p class="ajuda">
-                Esta operacao nao tem volta. Para confirmar, digite a sua
+                Esta operação não tem volta. Para confirmar, digite a sua
                 senha de acesso.
             </p>
 

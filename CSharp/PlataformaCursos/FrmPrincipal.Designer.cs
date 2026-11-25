@@ -67,7 +67,7 @@ namespace PlataformaCursos
             this.afr_lblBoasVindas.Name = "afr_lblBoasVindas";
             this.afr_lblBoasVindas.Size = new System.Drawing.Size(818, 20);
             this.afr_lblBoasVindas.TabIndex = 1;
-            this.afr_lblBoasVindas.Text = "Ola.";
+            this.afr_lblBoasVindas.Text = "Olá.";
             //
             // afr_lblSessao
             //
@@ -87,7 +87,7 @@ namespace PlataformaCursos
             this.afr_grpAluno.Size = new System.Drawing.Size(266, 200);
             this.afr_grpAluno.TabIndex = 3;
             this.afr_grpAluno.TabStop = false;
-            this.afr_grpAluno.Text = "Area do Aluno";
+            this.afr_grpAluno.Text = "Área do Aluno";
             //
             // afr_btnCatalogo
             //
@@ -96,7 +96,7 @@ namespace PlataformaCursos
             this.afr_btnCatalogo.Name = "afr_btnCatalogo";
             this.afr_btnCatalogo.Size = new System.Drawing.Size(230, 55);
             this.afr_btnCatalogo.TabIndex = 0;
-            this.afr_btnCatalogo.Text = "Catalogo de Cursos";
+            this.afr_btnCatalogo.Text = "Catálogo de Cursos";
             this.afr_btnCatalogo.UseVisualStyleBackColor = false;
             this.afr_btnCatalogo.Click += new System.EventHandler(this.afr_btnCatalogo_Click);
             //
@@ -107,7 +107,7 @@ namespace PlataformaCursos
             this.afr_lblAlunoInfo.Name = "afr_lblAlunoInfo";
             this.afr_lblAlunoInfo.Size = new System.Drawing.Size(230, 95);
             this.afr_lblAlunoInfo.TabIndex = 1;
-            this.afr_lblAlunoInfo.Text = "Veja os cursos, use os filtros da busca, abra o conteudo das aulas e marque o que ja concluiu.";
+            this.afr_lblAlunoInfo.Text = "Veja os cursos, use os filtros da busca, abra o conteúdo das aulas e marque o que já concluiu.";
             //
             // afr_grpProfessor
             //
@@ -119,7 +119,7 @@ namespace PlataformaCursos
             this.afr_grpProfessor.Size = new System.Drawing.Size(266, 200);
             this.afr_grpProfessor.TabIndex = 4;
             this.afr_grpProfessor.TabStop = false;
-            this.afr_grpProfessor.Text = "Area do Professor";
+            this.afr_grpProfessor.Text = "Área do Professor";
             //
             // afr_btnCursos
             //
@@ -161,7 +161,7 @@ namespace PlataformaCursos
             this.afr_grpAdmin.Size = new System.Drawing.Size(266, 200);
             this.afr_grpAdmin.TabIndex = 5;
             this.afr_grpAdmin.TabStop = false;
-            this.afr_grpAdmin.Text = "Administracao";
+            this.afr_grpAdmin.Text = "Administração";
             //
             // afr_btnUsuarios
             //
@@ -170,7 +170,7 @@ namespace PlataformaCursos
             this.afr_btnUsuarios.Name = "afr_btnUsuarios";
             this.afr_btnUsuarios.Size = new System.Drawing.Size(230, 55);
             this.afr_btnUsuarios.TabIndex = 0;
-            this.afr_btnUsuarios.Text = "Gerenciar Usuarios";
+            this.afr_btnUsuarios.Text = "Gerenciar Usuários";
             this.afr_btnUsuarios.UseVisualStyleBackColor = false;
             this.afr_btnUsuarios.Click += new System.EventHandler(this.afr_btnUsuarios_Click);
             //
@@ -181,7 +181,7 @@ namespace PlataformaCursos
             this.afr_lblAdminInfo.Name = "afr_lblAdminInfo";
             this.afr_lblAdminInfo.Size = new System.Drawing.Size(230, 95);
             this.afr_lblAdminInfo.TabIndex = 1;
-            this.afr_lblAdminInfo.Text = "Cadastre, edite e exclua usuarios, e consulte o perfil de cada um com o historico de acoes.";
+            this.afr_lblAdminInfo.Text = "Cadastre, edite e exclua usuários, e consulte o perfil de cada um com o histórico de ações.";
             //
             // afr_btnTestar
             //
@@ -189,7 +189,7 @@ namespace PlataformaCursos
             this.afr_btnTestar.Name = "afr_btnTestar";
             this.afr_btnTestar.Size = new System.Drawing.Size(200, 38);
             this.afr_btnTestar.TabIndex = 6;
-            this.afr_btnTestar.Text = "Testar conexao";
+            this.afr_btnTestar.Text = "Testar conexão";
             this.afr_btnTestar.UseVisualStyleBackColor = true;
             this.afr_btnTestar.Click += new System.EventHandler(this.afr_btnTestar_Click);
             //
@@ -220,7 +220,7 @@ namespace PlataformaCursos
             this.afr_lblNivel.Name = "afr_lblNivel";
             this.afr_lblNivel.Size = new System.Drawing.Size(300, 20);
             this.afr_lblNivel.TabIndex = 20;
-            this.afr_lblNivel.Text = "Nivel 1";
+            this.afr_lblNivel.Text = "Nível 1";
             //
             // afr_lblXp
             //

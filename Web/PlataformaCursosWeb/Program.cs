@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Program.cs  (configuracao e ponto de entrada)
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    No desktop o Main abria um formulario. Aqui ele monta e sobe um
    servidor web. Este arquivo faz tres coisas (nao ha banco para
@@ -152,8 +151,8 @@ if (app.Environment.IsDevelopment() && afr_abrirNavegador)
         {
             // Se nao der, o servidor continua no ar: basta abrir o
             // endereco na mao.
-            Console.WriteLine("[WEB] Nao deu para abrir o navegador: " + afr_erro.Message);
-            Console.WriteLine("[WEB] Abra o endereco acima manualmente.");
+            Console.WriteLine("[WEB] Não deu para abrir o navegador: " + afr_erro.Message);
+            Console.WriteLine("[WEB] Abra o endereço acima manualmente.");
         }
     });
 }

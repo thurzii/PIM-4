@@ -12,19 +12,19 @@
 @model UsuarioViewModel
 @{
     bool afr_edicao = Model.EhEdicao();
-    ViewData["Title"] = afr_edicao ? "Editar usuario" : "Novo usuario";
+    ViewData["Title"] = afr_edicao ? "Editar usuário" : "Novo usuário";
 }
 
 <p class="subtitulo" style="margin-bottom:6px;">
     <a asp-controller="Usuarios" asp-action="Index">&larr; Voltar para a lista</a>
 </p>
 
-<h1>@(afr_edicao ? "Editar usuario" : "Novo usuario")</h1>
+<h1>@(afr_edicao ? "Editar usuário" : "Novo usuário")</h1>
 
 <p class="subtitulo">
     @if (afr_edicao)
     {
-        <text>Salvar envia as alteracoes do usuario Id @Model.afr_Id para a API.</text>
+        <text>Salvar envia as alterações do usuário Id @Model.afr_Id para a API.</text>
 
         if (Model.afr_DataCadastro > DateTime.MinValue)
         {
@@ -36,11 +36,11 @@
     }
     else
     {
-        <text>Salvar cadastra o usuario pela API.</text>
+        <text>Salvar cadastra o usuário pela API.</text>
     }
 </p>
 
-<section class="cartao" style="max-width:640px;" aria-label="Dados do usuario">
+<section class="cartao" style="max-width:640px;" aria-label="Dados do usuário">
     <form asp-controller="Usuarios" asp-action="Salvar" method="post">
         @Html.AntiForgeryToken()
 
@@ -57,7 +57,7 @@
             <input asp-for="afr_Email" type="email" maxlength="100" />
             <span asp-validation-for="afr_Email" class="erro-validacao"></span>
             <div class="ajuda">
-                Nao pode repetir. O sistema confere aqui, no UsuarioService
+                Não pode repetir. O sistema confere aqui, no UsuarioService
                 (DS11 - verificarDuplicidade), e a API confere de novo antes
                 de gravar.
             </div>
@@ -109,12 +109,12 @@
 
         <div class="campo campo-inline">
             <input asp-for="afr_Ativo" type="checkbox" />
-            <label asp-for="afr_Ativo">Usuario ativo (pode entrar no sistema)</label>
+            <label asp-for="afr_Ativo">Usuário ativo (pode entrar no sistema)</label>
         </div>
 
         <div class="acoes">
             <button type="submit" class="botao botao-primario">
-                @(afr_edicao ? "Salvar alteracoes" : "Cadastrar usuario")
+                @(afr_edicao ? "Salvar alterações" : "Cadastrar usuário")
             </button>
 
             <a asp-controller="Usuarios" asp-action="Index" class="botao">Cancelar</a>
@@ -122,14 +122,14 @@
             @if (afr_edicao)
             {
                 <a asp-controller="Usuarios" asp-action="Perfil" asp-route-id="@Model.afr_Id"
-                   class="botao">Ver perfil e historico</a>
+                   class="botao">Ver perfil e histórico</a>
             }
         </div>
     </form>
 </section>
 
 <p class="ajuda" style="max-width:640px;">
-    A senha nunca e gravada como texto: a API guarda so o hash (scrypt).
-    Nem o administrador consegue ve-la
-    depois de salva - por isso, na edicao, o campo em branco mantem a atual.
+    A senha nunca é gravada como texto: a API guarda só o hash (scrypt).
+    Nem o administrador consegue vê-la
+    depois de salva - por isso, na edição, o campo em branco mantém a atual.
 </p>

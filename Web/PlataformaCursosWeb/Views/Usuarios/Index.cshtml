@@ -12,20 +12,20 @@
 *@
 @model List<Usuario>
 @{
-    ViewData["Title"] = "Usuarios";
+    ViewData["Title"] = "Usuários";
 
     string afr_termo = ViewBag.Termo as string ?? "";
     int afr_meuId = ViewBag.MeuId != null ? (int)ViewBag.MeuId : 0;
 }
 
-<h1>Usuarios</h1>
-<p class="subtitulo">Quem pode entrar no sistema e com qual nivel de acesso.</p>
+<h1>Usuários</h1>
+<p class="subtitulo">Quem pode entrar no sistema e com qual nível de acesso.</p>
 
-<section class="cartao" aria-label="Buscar usuarios">
+<section class="cartao" aria-label="Buscar usuários">
     <form role="search" asp-controller="Usuarios" asp-action="Index" method="get">
         <div class="filtros">
             <div class="campo campo-largo">
-                <label for="termo">Buscar usuario</label>
+                <label for="termo">Buscar usuário</label>
                 <input type="search" id="termo" name="termo" value="@afr_termo"
                        placeholder="Nome ou email" />
             </div>
@@ -33,7 +33,7 @@
             <button type="submit" class="botao">Buscar</button>
 
             <a asp-controller="Usuarios" asp-action="Novo" class="botao botao-primario">
-                Novo usuario
+                Novo usuário
             </a>
         </div>
     </form>
@@ -47,12 +47,12 @@
 @if (Model.Count == 0)
 {
     <div class="cartao vazio">
-        <p>Nenhum usuario encontrado.</p>
+        <p>Nenhum usuário encontrado.</p>
     </div>
 }
 else
 {
-    <section class="cartao" style="padding:0; overflow-x:auto;" aria-label="Lista de usuarios">
+    <section class="cartao" style="padding:0; overflow-x:auto;" aria-label="Lista de usuários">
         <table>
             <thead>
                 <tr>
@@ -60,9 +60,9 @@ else
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Perfil</th>
-                    <th>Situacao</th>
+                    <th>Situação</th>
                     <th>Cadastro</th>
-                    <th class="coluna-acoes">Acoes</th>
+                    <th class="coluna-acoes">Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -74,7 +74,7 @@ else
                             <strong>@afr_usuario.afr_Nome</strong>
                             @if (afr_usuario.afr_Id == afr_meuId)
                             {
-                                <span class="ajuda">(voce)</span>
+                                <span class="ajuda">(você)</span>
                             }
                         </td>
                         <td>@afr_usuario.afr_Email</td>
@@ -142,8 +142,8 @@ else
     </p>
 
     <p class="ajuda">
-        A exclusao acontece em duas etapas (DS14): a proxima pagina mostra o
-        que sera apagado e pede a sua senha. Voce nao pode excluir a sua
-        propria conta, nem o ultimo administrador ativo do sistema.
+        A exclusão acontece em duas etapas (DS14): a próxima página mostra o
+        que será apagado e pede a sua senha. Você não pode excluir a sua
+        própria conta, nem o último administrador ativo do sistema.
     </p>
 }

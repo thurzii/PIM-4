@@ -38,7 +38,7 @@ namespace PlataformaCursos
             var r = new PonteApi().RecuperarComCodigo(afr_txtEmail.Text, afr_txtCodigo.Text, afr_txtNova.Text);
             if (!r.afr_Ok) { MessageBox.Show(r.afr_Mensagem); return; }
 
-            MessageBox.Show("Senha redefinida. Guarde o novo codigo: " + r.CodigoRecuperacao, "Recuperacao");
+            MessageBox.Show("Senha redefinida. Guarde o novo código: " + r.CodigoRecuperacao, "Recuperação");
             Close();
         }
     }

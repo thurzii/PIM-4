@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Services/Servicos.cs  (regras de negocio)
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    Cada metodo publico corresponde a uma mensagem dos diagramas de
    sequencia do Astah; o nome foi mantido igual ao da mensagem sempre
@@ -133,13 +132,13 @@ namespace PlataformaCursosWeb.Services
         {
             if (!afr_sessao.EstaAberta())
             {
-                afr_mensagem = "Sessao encerrada. Entre novamente.";
+                afr_mensagem = "Sessão encerrada. Entre novamente.";
                 return false;
             }
 
             if (!afr_ponte.ConfirmarSenha(afr_senhaDigitada, out afr_mensagem))
             {
-                afr_mensagem = "Senha incorreta. A exclusao foi cancelada.";
+                afr_mensagem = "Senha incorreta. A exclusão foi cancelada.";
                 return false;
             }
 
@@ -170,13 +169,13 @@ namespace PlataformaCursosWeb.Services
 
             if (!afr_sessao.EstaAberta())
             {
-                afr_mensagem = "Sessao encerrada. Entre novamente.";
+                afr_mensagem = "Sessão encerrada. Entre novamente.";
                 return false;
             }
 
             if (!afr_sessao.PodeGerenciarUsuarios())
             {
-                afr_mensagem = "Apenas o administrador pode gerenciar usuarios.";
+                afr_mensagem = "Apenas o administrador pode gerenciar usuários.";
                 return false;
             }
 
@@ -229,7 +228,7 @@ namespace PlataformaCursosWeb.Services
 
             if (VerificarDuplicidade(afr_usuario.afr_Email, 0))
             {
-                afr_mensagem = "Ja existe um usuario com este email.";
+                afr_mensagem = "Já existe um usuário com este email.";
                 return false;
             }
 
@@ -251,7 +250,7 @@ namespace PlataformaCursosWeb.Services
 
             if (VerificarDuplicidade(afr_usuario.afr_Email, afr_usuario.afr_Id))
             {
-                afr_mensagem = "Ja existe outro usuario com este email.";
+                afr_mensagem = "Já existe outro usuário com este email.";
                 return false;
             }
 
@@ -273,24 +272,24 @@ namespace PlataformaCursosWeb.Services
             if (afr_alvo == null)
             {
                 afr_resultado.afr_Elegivel = false;
-                afr_resultado.afr_Motivo = "Usuario nao encontrado.";
+                afr_resultado.afr_Motivo = "Usuário não encontrado.";
                 return afr_resultado;
             }
 
             if (afr_id == afr_sessao.ObterUsuarioId())
             {
                 afr_resultado.afr_Elegivel = false;
-                afr_resultado.afr_Motivo = "Voce nao pode excluir a sua propria conta.";
+                afr_resultado.afr_Motivo = "Você não pode excluir a sua própria conta.";
                 return afr_resultado;
             }
 
             afr_resultado.afr_Elegivel = true;
-            afr_resultado.afr_Motivo = "O usuario pode ser excluido.";
+            afr_resultado.afr_Motivo = "O usuário pode ser excluído.";
             afr_resultado.afr_DadosDetalhados.Add(
-                "Usuario: " + afr_alvo.afr_Nome + " (" + afr_alvo.afr_Email + ")");
+                "Usuário: " + afr_alvo.afr_Nome + " (" + afr_alvo.afr_Email + ")");
             afr_resultado.afr_DadosDetalhados.Add("Perfil: " + afr_alvo.afr_Perfil);
             afr_resultado.afr_DadosDetalhados.Add(
-                "O progresso, o XP e as medalhas dele serao apagados");
+                "O progresso, o XP e as medalhas dele serão apagados");
 
             return afr_resultado;
         }
@@ -308,7 +307,7 @@ namespace PlataformaCursosWeb.Services
 
             if ((afr_usuario.afr_Nome ?? "").Trim() == "")
             {
-                afr_mensagem = "Informe o nome do usuario.";
+                afr_mensagem = "Informe o nome do usuário.";
                 return false;
             }
 
@@ -318,7 +317,7 @@ namespace PlataformaCursosWeb.Services
             // Operador logico OU (||)
             if (afr_posArroba < 1 || afr_email.IndexOf('.', afr_posArroba) < afr_posArroba + 2)
             {
-                afr_mensagem = "Informe um email valido (exemplo: nome@escola.com).";
+                afr_mensagem = "Informe um email válido (exemplo: nome@escola.com).";
                 return false;
             }
 
@@ -337,7 +336,7 @@ namespace PlataformaCursosWeb.Services
                 afr_usuario.afr_Perfil != Usuario.PERFIL_PROFESSOR &&
                 afr_usuario.afr_Perfil != Usuario.PERFIL_ALUNO)
             {
-                afr_mensagem = "Escolha o perfil do usuario.";
+                afr_mensagem = "Escolha o perfil do usuário.";
                 return false;
             }
 
@@ -367,7 +366,7 @@ namespace PlataformaCursosWeb.Services
 
             if (!afr_sessao.EstaAberta())
             {
-                afr_mensagem = "Sessao encerrada. Entre novamente.";
+                afr_mensagem = "Sessão encerrada. Entre novamente.";
                 return false;
             }
 
@@ -480,25 +479,25 @@ namespace PlataformaCursosWeb.Services
             if (afr_curso == null)
             {
                 afr_resultado.afr_Elegivel = false;
-                afr_resultado.afr_Motivo = "Curso nao encontrado.";
+                afr_resultado.afr_Motivo = "Curso não encontrado.";
                 return afr_resultado;
             }
 
             if (!afr_sessao.EhAdministrador())
             {
                 afr_resultado.afr_Elegivel = false;
-                afr_resultado.afr_Motivo = "So o administrador exclui curso. " +
-                                           "Voce pode desativar o curso em Editar.";
+                afr_resultado.afr_Motivo = "Só o administrador exclui curso. " +
+                                           "Você pode desativar o curso em Editar.";
                 return afr_resultado;
             }
 
             afr_resultado.afr_Elegivel = true;
-            afr_resultado.afr_Motivo = "O curso pode ser excluido. Os alunos matriculados " +
+            afr_resultado.afr_Motivo = "O curso pode ser excluído. Os alunos matriculados " +
                                        "perdem o progresso nele.";
             afr_resultado.afr_DadosDetalhados.Add(
                 "Curso: " + afr_curso.afr_Titulo + " (" + afr_curso.afr_CargaHoraria + "h)");
             afr_resultado.afr_DadosDetalhados.Add(
-                afr_curso.afr_TotalAulas + " aula(s) serao apagadas junto");
+                afr_curso.afr_TotalAulas + " aula(s) serão apagadas junto");
 
             return afr_resultado;
         }
@@ -515,20 +514,20 @@ namespace PlataformaCursosWeb.Services
 
             if ((afr_curso.afr_Titulo ?? "").Trim() == "")
             {
-                afr_mensagem = "Informe o titulo do curso.";
+                afr_mensagem = "Informe o título do curso.";
                 return false;
             }
 
             if (afr_curso.afr_CargaHoraria <= 0)
             {
-                afr_mensagem = "A carga horaria precisa ser maior que zero.";
+                afr_mensagem = "A carga horária precisa ser maior que zero.";
                 return false;
             }
 
             // Operador logico OU (||)
             if (afr_curso.afr_PercentualMinimo < 1 || afr_curso.afr_PercentualMinimo > 100)
             {
-                afr_mensagem = "O percentual minimo precisa ficar entre 1 e 100.";
+                afr_mensagem = "O percentual mínimo precisa ficar entre 1 e 100.";
                 return false;
             }
 
@@ -636,7 +635,7 @@ namespace PlataformaCursosWeb.Services
 
             if ((afr_aula.afr_Titulo ?? "").Trim() == "")
             {
-                afr_mensagem = "Informe o titulo da aula.";
+                afr_mensagem = "Informe o título da aula.";
                 return false;
             }
 
@@ -648,7 +647,7 @@ namespace PlataformaCursosWeb.Services
 
             if (afr_aula.afr_DuracaoMin <= 0)
             {
-                afr_mensagem = "A duracao da aula precisa ser maior que zero.";
+                afr_mensagem = "A duração da aula precisa ser maior que zero.";
                 return false;
             }
 
@@ -705,7 +704,7 @@ namespace PlataformaCursosWeb.Services
 
             if (afr_aula == null)
             {
-                afr_mensagem = "Aula nao encontrada.";
+                afr_mensagem = "Aula não encontrada.";
                 return false;
             }
 
@@ -726,7 +725,7 @@ namespace PlataformaCursosWeb.Services
         {
             if (afr_curso == null)
             {
-                return "Curso nao encontrado.";
+                return "Curso não encontrado.";
             }
 
             return afr_curso.ObterRequisitos();
@@ -765,7 +764,7 @@ namespace PlataformaCursosWeb.Services
 
             if (!afr_sessao.EstaAberta())
             {
-                afr_mensagem = "Sessao encerrada. Entre novamente.";
+                afr_mensagem = "Sessão encerrada. Entre novamente.";
                 return false;
             }
 

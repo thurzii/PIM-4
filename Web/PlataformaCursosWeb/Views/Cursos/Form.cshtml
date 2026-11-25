@@ -25,7 +25,7 @@
 <p class="subtitulo">
     @if (afr_edicao)
     {
-        <text>Salvar envia as alteracoes do curso Id @Model.afr_Id para a API.</text>
+        <text>Salvar envia as alterações do curso Id @Model.afr_Id para a API.</text>
 
         if (ViewBag.TotalAulas != null)
         {
@@ -45,13 +45,13 @@
         <input type="hidden" asp-for="afr_Id" />
 
         <div class="campo">
-            <label asp-for="afr_Titulo">Titulo</label>
+            <label asp-for="afr_Titulo">Título</label>
             <input asp-for="afr_Titulo" type="text" maxlength="120" />
             <span asp-validation-for="afr_Titulo" class="erro-validacao"></span>
         </div>
 
         <div class="campo">
-            <label asp-for="afr_Descricao">Descricao</label>
+            <label asp-for="afr_Descricao">Descrição</label>
             <textarea asp-for="afr_Descricao" maxlength="500"></textarea>
             <span asp-validation-for="afr_Descricao" class="erro-validacao"></span>
         </div>
@@ -63,7 +63,7 @@
             </div>
 
             <div class="campo campo-estreito">
-                <label asp-for="afr_PercentualMinimo">Minimo (%)</label>
+                <label asp-for="afr_PercentualMinimo">Mínimo (%)</label>
                 <input asp-for="afr_PercentualMinimo" type="number" min="1" max="100" />
             </div>
         </div>
@@ -72,19 +72,19 @@
         <span asp-validation-for="afr_PercentualMinimo" class="erro-validacao"></span>
 
         <div class="ajuda" style="margin-top:8px;">
-            <strong>Minimo para concluir:</strong> percentual das aulas que o
-            aluno precisa concluir para o curso contar como concluido. 100 exige
-            todas as aulas; 75 exige tres quartos delas.
+            <strong>Mínimo para concluir:</strong> percentual das aulas que o
+            aluno precisa concluir para o curso contar como concluído. 100 exige
+            todas as aulas; 75 exige três quartos delas.
         </div>
 
         <div class="campo campo-inline" style="margin-top:16px;">
             <input asp-for="afr_Ativo" type="checkbox" />
-            <label asp-for="afr_Ativo">Curso ativo (visivel para o aluno)</label>
+            <label asp-for="afr_Ativo">Curso ativo (visível para o aluno)</label>
         </div>
 
         <div class="acoes">
             <button type="submit" class="botao botao-primario">
-                @(afr_edicao ? "Salvar alteracoes" : "Cadastrar curso")
+                @(afr_edicao ? "Salvar alterações" : "Cadastrar curso")
             </button>
 
             <a asp-controller="Cursos" asp-action="Index" class="botao">Cancelar</a>

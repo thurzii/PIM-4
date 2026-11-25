@@ -166,7 +166,7 @@ namespace PlataformaCursos
             //
             // afr_colMinimo
             //
-            this.afr_colMinimo.Text = "Minimo";
+            this.afr_colMinimo.Text = "Mínimo";
             this.afr_colMinimo.Width = 80;
             //
             // afr_colStatus
@@ -207,7 +207,7 @@ namespace PlataformaCursos
             this.afr_lblRanking.Name = "afr_lblRanking";
             this.afr_lblRanking.Size = new System.Drawing.Size(700, 20);
             this.afr_lblRanking.TabIndex = 11;
-            this.afr_lblRanking.Text = "CLASSIFICACAO POR XP";
+            this.afr_lblRanking.Text = "CLASSIFICAÇÃO POR XP";
             //
             // colunas do ranking
             //
@@ -217,9 +217,9 @@ namespace PlataformaCursos
             this.afr_colNomeR.Width = 280;
             this.afr_colXp.Text = "XP";
             this.afr_colXp.Width = 80;
-            this.afr_colNivel.Text = "Nivel";
+            this.afr_colNivel.Text = "Nível";
             this.afr_colNivel.Width = 80;
-            this.afr_colSequencia.Text = "Sequencia";
+            this.afr_colSequencia.Text = "Sequência";
             this.afr_colSequencia.Width = 110;
             //
             // afr_lstRanking

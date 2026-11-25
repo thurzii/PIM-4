@@ -65,7 +65,7 @@ namespace PlataformaCursos
             this.afr_lblTitulo.Name = "afr_lblTitulo";
             this.afr_lblTitulo.Size = new System.Drawing.Size(260, 25);
             this.afr_lblTitulo.TabIndex = 0;
-            this.afr_lblTitulo.Text = "GERENCIAR USUARIOS";
+            this.afr_lblTitulo.Text = "GERENCIAR USUÁRIOS";
             //
             // afr_grpDados
             //
@@ -88,7 +88,7 @@ namespace PlataformaCursos
             this.afr_grpDados.Size = new System.Drawing.Size(400, 312);
             this.afr_grpDados.TabIndex = 1;
             this.afr_grpDados.TabStop = false;
-            this.afr_grpDados.Text = "Dados do Usuario";
+            this.afr_grpDados.Text = "Dados do Usuário";
             //
             // afr_lblModo
             //
@@ -98,7 +98,7 @@ namespace PlataformaCursos
             this.afr_lblModo.Name = "afr_lblModo";
             this.afr_lblModo.Size = new System.Drawing.Size(120, 15);
             this.afr_lblModo.TabIndex = 0;
-            this.afr_lblModo.Text = "NOVO USUARIO";
+            this.afr_lblModo.Text = "NOVO USUÁRIO";
             //
             // afr_lblNome
             //
@@ -224,7 +224,7 @@ namespace PlataformaCursos
             this.afr_lblAviso.Name = "afr_lblAviso";
             this.afr_lblAviso.Size = new System.Drawing.Size(360, 45);
             this.afr_lblAviso.TabIndex = 13;
-            this.afr_lblAviso.Text = "Clique em um usuario da lista para carregar os dados e poder alterar ou excluir.";
+            this.afr_lblAviso.Text = "Clique em um usuário da lista para carregar os dados e poder alterar ou excluir.";
             //
             // afr_lblBusca
             //
@@ -320,7 +320,7 @@ namespace PlataformaCursos
             this.afr_btnVerPerfil.Name = "afr_btnVerPerfil";
             this.afr_btnVerPerfil.Size = new System.Drawing.Size(180, 35);
             this.afr_btnVerPerfil.TabIndex = 7;
-            this.afr_btnVerPerfil.Text = "Ver perfil e historico";
+            this.afr_btnVerPerfil.Text = "Ver perfil e histórico";
             this.afr_btnVerPerfil.UseVisualStyleBackColor = false;
             this.afr_btnVerPerfil.Click += new System.EventHandler(this.afr_btnVerPerfil_Click);
             //
@@ -375,7 +375,7 @@ namespace PlataformaCursos
             this.MaximizeBox = false;
             this.Name = "FrmUsuarios";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Gerenciar Usuarios";
+            this.Text = "Gerenciar Usuários";
             this.Load += new System.EventHandler(this.FrmUsuarios_Load);
             this.afr_grpDados.ResumeLayout(false);
             this.afr_grpDados.PerformLayout();

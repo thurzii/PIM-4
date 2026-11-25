@@ -25,15 +25,15 @@
 <p class="subtitulo">
     @Model.afr_Curso.afr_CargaHoraria h &middot;
     @Model.afr_Aulas.Count aula(s) &middot;
-    minimo de @Model.afr_Curso.afr_PercentualMinimo% para concluir
+    mínimo de @Model.afr_Curso.afr_PercentualMinimo% para concluir
 </p>
 
 @if (afr_semConteudo > 0)
 {
     <p class="aviso aviso-info" role="status">
         @afr_semConteudo aula(s) ainda sem conteudo escrito. O aluno abre a
-        aula e nao encontra nada para ler. Clique em <strong>Editar</strong>
-        na aula para escrever o conteudo.
+        aula e não encontra nada para ler. Clique em <strong>Editar</strong>
+        na aula para escrever o conteúdo.
     </p>
 }
 
@@ -50,24 +50,24 @@
 
         <div class="filtros">
             <div class="campo campo-largo">
-                <label for="titulo">Titulo da aula</label>
+                <label for="titulo">Título da aula</label>
                 <input type="text" id="titulo" name="titulo" maxlength="120" required
-                       placeholder="Ex.: Variaveis e tipos de dados" />
+                       placeholder="Ex.: Variáveis e tipos de dados" />
             </div>
 
             <div class="campo campo-estreito">
-                <label for="duracao">Duracao (min)</label>
+                <label for="duracao">Duração (min)</label>
                 <input type="number" id="duracao" name="duracao" min="1" max="600"
                        value="45" required />
             </div>
         </div>
 
         <div class="campo" style="margin-top:14px;">
-            <label for="conteudo">Conteudo da aula</label>
+            <label for="conteudo">Conteúdo da aula</label>
             <textarea id="conteudo" name="conteudo" rows="5"
                       placeholder="O texto que o aluno vai ler quando abrir a aula."></textarea>
             <div class="ajuda">
-                Pode ficar em branco agora e ser escrito depois, pelo botao
+                Pode ficar em branco agora e ser escrito depois, pelo botão
                 Editar da aula.
             </div>
         </div>
@@ -80,8 +80,8 @@
     </form>
 
     <p class="ajuda">
-        A ordem e calculada pelo sistema: a aula nova entra sempre como a
-        ultima do curso.
+        A ordem é calculada pelo sistema: a aula nova entra sempre como a
+        última do curso.
     </p>
 </section>
 
@@ -93,7 +93,7 @@
 @if (Model.afr_Aulas.Count == 0)
 {
     <div class="cartao vazio">
-        <p>Este curso ainda nao tem aulas. Use o formulario acima.</p>
+        <p>Este curso ainda não tem aulas. Use o formulário acima.</p>
     </div>
 }
 else
@@ -112,7 +112,7 @@ else
 
                     @if (afr_vazia)
                     {
-                        <span class="ajuda">(sem conteudo)</span>
+                        <span class="ajuda">(sem conteúdo)</span>
                     }
                 </span>
 
@@ -141,6 +141,6 @@ else
     </ol>
 
     <p class="ajuda">
-        As aulas em laranja ainda estao sem conteudo escrito.
+        As aulas em laranja ainda estão sem conteúdo escrito.
     </p>
 }

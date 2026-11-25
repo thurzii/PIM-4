@@ -33,13 +33,13 @@
         <div class="cartao">
         @if (ViewBag.Erro != null) { <p class="aviso aviso-erro">@ViewBag.Erro</p> }
         @if (ViewBag.NovoCodigo != null) {
-            <p class="aviso aviso-sucesso">Senha redefinida. Guarde o novo codigo: <strong>@ViewBag.NovoCodigo</strong></p>
+            <p class="aviso aviso-sucesso">Senha redefinida. Guarde o novo código: <strong>@ViewBag.NovoCodigo</strong></p>
         } else {
-            <p class="ajuda">Use o codigo pessoal recebido no cadastro.</p>
+            <p class="ajuda">Use o código pessoal recebido no cadastro.</p>
             <form asp-controller="Conta" asp-action="RedefinirSenha" method="post">
                 @Html.AntiForgeryToken()
                 <div class="campo"><label>Email</label><input asp-for="afr_Email" type="email" required /></div>
-                <div class="campo"><label>Codigo pessoal</label><input asp-for="afr_Codigo" maxlength="19" required /></div>
+                <div class="campo"><label>Código pessoal</label><input asp-for="afr_Codigo" maxlength="19" required /></div>
                 <div class="campo"><label>Nova senha</label><input asp-for="afr_NovaSenha" type="password" minlength="8" maxlength="128" required /></div>
                 <div class="campo"><label>Confirmar senha</label><input asp-for="afr_Confirmacao" type="password" required /></div>
                 <button class="botao botao-primario botao-largo" type="submit">Redefinir senha</button>

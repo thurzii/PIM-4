@@ -17,21 +17,21 @@
 
 <h1>Acesso negado</h1>
 <p class="subtitulo">
-    Voce esta logado com o perfil <strong>@afr_perfil</strong>, mas esta area
+    Você está logado com o perfil <strong>@afr_perfil</strong>, mas esta área
     pede um perfil diferente.
 </p>
 
-<section class="cartao" aria-label="Perfis e permissoes">
-    <p>O que cada perfil alcanca:</p>
+<section class="cartao" aria-label="Perfis e permissões">
+    <p>O que cada perfil alcança:</p>
 
     <table>
         <thead>
             <tr>
                 <th>Perfil</th>
-                <th>Catalogo</th>
+                <th>Catálogo</th>
                 <th>Cursos e Aulas</th>
                 <th>Progresso dos Alunos</th>
-                <th>Usuarios</th>
+                <th>Usuários</th>
             </tr>
         </thead>
         <tbody>
@@ -60,12 +60,12 @@
     </table>
 
     <p class="ajuda" style="margin-top:16px;">
-        Esta regra nao esta escrita dentro das paginas. Ela vem de duas
-        camadas: o atributo <code>[Authorize(Roles = ...)]</code> no inicio
-        dos controllers, que barra a requisicao antes de qualquer codigo
-        rodar, e os metodos <code>VerificarPermissaoProfessor</code> e
-        <code>VerificarPermissaoAdmin</code> dos servicos, que conferem de
-        novo. E a mesma dupla protecao do desktop: esconder o botao no menu
+        Esta regra não está escrita dentro das páginas. Ela vem de duas
+        camadas: o atributo <code>[Authorize(Roles = ...)]</code> no início
+        dos controllers, que barra a requisição antes de qualquer código
+        rodar, e os métodos <code>VerificarPermissaoProfessor</code> e
+        <code>VerificarPermissaoAdmin</code> dos serviços, que conferem de
+        novo. É a mesma dupla proteção do desktop: esconder o botão no menu
         e checar no evento Load.
     </p>
 
@@ -74,7 +74,7 @@
             Voltar ao painel
         </a>
         <a asp-controller="Catalogo" asp-action="Index" class="botao">
-            Ir para o catalogo
+            Ir para o catálogo
         </a>
     </div>
 </section>

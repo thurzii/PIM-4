@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Controllers/ProgressoController.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    PROGRESSO DOS ALUNOS - equivalente ao FrmProgressoAlunos do desktop.
 
@@ -103,7 +102,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_aluno == null)
             {
-                ViewBag.Erro = "Aluno nao encontrado.";
+                ViewBag.Erro = "Aluno não encontrado.";
                 return View(afr_dados);
             }
 
@@ -118,7 +117,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_dados.afr_Progresso.Count == 0)
             {
-                ViewBag.Aviso = "Nao existe nenhum curso ativo cadastrado no sistema.";
+                ViewBag.Aviso = "Não existe nenhum curso ativo cadastrado no sistema.";
             }
 
             return View(afr_dados);

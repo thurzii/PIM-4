@@ -21,10 +21,10 @@
 <h1>Aula @Model.afr_Ordem: @Model.afr_Titulo</h1>
 <p class="subtitulo">
     Curso: @Model.afr_CursoTitulo &middot;
-    salvar envia as alteracoes para a API.
+    salvar envia as alterações para a API.
 </p>
 
-<section class="cartao" style="max-width:760px;" aria-label="Conteudo da aula">
+<section class="cartao" style="max-width:760px;" aria-label="Conteúdo da aula">
     <form asp-controller="Cursos" asp-action="SalvarAula" method="post">
         @Html.AntiForgeryToken()
 
@@ -35,12 +35,12 @@
 
         <div class="filtros">
             <div class="campo campo-largo">
-                <label asp-for="afr_Titulo">Titulo da aula</label>
+                <label asp-for="afr_Titulo">Título da aula</label>
                 <input asp-for="afr_Titulo" type="text" maxlength="120" />
             </div>
 
             <div class="campo campo-estreito">
-                <label asp-for="afr_DuracaoMin">Duracao (min)</label>
+                <label asp-for="afr_DuracaoMin">Duração (min)</label>
                 <input asp-for="afr_DuracaoMin" type="number" min="1" max="600" />
             </div>
         </div>
@@ -49,12 +49,12 @@
         <span asp-validation-for="afr_DuracaoMin" class="erro-validacao"></span>
 
         <div class="campo" style="margin-top:16px;">
-            <label asp-for="afr_Conteudo">Conteudo da aula</label>
+            <label asp-for="afr_Conteudo">Conteúdo da aula</label>
             <textarea asp-for="afr_Conteudo" rows="14"></textarea>
             <div class="ajuda">
-                E este texto que aparece para o aluno na pagina da aula. As
-                quebras de linha sao respeitadas, entao pode escrever em
-                paragrafos.
+                E este texto que aparece para o aluno na página da aula. As
+                quebras de linha são respeitadas, então pode escrever em
+                parágrafos.
             </div>
         </div>
 

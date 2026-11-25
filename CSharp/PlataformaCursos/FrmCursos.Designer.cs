@@ -126,7 +126,7 @@ namespace PlataformaCursos
             this.afr_lblTituloCurso.Name = "afr_lblTituloCurso";
             this.afr_lblTituloCurso.Size = new System.Drawing.Size(40, 15);
             this.afr_lblTituloCurso.TabIndex = 1;
-            this.afr_lblTituloCurso.Text = "Titulo:";
+            this.afr_lblTituloCurso.Text = "Título:";
             //
             // afr_txtTitulo
             //
@@ -143,7 +143,7 @@ namespace PlataformaCursos
             this.afr_lblDescricao.Name = "afr_lblDescricao";
             this.afr_lblDescricao.Size = new System.Drawing.Size(62, 15);
             this.afr_lblDescricao.TabIndex = 3;
-            this.afr_lblDescricao.Text = "Descricao:";
+            this.afr_lblDescricao.Text = "Descrição:";
             //
             // afr_txtDescricao
             //
@@ -182,7 +182,7 @@ namespace PlataformaCursos
             this.afr_chkAtivoCurso.Name = "afr_chkAtivoCurso";
             this.afr_chkAtivoCurso.Size = new System.Drawing.Size(170, 19);
             this.afr_chkAtivoCurso.TabIndex = 7;
-            this.afr_chkAtivoCurso.Text = "Ativo (visivel para o aluno)";
+            this.afr_chkAtivoCurso.Text = "Ativo (visível para o aluno)";
             this.afr_chkAtivoCurso.UseVisualStyleBackColor = true;
             //
             // afr_lblMinimo
@@ -192,7 +192,7 @@ namespace PlataformaCursos
             this.afr_lblMinimo.Name = "afr_lblMinimo";
             this.afr_lblMinimo.Size = new System.Drawing.Size(85, 15);
             this.afr_lblMinimo.TabIndex = 8;
-            this.afr_lblMinimo.Text = "Minimo (%):";
+            this.afr_lblMinimo.Text = "Mínimo (%):";
             //
             // afr_numMinimo
             //
@@ -309,7 +309,7 @@ namespace PlataformaCursos
             //
             // afr_colTitulo
             //
-            this.afr_colTitulo.Text = "Titulo";
+            this.afr_colTitulo.Text = "Título";
             this.afr_colTitulo.Width = 170;
             //
             // afr_colCarga
@@ -324,7 +324,7 @@ namespace PlataformaCursos
             //
             // afr_colMinimo
             //
-            this.afr_colMinimo.Text = "Minimo";
+            this.afr_colMinimo.Text = "Mínimo";
             this.afr_colMinimo.Width = 60;
             //
             // afr_colAtivo
@@ -376,7 +376,7 @@ namespace PlataformaCursos
             this.afr_lblAulaDuracao.Name = "afr_lblAulaDuracao";
             this.afr_lblAulaDuracao.Size = new System.Drawing.Size(80, 15);
             this.afr_lblAulaDuracao.TabIndex = 2;
-            this.afr_lblAulaDuracao.Text = "Duracao (min):";
+            this.afr_lblAulaDuracao.Text = "Duração (min):";
             //
             // afr_txtAulaDuracao
             //
@@ -439,12 +439,12 @@ namespace PlataformaCursos
             //
             // afr_colAulaTitulo
             //
-            this.afr_colAulaTitulo.Text = "Titulo da aula";
+            this.afr_colAulaTitulo.Text = "Título da aula";
             this.afr_colAulaTitulo.Width = 210;
             //
             // afr_colAulaDuracao
             //
-            this.afr_colAulaDuracao.Text = "Duracao";
+            this.afr_colAulaDuracao.Text = "Duração";
             this.afr_colAulaDuracao.Width = 70;
             //
             // afr_lblAulaConteudo
@@ -454,7 +454,7 @@ namespace PlataformaCursos
             this.afr_lblAulaConteudo.Name = "afr_lblAulaConteudo";
             this.afr_lblAulaConteudo.Size = new System.Drawing.Size(230, 15);
             this.afr_lblAulaConteudo.TabIndex = 7;
-            this.afr_lblAulaConteudo.Text = "Conteudo da aula selecionada:";
+            this.afr_lblAulaConteudo.Text = "Conteúdo da aula selecionada:";
             //
             // afr_txtAulaConteudo
             //
@@ -472,7 +472,7 @@ namespace PlataformaCursos
             this.afr_btnSalvarAula.Name = "afr_btnSalvarAula";
             this.afr_btnSalvarAula.Size = new System.Drawing.Size(200, 26);
             this.afr_btnSalvarAula.TabIndex = 9;
-            this.afr_btnSalvarAula.Text = "Salvar conteudo da aula";
+            this.afr_btnSalvarAula.Text = "Salvar conteúdo da aula";
             this.afr_btnSalvarAula.UseVisualStyleBackColor = false;
             this.afr_btnSalvarAula.Click += new System.EventHandler(this.afr_btnSalvarAula_Click);
             //

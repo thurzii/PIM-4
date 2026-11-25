@@ -1,7 +1,6 @@
 /* =====================================================================
    PLATAFORMA DE CURSOS ONLINE - VERSAO WEB
    Arquivo...: Controllers/CatalogoController.cs
-   Professor.: Antonio Graça
    ---------------------------------------------------------------------
    A TELA DO ALUNO, equivalente ao FrmCatalogo do desktop.
 
@@ -63,8 +62,8 @@ namespace PlataformaCursosWeb.Controllers
             if (afr_dados.afr_CargaMaxima > 0
                 && afr_dados.afr_CargaMaxima < afr_dados.afr_CargaMinima)
             {
-                ViewBag.Erro = "A carga maxima nao pode ser menor que a minima. "
-                             + "Use 0 na maxima para nao ter limite.";
+                ViewBag.Erro = "A carga máxima não pode ser menor que a mínima. "
+                             + "Use 0 na máxima para não ter limite.";
 
                 afr_dados.afr_Cursos = new List<Curso>();
                 return View(afr_dados);
@@ -86,7 +85,7 @@ namespace PlataformaCursosWeb.Controllers
                 // DS03 - listarCursos() / exibirCursos(cursos)
                 afr_dados.afr_Cursos = afr_cursoService.ExibirCursos();
 
-                ViewBag.Resumo = "Todos os cursos disponiveis: "
+                ViewBag.Resumo = "Todos os cursos disponíveis: "
                                + afr_dados.afr_Cursos.Count + " curso(s).";
             }
 
@@ -113,7 +112,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_curso == null)
             {
-                AvisarErro("Curso nao encontrado.");
+                AvisarErro("Curso não encontrado.");
                 return RedirectToAction("Index");
             }
 
@@ -121,7 +120,7 @@ namespace PlataformaCursosWeb.Controllers
             // Professor e admin podem, para conferir antes de publicar.
             if (!afr_curso.afr_Ativo && !PodeGerenciarCursos())
             {
-                AvisarErro("Este curso nao esta disponivel.");
+                AvisarErro("Este curso não está disponível.");
                 return RedirectToAction("Index");
             }
 
@@ -145,7 +144,7 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_aula == null)
             {
-                AvisarErro("Aula nao encontrada.");
+                AvisarErro("Aula não encontrada.");
                 return RedirectToAction("Index");
             }
 
@@ -153,13 +152,13 @@ namespace PlataformaCursosWeb.Controllers
 
             if (afr_curso == null)
             {
-                AvisarErro("O curso desta aula nao esta mais no banco.");
+                AvisarErro("O curso desta aula não está mais no banco.");
                 return RedirectToAction("Index");
             }
 
             if (!afr_curso.afr_Ativo && !PodeGerenciarCursos())
             {
-                AvisarErro("Este curso nao esta disponivel.");
+                AvisarErro("Este curso não está disponível.");
                 return RedirectToAction("Index");
             }
 
@@ -235,12 +234,12 @@ namespace PlataformaCursosWeb.Controllers
                 if (concluida)
                 {
                     AvisarSucesso("INSERT em dbo.Progresso: aula " + aulaId +
-                                  " marcada como concluida.");
+                                  " marcada como concluída.");
                 }
                 else
                 {
                     AvisarSucesso("DELETE em dbo.Progresso: aula " + aulaId +
-                                  " voltou para nao concluida.");
+                                  " voltou para não concluída.");
                 }
 
                 // DS05 - exibirConclusao(): avisa quando o curso fecha
@@ -253,7 +252,7 @@ namespace PlataformaCursosWeb.Controllers
 
                     if (afr_resultado.afr_Aprovado)
                     {
-                        AvisarSucesso("Curso concluido. " + afr_resultado.ObterResumo());
+                        AvisarSucesso("Curso concluído. " + afr_resultado.ObterResumo());
                     }
                 }
 

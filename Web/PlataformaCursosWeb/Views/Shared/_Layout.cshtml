@@ -67,7 +67,7 @@
                class="@(afr_controller == "Home" ? "ativo" : "")">Painel</a>
 
             <a asp-controller="Catalogo" asp-action="Index"
-               class="@(afr_controller == "Catalogo" ? "ativo" : "")">Catalogo</a>
+               class="@(afr_controller == "Catalogo" ? "ativo" : "")">Catálogo</a>
 
             @if (afr_podeCursos)
             {
@@ -84,7 +84,7 @@
             @if (afr_podeUsuarios)
             {
                 <a asp-controller="Usuarios" asp-action="Index"
-                   class="@(afr_controller == "Usuarios" ? "ativo" : "")">Usuarios</a>
+                   class="@(afr_controller == "Usuarios" ? "ativo" : "")">Usuários</a>
             }
         </nav>
 
@@ -125,7 +125,7 @@
 </main>
 
 <footer class="rodape">
-    Plataforma de Cursos Online &middot; Projeto academico &middot; Professor Antonio Gra&ccedil;a
+    Plataforma de Cursos Online &middot; Projeto acadêmico
 </footer>
 
 </body>
