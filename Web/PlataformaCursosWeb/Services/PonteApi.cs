@@ -176,24 +176,11 @@ namespace PlataformaCursosWeb.Services
             return afr_usuario != null;
         }
 
-        // POST /api/auth/recover - hoje sempre 501
         public RespostaApi LoginPublico(string email, string senha) => afr_configuracao.CriarCliente().Entrar(email, senha);
         public RespostaApi Registrar(string nome, string email, string senha, string confirmarSenha) => afr_configuracao.CriarCliente().Registrar(nome, email, senha, confirmarSenha);
         public RespostaApi PrimeiroAcesso(string token, string temporaria, string nova) => afr_configuracao.CriarCliente().PrimeiroAcesso(token, temporaria, nova);
         public RespostaApi RecuperarComCodigo(string email, string codigo, string senha) => Cliente().RecuperarSenha(email, codigo, senha);
 
-        public string RecuperarSenha(string afr_email)
-        {
-            RespostaApi afr_resposta = Cliente().RecuperarSenha(afr_email);
-
-            if (afr_resposta.afr_CodigoHttp == 501)
-            {
-                return "A recuperacao de senha ainda nao existe na API. " +
-                       "Procure o administrador para trocar a senha.";
-            }
-
-            return afr_resposta.afr_Mensagem;
-        }
 
         // =============================================================
         // USUARIOS

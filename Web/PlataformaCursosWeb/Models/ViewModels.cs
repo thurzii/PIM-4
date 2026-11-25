@@ -19,7 +19,7 @@
    e o equivalente aos ifs de validacao que ficavam no Click do botao.
 
    NOVOS NESTA VERSAO, por causa dos diagramas de sequencia:
-     RecuperarSenhaViewModel .. tres etapas (DS02)
+     RecuperarSenhaViewModel .. recuperar senha (DS02)
      AulaViewModel ............ conteudo da aula (DS05)
      ProgressoAlunosViewModel . progresso dos alunos (DS07)
      PerfilUsuarioViewModel ... perfil com historico (DS12)
@@ -48,28 +48,16 @@ namespace PlataformaCursosWeb.Models
     }
 
     // =================================================================
-    // RECUPERAR SENHA (DS02) - TRES ETAPAS
-    //
-    // O diagrama tem a linha de vida "Email" e a mensagem
-    // enviarCodigo(email). Por isso a recuperacao nao e mais um unico
-    // formulario: sao tres etapas, e a propriedade afr_Etapa diz em
-    // qual delas a pagina esta.
-    //
-    //   Etapa 1 - informar o email        -> solicitarRecuperacao
-    //   Etapa 2 - conferir o codigo       -> conferirCodigo
-    //   Etapa 3 - escolher a nova senha   -> recuperacaoConcluida
-    //
-    // As validacoes sao condicionais, entao elas ficam no controller,
-    // nao em atributos: na etapa 1 ainda nao existe codigo nem senha.
+    // RECUPERAR SENHA (DS02)
+    // Email, codigo pessoal de recuperacao (recebido no cadastro) e a
+    // nova senha, num formulario so. Quem confere o codigo e a API.
     // =================================================================
     public class RecuperarSenhaViewModel
     {
-        public int afr_Etapa { get; set; } = 1;
-
         [Display(Name = "Email cadastrado")]
         public string afr_Email { get; set; } = "";
 
-        [Display(Name = "Codigo de 6 digitos")]
+        [Display(Name = "Codigo pessoal")]
         public string afr_Codigo { get; set; } = "";
 
         [DataType(DataType.Password)]
@@ -79,40 +67,6 @@ namespace PlataformaCursosWeb.Models
         [DataType(DataType.Password)]
         [Display(Name = "Confirmar a nova senha")]
         public string afr_Confirmacao { get; set; } = "";
-
-        // Quantos minutos o codigo vale, para a pagina avisar
-        public int afr_MinutosValidade { get; set; }
-
-        public string ObterTituloEtapa()
-        {
-            if (afr_Etapa == 1)
-            {
-                return "Etapa 1 de 3 - informar o email";
-            }
-
-            if (afr_Etapa == 2)
-            {
-                return "Etapa 2 de 3 - conferir o codigo";
-            }
-
-            return "Etapa 3 de 3 - escolher a nova senha";
-        }
-
-        public string ObterExplicacaoEtapa()
-        {
-            if (afr_Etapa == 1)
-            {
-                return "Informe o email cadastrado. O sistema envia um codigo de 6 digitos.";
-            }
-
-            if (afr_Etapa == 2)
-            {
-                return "Digite o codigo que foi enviado. Ele vale por "
-                     + afr_MinutosValidade + " minutos e serve uma vez so.";
-            }
-
-            return "Codigo confirmado. Escolha uma nova senha de pelo menos 8 caracteres.";
-        }
     }
 
     // =================================================================

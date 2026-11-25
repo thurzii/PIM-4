@@ -1,19 +1,10 @@
 @*
     =====================================================================
-    DC02 / DS02 - Recuperacao de senha em TRES ETAPAS.
+    DC02 / DS02 - Recuperacao de senha com o CODIGO PESSOAL.
 
-    O diagrama DS02 tem quatro linhas de vida: Aluno, TelaRecuperacao,
-    Sistema e EMAIL. E a linha "Email", com a mensagem
-    enviarCodigo(email), que obriga as tres etapas:
-
-        1) informar o email      -> solicitarRecuperacao / enviarCodigo
-        2) conferir o codigo     -> conferirCodigo
-        3) escolher a nova senha -> recuperacaoConcluida
-
-    UMA PAGINA, TRES FORMULARIOS. O campo afr_Etapa do ViewModel diz
-    qual mostrar. Os dados das etapas anteriores viajam em campos
-    escondidos (hidden), e o codigo e conferido DE NOVO no servidor na
-    etapa 3: ninguem pula a etapa 2 mandando o formulario na mao.
+    A pessoa recebe esse codigo ao criar a conta (ou no primeiro
+    acesso). Aqui ela informa email, codigo e nova senha; a API confere
+    o codigo, troca a senha e devolve um codigo novo para guardar.
     =====================================================================
 *@
 @model RecuperarSenhaViewModel

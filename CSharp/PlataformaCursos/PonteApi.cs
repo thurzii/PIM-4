@@ -172,7 +172,6 @@ namespace PlataformaCursos
             return afr_usuario != null;
         }
 
-        // POST /api/auth/recover - hoje sempre 501
         // Os mesmos atalhos da PonteApi da web (cadastro de aluno, primeiro
         // acesso). Cada chamada usa um cliente novo, sem token: sao rotas
         // de quem ainda nao entrou no sistema.
@@ -193,18 +192,6 @@ namespace PlataformaCursos
 
         public RespostaApi RecuperarComCodigo(string email, string codigo, string senha) => Cliente().RecuperarSenha(email, codigo, senha);
 
-        public string RecuperarSenha(string afr_email)
-        {
-            RespostaApi afr_resposta = Cliente().RecuperarSenha(afr_email);
-
-            if (afr_resposta.afr_CodigoHttp == 501)
-            {
-                return "A recuperacao de senha ainda nao existe na API. " +
-                       "Procure o administrador para trocar a senha.";
-            }
-
-            return afr_resposta.afr_Mensagem;
-        }
 
         // =============================================================
         // USUARIOS

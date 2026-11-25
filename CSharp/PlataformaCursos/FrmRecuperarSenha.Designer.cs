@@ -3,8 +3,8 @@
    Arquivo...: FrmRecuperarSenha.Designer.cs
    ---------------------------------------------------------------------
    Arquivo do DESIGNER da tela de recuperacao de senha (DC02 / DS02).
-   A tela tem tres etapas: enviar o codigo, conferir o codigo e
-   redefinir a senha.
+   Um formulario so: email, codigo pessoal de recuperacao (recebido
+   no cadastro) e a nova senha.
    ===================================================================== */
 
 namespace PlataformaCursos
@@ -30,11 +30,8 @@ namespace PlataformaCursos
             this.afr_lblInfo = new System.Windows.Forms.Label();
             this.afr_lblEmail = new System.Windows.Forms.Label();
             this.afr_txtEmail = new System.Windows.Forms.TextBox();
-            this.afr_btnEnviar = new System.Windows.Forms.Button();
-            this.afr_btnAbrirCaixa = new System.Windows.Forms.Button();
             this.afr_lblCodigo = new System.Windows.Forms.Label();
             this.afr_txtCodigo = new System.Windows.Forms.TextBox();
-            this.afr_btnConferir = new System.Windows.Forms.Button();
             this.afr_lblNova = new System.Windows.Forms.Label();
             this.afr_txtNova = new System.Windows.Forms.TextBox();
             this.afr_lblConfirma = new System.Windows.Forms.Label();
@@ -63,7 +60,7 @@ namespace PlataformaCursos
             this.afr_lblEtapa.Name = "afr_lblEtapa";
             this.afr_lblEtapa.Size = new System.Drawing.Size(250, 15);
             this.afr_lblEtapa.TabIndex = 1;
-            this.afr_lblEtapa.Text = "Etapa 1 de 3 - informar o email";
+            this.afr_lblEtapa.Text = "Codigo pessoal de recuperacao";
             //
             // afr_lblInfo
             //
@@ -72,7 +69,7 @@ namespace PlataformaCursos
             this.afr_lblInfo.Name = "afr_lblInfo";
             this.afr_lblInfo.Size = new System.Drawing.Size(376, 34);
             this.afr_lblInfo.TabIndex = 2;
-            this.afr_lblInfo.Text = "Informe o email cadastrado. O sistema envia um codigo de 6 digitos.";
+            this.afr_lblInfo.Text = "Use o codigo recebido no cadastro. Guarde o novo codigo.";
             //
             // afr_lblEmail
             //
@@ -86,65 +83,32 @@ namespace PlataformaCursos
             // afr_txtEmail
             //
             this.afr_txtEmail.Location = new System.Drawing.Point(32, 129);
-            this.afr_txtEmail.MaxLength = 100;
+            this.afr_txtEmail.MaxLength = 200;
             this.afr_txtEmail.Name = "afr_txtEmail";
             this.afr_txtEmail.Size = new System.Drawing.Size(376, 23);
             this.afr_txtEmail.TabIndex = 4;
             //
-            // afr_btnEnviar
-            //
-            this.afr_btnEnviar.BackColor = System.Drawing.Color.AliceBlue;
-            this.afr_btnEnviar.Location = new System.Drawing.Point(32, 158);
-            this.afr_btnEnviar.Name = "afr_btnEnviar";
-            this.afr_btnEnviar.Size = new System.Drawing.Size(230, 32);
-            this.afr_btnEnviar.TabIndex = 5;
-            this.afr_btnEnviar.Text = "1) Enviar codigo";
-            this.afr_btnEnviar.UseVisualStyleBackColor = false;
-            this.afr_btnEnviar.Click += new System.EventHandler(this.afr_btnEnviar_Click);
-            //
-            // afr_btnAbrirCaixa
-            //
-            this.afr_btnAbrirCaixa.Location = new System.Drawing.Point(270, 158);
-            this.afr_btnAbrirCaixa.Name = "afr_btnAbrirCaixa";
-            this.afr_btnAbrirCaixa.Size = new System.Drawing.Size(138, 32);
-            this.afr_btnAbrirCaixa.TabIndex = 6;
-            this.afr_btnAbrirCaixa.Text = "Ver o codigo";
-            this.afr_btnAbrirCaixa.UseVisualStyleBackColor = true;
-            this.afr_btnAbrirCaixa.Click += new System.EventHandler(this.afr_btnAbrirCaixa_Click);
-            //
             // afr_lblCodigo
             //
             this.afr_lblCodigo.AutoSize = true;
-            this.afr_lblCodigo.Location = new System.Drawing.Point(32, 202);
+            this.afr_lblCodigo.Location = new System.Drawing.Point(32, 162);
             this.afr_lblCodigo.Name = "afr_lblCodigo";
             this.afr_lblCodigo.Size = new System.Drawing.Size(140, 15);
             this.afr_lblCodigo.TabIndex = 7;
-            this.afr_lblCodigo.Text = "Codigo de 6 digitos:";
+            this.afr_lblCodigo.Text = "Codigo pessoal:";
             //
             // afr_txtCodigo
             //
-            this.afr_txtCodigo.Enabled = false;
-            this.afr_txtCodigo.Location = new System.Drawing.Point(32, 221);
-            this.afr_txtCodigo.MaxLength = 6;
+            this.afr_txtCodigo.Location = new System.Drawing.Point(32, 181);
+            this.afr_txtCodigo.MaxLength = 19;
             this.afr_txtCodigo.Name = "afr_txtCodigo";
-            this.afr_txtCodigo.Size = new System.Drawing.Size(180, 23);
+            this.afr_txtCodigo.Size = new System.Drawing.Size(376, 23);
             this.afr_txtCodigo.TabIndex = 8;
-            //
-            // afr_btnConferir
-            //
-            this.afr_btnConferir.Enabled = false;
-            this.afr_btnConferir.Location = new System.Drawing.Point(222, 220);
-            this.afr_btnConferir.Name = "afr_btnConferir";
-            this.afr_btnConferir.Size = new System.Drawing.Size(186, 25);
-            this.afr_btnConferir.TabIndex = 9;
-            this.afr_btnConferir.Text = "2) Conferir codigo";
-            this.afr_btnConferir.UseVisualStyleBackColor = true;
-            this.afr_btnConferir.Click += new System.EventHandler(this.afr_btnConferir_Click);
             //
             // afr_lblNova
             //
             this.afr_lblNova.AutoSize = true;
-            this.afr_lblNova.Location = new System.Drawing.Point(32, 258);
+            this.afr_lblNova.Location = new System.Drawing.Point(32, 218);
             this.afr_lblNova.Name = "afr_lblNova";
             this.afr_lblNova.Size = new System.Drawing.Size(70, 15);
             this.afr_lblNova.TabIndex = 10;
@@ -152,9 +116,8 @@ namespace PlataformaCursos
             //
             // afr_txtNova
             //
-            this.afr_txtNova.Enabled = false;
-            this.afr_txtNova.Location = new System.Drawing.Point(32, 277);
-            this.afr_txtNova.MaxLength = 100;
+            this.afr_txtNova.Location = new System.Drawing.Point(32, 237);
+            this.afr_txtNova.MaxLength = 128;
             this.afr_txtNova.Name = "afr_txtNova";
             this.afr_txtNova.PasswordChar = '*';
             this.afr_txtNova.Size = new System.Drawing.Size(376, 23);
@@ -163,7 +126,7 @@ namespace PlataformaCursos
             // afr_lblConfirma
             //
             this.afr_lblConfirma.AutoSize = true;
-            this.afr_lblConfirma.Location = new System.Drawing.Point(32, 308);
+            this.afr_lblConfirma.Location = new System.Drawing.Point(32, 268);
             this.afr_lblConfirma.Name = "afr_lblConfirma";
             this.afr_lblConfirma.Size = new System.Drawing.Size(140, 15);
             this.afr_lblConfirma.TabIndex = 12;
@@ -171,9 +134,8 @@ namespace PlataformaCursos
             //
             // afr_txtConfirma
             //
-            this.afr_txtConfirma.Enabled = false;
-            this.afr_txtConfirma.Location = new System.Drawing.Point(32, 327);
-            this.afr_txtConfirma.MaxLength = 100;
+            this.afr_txtConfirma.Location = new System.Drawing.Point(32, 287);
+            this.afr_txtConfirma.MaxLength = 128;
             this.afr_txtConfirma.Name = "afr_txtConfirma";
             this.afr_txtConfirma.PasswordChar = '*';
             this.afr_txtConfirma.Size = new System.Drawing.Size(376, 23);
@@ -182,18 +144,17 @@ namespace PlataformaCursos
             // afr_btnRedefinir
             //
             this.afr_btnRedefinir.BackColor = System.Drawing.Color.Honeydew;
-            this.afr_btnRedefinir.Enabled = false;
-            this.afr_btnRedefinir.Location = new System.Drawing.Point(32, 360);
+            this.afr_btnRedefinir.Location = new System.Drawing.Point(32, 320);
             this.afr_btnRedefinir.Name = "afr_btnRedefinir";
             this.afr_btnRedefinir.Size = new System.Drawing.Size(230, 38);
             this.afr_btnRedefinir.TabIndex = 14;
-            this.afr_btnRedefinir.Text = "3) Redefinir senha";
+            this.afr_btnRedefinir.Text = "Redefinir senha";
             this.afr_btnRedefinir.UseVisualStyleBackColor = false;
             this.afr_btnRedefinir.Click += new System.EventHandler(this.afr_btnRedefinir_Click);
             //
             // afr_btnCancelar
             //
-            this.afr_btnCancelar.Location = new System.Drawing.Point(270, 360);
+            this.afr_btnCancelar.Location = new System.Drawing.Point(270, 320);
             this.afr_btnCancelar.Name = "afr_btnCancelar";
             this.afr_btnCancelar.Size = new System.Drawing.Size(138, 38);
             this.afr_btnCancelar.TabIndex = 15;
@@ -204,7 +165,7 @@ namespace PlataformaCursos
             // afr_lblStatus
             //
             this.afr_lblStatus.ForeColor = System.Drawing.Color.DimGray;
-            this.afr_lblStatus.Location = new System.Drawing.Point(32, 406);
+            this.afr_lblStatus.Location = new System.Drawing.Point(32, 366);
             this.afr_lblStatus.Name = "afr_lblStatus";
             this.afr_lblStatus.Size = new System.Drawing.Size(376, 44);
             this.afr_lblStatus.TabIndex = 16;
@@ -215,17 +176,14 @@ namespace PlataformaCursos
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.afr_btnCancelar;
-            this.ClientSize = new System.Drawing.Size(440, 464);
+            this.ClientSize = new System.Drawing.Size(440, 424);
             this.Controls.Add(this.afr_lblTitulo);
             this.Controls.Add(this.afr_lblEtapa);
             this.Controls.Add(this.afr_lblInfo);
             this.Controls.Add(this.afr_lblEmail);
             this.Controls.Add(this.afr_txtEmail);
-            this.Controls.Add(this.afr_btnEnviar);
-            this.Controls.Add(this.afr_btnAbrirCaixa);
             this.Controls.Add(this.afr_lblCodigo);
             this.Controls.Add(this.afr_txtCodigo);
-            this.Controls.Add(this.afr_btnConferir);
             this.Controls.Add(this.afr_lblNova);
             this.Controls.Add(this.afr_txtNova);
             this.Controls.Add(this.afr_lblConfirma);
@@ -251,11 +209,8 @@ namespace PlataformaCursos
         private System.Windows.Forms.Label afr_lblInfo;
         private System.Windows.Forms.Label afr_lblEmail;
         private System.Windows.Forms.TextBox afr_txtEmail;
-        private System.Windows.Forms.Button afr_btnEnviar;
-        private System.Windows.Forms.Button afr_btnAbrirCaixa;
         private System.Windows.Forms.Label afr_lblCodigo;
         private System.Windows.Forms.TextBox afr_txtCodigo;
-        private System.Windows.Forms.Button afr_btnConferir;
         private System.Windows.Forms.Label afr_lblNova;
         private System.Windows.Forms.TextBox afr_txtNova;
         private System.Windows.Forms.Label afr_lblConfirma;

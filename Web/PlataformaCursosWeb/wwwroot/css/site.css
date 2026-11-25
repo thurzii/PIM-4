@@ -441,47 +441,6 @@ main.tela-acesso { max-width: none; margin: 0; padding: 24px; }
 .etiqueta-professor { background: #efe7f7; color: #6b3fa0; }
 
 /* ---------------------------------------------------------------- */
-/* AS TRES ETAPAS DA RECUPERACAO DE SENHA (DS02)                     */
-/* ---------------------------------------------------------------- */
-.passos {
-    display: flex;
-    gap: 8px;
-    margin: 0 0 18px;
-    padding: 0;                   /* e uma <ol>: sem recuo nem numero do navegador */
-    list-style: none;
-    font-size: 12px;
-}
-
-.passos .passo {
-    flex: 1;
-    padding: 7px 4px;
-    text-align: center;
-    border-radius: var(--raio);
-    background: #eceef1;
-    color: var(--cor-texto-suave);
-    border: 1px solid var(--cor-borda);
-}
-
-.passos .passo.atual {
-    background: var(--cor-primaria);
-    color: #fff;
-    border-color: var(--cor-primaria);
-    font-weight: 600;
-}
-
-.passos .passo.pronto {
-    background: var(--cor-sucesso-fundo);
-    color: var(--cor-sucesso);
-    border-color: #b9e0ce;
-}
-
-.etapa-titulo {
-    font-weight: 600;
-    color: var(--cor-primaria);
-    margin: 0 0 4px;
-}
-
-/* ---------------------------------------------------------------- */
 /* FILTROS DA BUSCA (DS04)                                           */
 /* ---------------------------------------------------------------- */
 .filtros {
@@ -652,7 +611,6 @@ main.tela-acesso { max-width: none; margin: 0; padding: 24px; }
 
 @media (max-width: 640px) {
     .filtros .campo-estreito { width: 100%; }
-    .passos { font-size: 11px; }
 }
 
 /* ---------------------------------------------------------------- */

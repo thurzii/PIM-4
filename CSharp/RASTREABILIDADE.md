@@ -4,8 +4,8 @@
 Modelo: `Modelagem/Projeto_UML.asta` · Programa: `CSharp/PlataformaCursos`
 
 > **Atualização de 24/11/2026: o banco local saiu.** Os programas agora usam só a
-> API do grupo. Onde este mapa cita `BancoService` (ou o `EmailService` e a caixa de
-> entrada da recuperação de senha), o passo hoje é feito pela API: o serviço chama a
+> API do grupo. Onde este mapa cita `BancoService`,
+> o passo hoje é feito pela API: o serviço chama a
 > `PonteApi`, que chama a rota correspondente (`ClienteApi.cs`). Os nomes dos serviços
 > e das mensagens do diagrama continuam os mesmos. A recuperação de senha (DS02) passou
 > a ser pelo **código de recuperação** que a API entrega ao criar a conta.
@@ -65,26 +65,16 @@ alimenta o `loginLog` pedido no DS12.
 
 ## DS02 — Recuperar Senha
 
-Linhas de vida: Aluno, TelaRecuperacao, Sistema, **Email**.
+A recuperação usa o **código pessoal de recuperação**, mostrado uma vez só quando a
+conta é criada (ou no primeiro acesso). Não há servidor de e-mail: o código é
+entregue na hora do cadastro.
 
-A linha "Email" é o motivo da tela ter três etapas. Antes do modelo, a pessoa
-trocava a senha direto, sem código. Agora não dá para pular a etapa do código.
-
-| Mensagem no diagrama | Onde está no programa |
+| Passo | Onde está no programa |
 |---|---|
-| `informarEmail(email)` | `FrmRecuperarSenha` etapa 1 — `afr_txtEmail` |
-| `solicitarRecuperacao(email)` | `AutenticacaoService.SolicitarRecuperacao` |
-| `enviarCodigo(email)` | `EmailService.EnviarCodigo` |
-| `codigoEnviado()` | retorno de `SolicitarRecuperacao` + `BancoService.GravarCodigo` |
-| `exibirMensagem()` | `FrmRecuperarSenha.IrParaEtapa(2)` e `afr_lblStatus` |
-| `recuperacaoConcluida()` | `AutenticacaoService.RedefinirSenha` |
-
-**Sobre o "Email" do modelo:** o trabalho não tem servidor de e-mail, então a
-caixa de entrada é o arquivo `dados/emails.txt`, criado na pasta do programa. O
-botão "Ver o código" abre esse arquivo. O resto do fluxo é igual ao modelo: o
-código tem 6 dígitos, vale 15 minutos (`MINUTOS_VALIDADE_CODIGO`), é conferido em
-`AutenticacaoService.ConferirCodigo` e é queimado em
-`BancoService.MarcarCodigoUsado` depois da troca, para não servir duas vezes.
+| informar email, código e nova senha | `FrmRecuperarSenha` — `afr_txtEmail`, `afr_txtCodigo`, `afr_txtNova` |
+| pedir a recuperação | `PonteApi.RecuperarComCodigo` → `POST /api/auth/recover` |
+| conferir o código e trocar a senha | API do grupo (código guardado em hash, 5 tentativas e bloqueio de 15 minutos) |
+| exibir a mensagem | `MessageBox` com o **código novo**, que substitui o anterior |
 
 ---
 

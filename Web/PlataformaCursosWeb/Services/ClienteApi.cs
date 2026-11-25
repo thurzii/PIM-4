@@ -225,11 +225,10 @@ namespace PlataformaCursosWeb.Services
         public RespostaApi PrimeiroAcesso(string tokenPrimeiroAcesso, string senhaTemporaria, string novaSenha)
             => Chamar(HttpMethod.Post, "/api/auth/primeiro-acesso", new { tokenPrimeiroAcesso, senhaTemporaria, novaSenha });
 
-        public RespostaApi RecuperarSenha(string afr_email, string codigo = "", string novaSenha = "")
+        public RespostaApi RecuperarSenha(string afr_email, string codigo, string novaSenha)
         {
             Dictionary<string, string> afr_corpo = new Dictionary<string, string>();
             afr_corpo["email"] = (afr_email ?? "").Trim().ToLowerInvariant();
-
             afr_corpo["codigoRecuperacao"] = codigo;
             afr_corpo["novaSenha"] = novaSenha;
             return Chamar(HttpMethod.Post, "/api/auth/recover", afr_corpo);

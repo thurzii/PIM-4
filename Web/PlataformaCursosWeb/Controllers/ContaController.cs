@@ -13,11 +13,9 @@
    [HttpGet]  = o navegador esta ABRINDO a pagina
    [HttpPost] = o usuario ENVIOU o formulario
 
-   A RECUPERACAO DE SENHA TEM TRES ETAPAS NESTA VERSAO, porque o
-   diagrama DS02 tem a linha de vida "Email" e a mensagem
-   enviarCodigo(email). Cada etapa e uma acao [HttpPost] diferente, e
-   todas devolvem a MESMA pagina (RecuperarSenha.cshtml) - o que muda
-   e o campo afr_Etapa do ViewModel.
+   A RECUPERACAO DE SENHA usa o codigo pessoal que a pessoa recebe ao
+   criar a conta: email + codigo + nova senha, num formulario so. A
+   API confere o codigo, troca a senha e devolve um codigo novo.
    ===================================================================== */
 
 using System.Security.Claims;
@@ -158,14 +156,12 @@ namespace PlataformaCursosWeb.Controllers
         }
 
         // =============================================================
-        // DC02 / DS02 - RECUPERAR SENHA, ETAPA 1 (abrir a pagina)
+        // DC02 / DS02 - RECUPERAR SENHA (abrir a pagina)
         // =============================================================
         [HttpGet]
         public IActionResult RecuperarSenha(string email)
         {
             var afr_dados = new RecuperarSenhaViewModel();
-
-            afr_dados.afr_Etapa = 1;
 
             // Aproveita o email que ja estava digitado no login
             if (!string.IsNullOrWhiteSpace(email))
@@ -177,9 +173,8 @@ namespace PlataformaCursosWeb.Controllers
         }
 
         // =============================================================
-        // DS02 - ETAPA 1: informarEmail(email)
-        //        -> solicitarRecuperacao(email) -> enviarCodigo(email)
-        //        -> codigoEnviado() -> exibirMensagem()
+        // DS02 - email + codigo pessoal + nova senha -> API
+        //        -> senha trocada e codigo novo na tela
         // =============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]

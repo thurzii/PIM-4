@@ -77,7 +77,7 @@ O endereço da API fica em `ConfiguracaoApi`, no início de `ClienteApi.cs`: por
 | Arquivo | O que faz |
 |---|---|
 | `FrmLogin` | Entrada no sistema e link de recuperação de senha |
-| `FrmRecuperarSenha` | Recuperação em 3 etapas, com código de 6 dígitos |
+| `FrmRecuperarSenha` | Recuperação de senha com o código pessoal de recuperação |
 | `FrmPrincipal` | Menu com as três áreas de perfil |
 | `FrmCatalogo` | Visão do aluno: cursos, busca com filtros, aulas e progresso |
 | `FrmAula` | **Nova** — conteúdo da aula e botão de concluir |
@@ -120,7 +120,7 @@ O banco fica no **Azure SQL** e é o mesmo do aplicativo e da web. O desktop nun
 | Caso de uso | Onde está | Método |
 |---|---|---|
 | DC01 Fazer Login | `FrmLogin` | `ValidarLogin` |
-| DC02 Recuperar Senha | `FrmRecuperarSenha` | `SolicitarRecuperacao` → `ConferirCodigo` → `RedefinirSenha` |
+| DC02 Recuperar Senha | `FrmRecuperarSenha` | `PonteApi.RecuperarComCodigo` |
 | DC03 Visualizar Cursos | `FrmCatalogo` | `ExibirCursos` |
 | DC04 Buscar Cursos | `FrmCatalogo` | `BuscarCurso(FiltroCurso)` |
 | DC05 Marcar Aula como Concluída | `FrmAula` | `AbrirAula` → `AtualizarProgresso` |
