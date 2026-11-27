@@ -268,12 +268,24 @@ namespace PlataformaCursos
         }
 
         // =============================================================
-        // EVENTO - DOIS CLIQUES NA AULA
-        // DS05 - assistirAula(aula)
+        // A aula so abre pelo botao. O ListView marca a caixa sozinho
+        // num clique duplo; aqui o clique duplo e ignorado, para a aula
+        // so ser concluida quando a pessoa clica na propria caixa.
         // =============================================================
-        private void afr_lstAulas_DoubleClick(object sender, EventArgs e)
+        private bool afr_cliqueDuplo = false;
+
+        private void afr_lstAulas_MouseDown(object sender, MouseEventArgs e)
         {
-            AbrirAulaSelecionada();
+            afr_cliqueDuplo = e.Clicks > 1;
+        }
+
+        private void afr_lstAulas_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (afr_cliqueDuplo && !afr_carregando)
+            {
+                e.NewValue = e.CurrentValue;
+                afr_cliqueDuplo = false;
+            }
         }
 
         // =============================================================

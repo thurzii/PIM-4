@@ -492,7 +492,22 @@ namespace PlataformaCursos
 
             foreach (AulaApi afr_item in afr_detalhe.afr_Aulas)
             {
-                afr_lista.Add(afr_item.ParaAula(afr_cursoId));
+                Aula afr_aula = afr_item.ParaAula(afr_cursoId);
+
+                // A rota do curso nao manda o TEXTO das aulas. Para quem
+                // gerencia (professor e admin), o texto vem da rota de cada
+                // aula - sem isso toda aula pareceria "sem conteudo".
+                if (afr_item.Conteudo == null && !(!Sessao.EhAdministrador() && !Sessao.EhProfessor()))
+                {
+                    Aula afr_completa = AbrirAula(afr_aula.afr_Id);
+
+                    if (afr_completa != null)
+                    {
+                        afr_aula.afr_Conteudo = afr_completa.afr_Conteudo;
+                    }
+                }
+
+                afr_lista.Add(afr_aula);
             }
 
             return afr_lista;

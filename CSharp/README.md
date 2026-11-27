@@ -144,7 +144,7 @@ O detalhe **mensagem por mensagem** dos 14 diagramas de sequência está em [`RA
 
 **Conteúdo da aula.** Entre com uma conta de **professor**, abra *Gerenciar Cursos e Aulas*, clique em um curso e em uma aula: o conteúdo dela aparece na caixa à direita. As aulas em laranja ainda estão sem conteúdo.
 
-**Abrir a aula como aluno.** Entre com uma conta de **aluno**, abra o catálogo, clique num curso, numa aula, e em **Abrir a aula selecionada** (ou dois cliques na aula).
+**Abrir a aula como aluno.** Entre com uma conta de **aluno**, abra o catálogo, clique num curso, numa aula, e em **Abrir a aula selecionada**.
 
 **Filtros da busca.** No catálogo, preencha a carga horária mínima ou máxima e clique em *Buscar cursos*. Marque *Somente os cursos que eu ainda não concluí* para esconder os concluídos.
 
