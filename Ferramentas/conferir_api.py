@@ -135,7 +135,7 @@ def main():
     pasta_api = sys.argv[1]
 
     caminho_cliente = (sys.argv[2] if len(sys.argv) > 2
-                       else 'CSharp/PlataformaCursos/ClienteApi.cs')
+                       else 'desktop/PlataformaCursos/ClienteApi.cs')
 
     if not os.path.isdir(pasta_api):
         print(f'Pasta da API nao encontrada: {pasta_api}')

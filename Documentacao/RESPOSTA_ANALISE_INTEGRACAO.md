@@ -18,7 +18,7 @@ O repositório tem duas linhas de commits que nunca se encontraram:
 | Branch | Quem | O quê | Commits |
 |---|---|---|---|
 | `main` | Guilherme | `api/`, `mobile/`, `sql/` | 11 |
-| `master` | Arthur | `CSharp/`, `Web/` | 1 |
+| `master` | Arthur | `desktop/`, `web/` | 1 |
 
 Não há ancestral comum — o Git as trata como projetos independentes. Só `.gitignore` e `README.md` existem nos dois lados, com conteúdos diferentes. Em algum momento elas precisam ser unidas; como quase não há arquivo repetido, deve ser tranquilo. Fica para depois.
 

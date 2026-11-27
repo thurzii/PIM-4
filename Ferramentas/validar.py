@@ -94,7 +94,7 @@ def main():
     # ---------------------------------------------------------------
     # 1) EQUILIBRIO DE CHAVES E PARENTESES
     # ---------------------------------------------------------------
-    for raiz in ('CSharp', 'Web'):
+    for raiz in ('desktop', 'web'):
         for caminho in arquivos_cs(raiz):
             codigo = limpar(open(caminho, encoding='utf-8-sig').read())
             conferidos += 1
@@ -112,7 +112,7 @@ def main():
     # ---------------------------------------------------------------
     # So CODIGO. Os .md e .txt documentam a renomeacao e precisam citar
     # o nome antigo - ali a mencao e correta, nao resquicio.
-    for raiz in ('CSharp', 'Web'):
+    for raiz in ('desktop', 'web'):
         for pasta, _, nomes in os.walk(raiz):
             if any(p in pasta for p in ('bin', 'obj', '.vs', '.git')):
                 continue
@@ -163,7 +163,7 @@ def main():
         # qualquer coisa ligada a seguranca, so RandomNumberGenerator.
         (r'new\s+Random\s*\(', 'new Random() - use RandomNumberGenerator'),
     ]
-    for raiz in ('CSharp', 'Web'):
+    for raiz in ('desktop', 'web'):
         for caminho in arquivos_cs(raiz):
             codigo = limpar(open(caminho, encoding='utf-8-sig').read())
             for padrao, descricao in padroes_proibidos:
@@ -178,14 +178,14 @@ def main():
     # projeto COMPILA e so quebra quando a pagina e aberta - o erro
     # mais chato de achar, porque nao aparece na build.
     # ---------------------------------------------------------------
-    caminho_program = 'Web/PlataformaCursosWeb/Program.cs'
+    caminho_program = 'web/PlataformaCursosWeb/Program.cs'
 
     if os.path.exists(caminho_program):
         program = open(caminho_program, encoding='utf-8-sig').read()
         registrados = set(re.findall(r'Add(?:Scoped|Singleton|Transient)<(\w+)>', program))
 
         pedidos = {}
-        for caminho in list(arquivos_cs('Web')):
+        for caminho in list(arquivos_cs('web')):
             if caminho.endswith('Program.cs'):
                 continue
             codigo = limpar(open(caminho, encoding='utf-8-sig').read())
@@ -217,7 +217,7 @@ def main():
     # ---------------------------------------------------------------
     PREFIXOS = r'afr_(?:lbl|btn|txt|cmb|chk|lst|grp|dtp|num|pnl|barra)\w*'
 
-    for caminho in arquivos_cs('CSharp'):
+    for caminho in arquivos_cs('desktop'):
         if '.Designer.cs' in caminho or not os.path.basename(caminho).startswith('Frm'):
             continue
 
@@ -262,8 +262,8 @@ def main():
     # pegaria isso, mas aqui nao ha compilador - e este e justamente o
     # erro que so apareceria com a pagina aberta na apresentacao.
     # ---------------------------------------------------------------
-    pasta_views = 'Web/PlataformaCursosWeb/Views'
-    caminho_vm = 'Web/PlataformaCursosWeb/Models/ViewModels.cs'
+    pasta_views = 'web/PlataformaCursosWeb/Views'
+    caminho_vm = 'web/PlataformaCursosWeb/Models/ViewModels.cs'
 
     if os.path.isdir(pasta_views) and os.path.exists(caminho_vm):
         fonte_vm = limpar(open(caminho_vm, encoding='utf-8-sig').read())
@@ -315,7 +315,7 @@ def main():
     # this.Controls.Add). O que esta dentro de um GroupBox tem
     # coordenada relativa a ele e nao da para comparar na mesma regua.
     # ---------------------------------------------------------------
-    for caminho in arquivos_cs('CSharp'):
+    for caminho in arquivos_cs('desktop'):
         if not caminho.endswith('.Designer.cs'):
             continue
 
@@ -370,14 +370,14 @@ def main():
     # passam a se comportar diferente com o mesmo banco.
     # ---------------------------------------------------------------
     PARES = [
-        ('CSharp/PlataformaCursos/Modelo.cs',
-         'Web/PlataformaCursosWeb/Models/Modelo.cs',
+        ('desktop/PlataformaCursos/Modelo.cs',
+         'web/PlataformaCursosWeb/Models/Modelo.cs',
          r'public (?:class|static class) (\w+)'),
-        ('CSharp/PlataformaCursos/PonteApi.cs',
-         'Web/PlataformaCursosWeb/Services/PonteApi.cs',
+        ('desktop/PlataformaCursos/PonteApi.cs',
+         'web/PlataformaCursosWeb/Services/PonteApi.cs',
          r'public [\w<>\[\], ]+ (\w+)\s*\('),
-        ('CSharp/PlataformaCursos/Servicos.cs',
-         'Web/PlataformaCursosWeb/Services/Servicos.cs',
+        ('desktop/PlataformaCursos/Servicos.cs',
+         'web/PlataformaCursosWeb/Services/Servicos.cs',
          r'public class (\w+)'),
     ]
 
@@ -416,9 +416,9 @@ def main():
     #      lugar do modelo
     # ---------------------------------------------------------------
     for raiz_proj, arquivos_modelo in (
-            ('CSharp', ['CSharp/PlataformaCursos/Modelo.cs']),
-            ('Web', ['Web/PlataformaCursosWeb/Models/Modelo.cs',
-                     'Web/PlataformaCursosWeb/Models/ViewModels.cs'])):
+            ('desktop', ['desktop/PlataformaCursos/Modelo.cs']),
+            ('web', ['web/PlataformaCursosWeb/Models/Modelo.cs',
+                     'web/PlataformaCursosWeb/Models/ViewModels.cs'])):
 
         fontes = {c: limpar(open(c, encoding='utf-8-sig').read())
                   for c in arquivos_cs(raiz_proj)}

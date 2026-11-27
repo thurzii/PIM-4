@@ -5,7 +5,7 @@
 # GitHub mesmo estando na pasta.
 #
 # IMPORTANTE: as regras de projeto C# valem APENAS dentro das pastas
-# CSharp/ e Web/. Isso e proposital. Se elas valessem para o
+# desktop/ e web/. Isso e proposital. Se elas valessem para o
 # repositorio inteiro, um trabalho de outra materia com uma pasta
 # chamada "Debug" ou "bin" simplesmente nao subiria, sem nenhum aviso.
 #
@@ -36,7 +36,7 @@ Desktop.ini
 # anotando como VOCE deixou a tela. Cada integrante gera o seu, muda a
 # cada vez que o programa abre, e conflita com o dos outros.
 #
-# As regras mais abaixo cobriam .vs so dentro de CSharp/ e Web/,
+# As regras mais abaixo cobriam .vs so dentro de desktop/ e web/,
 # e por isso o .vs da RAIZ do repositorio escapou e foi parar no
 # GitHub. Esta regra, sem prefixo, vale em qualquer lugar.
 #
@@ -49,43 +49,43 @@ Desktop.ini
 .vs/
 
 # ---------------------------------------------------------------------
-# CSharp/ - o sistema em Windows Forms
+# desktop/ - o sistema em Windows Forms
 # Estes arquivos sao gerados pelo Visual Studio a cada compilacao e
 # mudam na maquina de cada integrante, entao causariam conflito.
 # ---------------------------------------------------------------------
-CSharp/**/[Bb]in/
-CSharp/**/[Oo]bj/
-CSharp/**/[Dd]ebug/
-CSharp/**/[Rr]elease/
-CSharp/**/x64/
-CSharp/**/x86/
-CSharp/**/.vs/
-CSharp/**/packages/
-CSharp/**/*.user
-CSharp/**/*.suo
-CSharp/**/*.userprefs
-CSharp/**/*.cache
-CSharp/**/*.dll
-CSharp/**/*.exe
-CSharp/**/*.pdb
-CSharp/**/*.nupkg
+desktop/**/[Bb]in/
+desktop/**/[Oo]bj/
+desktop/**/[Dd]ebug/
+desktop/**/[Rr]elease/
+desktop/**/x64/
+desktop/**/x86/
+desktop/**/.vs/
+desktop/**/packages/
+desktop/**/*.user
+desktop/**/*.suo
+desktop/**/*.userprefs
+desktop/**/*.cache
+desktop/**/*.dll
+desktop/**/*.exe
+desktop/**/*.pdb
+desktop/**/*.nupkg
 
 # ---------------------------------------------------------------------
-# Web/ - o mesmo sistema em ASP.NET Core MVC
+# web/ - o mesmo sistema em ASP.NET Core MVC
 # ---------------------------------------------------------------------
-Web/**/[Bb]in/
-Web/**/[Oo]bj/
-Web/**/[Dd]ebug/
-Web/**/[Rr]elease/
-Web/**/.vs/
-Web/**/packages/
-Web/**/*.user
-Web/**/*.suo
-Web/**/*.cache
-Web/**/*.dll
-Web/**/*.exe
-Web/**/*.pdb
-Web/**/*.nupkg
+web/**/[Bb]in/
+web/**/[Oo]bj/
+web/**/[Dd]ebug/
+web/**/[Rr]elease/
+web/**/.vs/
+web/**/packages/
+web/**/*.user
+web/**/*.suo
+web/**/*.cache
+web/**/*.dll
+web/**/*.exe
+web/**/*.pdb
+web/**/*.nupkg
 
 # =====================================================================
 # O QUE NAO ESTA AQUI, DE PROPOSITO

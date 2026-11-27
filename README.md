@@ -2,13 +2,15 @@
 
 Repositório central do grupo para o **Projeto Integrado Multidisciplinar (PIM IV)**. O mesmo sistema de cursos online foi construído em três interfaces — desktop, web e mobile — sobre um único banco de dados, com acesso às funcionalidades de acordo com o perfil de cada usuário.
 
+> **Repositório oficial do grupo:** [guilhermeamst/PIM-IV](https://github.com/guilhermeamst/PIM-IV), com a API, o mobile, o desktop e o web juntos. As pastas `desktop/` e `web/` deste repositório são as mesmas de lá.
+
 ## Organização do repositório
 
 Este repositório tem **dois branches**, com conteúdos diferentes. Eles não compartilham histórico: cada um nasceu separadamente.
 
 | Branch | Conteúdo | Pastas |
 |---|---|---|
-| **`master`** | Sistema desktop e web, em C# | `CSharp/`, `Web/`, `Documentacao/`, `Modelagem/` |
+| **`master`** | Sistema desktop e web, em C# | `desktop/`, `web/`, `Documentacao/`, `Modelagem/` |
 | **`main`** | Aplicativo mobile, API e scripts do banco | `api/`, `mobile/`, `sql/` |
 
 No GitHub, troque de branch no seletor acima da lista de arquivos. Para ver os dois lados ao mesmo tempo no Visual Studio, use **Git → Gerenciar Branches**.
@@ -71,8 +73,8 @@ As três interfaces usam **a mesma API**, unificada pelo Guilherme. O desktop e 
 ## Estrutura do projeto
 
 ```text
-CSharp/          Sistema desktop em Windows Forms e o script do banco
-Web/             O mesmo sistema em ASP.NET Core MVC
+desktop/         Sistema desktop em Windows Forms
+web/             O mesmo sistema em ASP.NET Core MVC
 Ferramentas/     Scripts de verificação do projeto
 Modelagem/       Arquivo do Astah e diagramas exportados
 Documentacao/    Relatórios e documentos das demais matérias
@@ -89,11 +91,11 @@ No Visual Studio: **Git → Clonar Repositório**, cole o endereço e escolha um
 
 ### 2. Rodar o sistema desktop
 
-Abra `CSharp/PlataformaCursos.sln` e pressione **Ctrl+F5**.
+Abra `desktop/PlataformaCursos.sln` e pressione **Ctrl+F5**.
 
 ### 3. Rodar o site
 
-Abra `Web/PlataformaCursosWeb.sln` e pressione **Ctrl+F5**. O navegador abre sozinho em `http://localhost:5000`.
+Abra `web/PlataformaCursosWeb.sln` e pressione **Ctrl+F5**. O navegador abre sozinho em `http://localhost:5000`.
 
 Use **Ctrl+F5** (*Iniciar sem Depuração*), e não F5: com F5 o Visual Studio encerra o servidor assim que a janela do navegador fecha, o que atrapalha abrir uma segunda sessão.
 
@@ -139,7 +141,7 @@ Dois integrantes no mesmo arquivo ao mesmo tempo gera conflito, e alguém perde 
 
 | Integrante | Responsável por | Onde fica |
 |---|---|---|
-| **Arthur Fernandes Reis** | Sistema desktop e web, em C# | `CSharp/`, `Web/` (branch `master`) |
+| **Arthur Fernandes Reis** | Sistema desktop e web, em C# | `desktop/`, `web/` (branch `master`) |
 | **Guilherme Alves Martins dos Santos** | Aplicativo mobile e API | `api/`, `mobile/` (branch `main`) |
 | **Maria Clara Vilas Boas de Souza** | Banco de dados | Azure SQL e os scripts do banco |
 | **Leonardo Alves Fudoli** | Modelagem UML e gestão ágil | `Modelagem/` |

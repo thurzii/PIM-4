@@ -23,7 +23,7 @@ São **14 casos de uso**, cada um com três artefatos: o diagrama de comunicaç�
 
 O arquivo também traz o diagrama de classes e o diagrama de casos de uso.
 
-A tabela que liga cada caso de uso à tela e ao método correspondente no sistema está em [../CSharp/README.md](../CSharp/README.md).
+A tabela que liga cada caso de uso à tela e ao método correspondente no sistema está em [../desktop/README.md](../desktop/README.md).
 
 ## Exportar os diagramas como imagem
 
